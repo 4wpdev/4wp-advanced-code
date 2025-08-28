@@ -15,6 +15,12 @@ if (!defined('ABSPATH')) {
 // Extract attributes
 $content = $attributes['content'] ?? '';
 $language = $attributes['language'] ?? 'auto';
+
+// Detect language if set to auto
+if ($language === 'auto') {
+    $language = \ForWP\Bundle\SeoHandler::detectLanguage($content);
+}
+
 $theme = $attributes['theme'] ?: get_option('4wp_advanced_code_theme', 'light');
 $show_copy = $attributes['showCopy'] ?? true;
 $show_share = $attributes['showShare'] ?? true;
@@ -43,7 +49,7 @@ ob_start();
     
     <div class="code-container">
         <div class="code-header">
-            <span class="code-language"><?php echo esc_html($language === 'auto' ? 'Auto-detect' : $language); ?></span>
+            <span class="code-language"><?php echo esc_html(ucfirst($language)); ?></span>
             <div class="code-actions">
                 <?php if ($show_copy): ?>
                     <button class="code-copy-btn" data-code="<?php echo esc_attr($content); ?>">

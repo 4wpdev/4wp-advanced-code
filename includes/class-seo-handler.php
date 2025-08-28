@@ -67,12 +67,18 @@ class SeoHandler
         $code = $block['innerHTML'] ?? '';
         $code = wp_strip_all_tags($code);
         
+        // Detect language if set to auto
+        $language = $attrs['language'] ?? 'auto';
+        if ($language === 'auto') {
+            $language = self::detectLanguage($code);
+        }
+        
         // Build structured data
         $structuredData = [
             '@type' => 'SoftwareSourceCode',
             'codeRepository' => get_permalink(),
             'codeSampleType' => $attrs['seoType'] ?? 'example',
-            'programmingLanguage' => $attrs['language'] ?? 'text',
+            'programmingLanguage' => $language,
             'text' => $code,
         ];
 
@@ -141,5 +147,74 @@ class SeoHandler
         $hash = substr(md5($code), 0, 8);
 
         return sanitize_title($language . '-' . $hash);
+    }
+
+    /**
+     * Detect programming language from code content
+     */
+    public static function detectLanguage(string $code): string
+    {
+        $code = trim($code);
+        
+        // PHP detection  
+        if (str_starts_with($code, '<?php') || str_contains($code, '<?php') ||
+            str_starts_with($code, '&lt;?php') || str_contains($code, '&lt;?php')) {
+            return 'php';
+        }
+        
+        // HTML detection
+        if (str_contains($code, '<html') || str_contains($code, '<!DOCTYPE') || 
+            (str_contains($code, '<') && str_contains($code, '>'))) {
+            return 'html';
+        }
+        
+        // JavaScript detection (before CSS to avoid conflicts)
+        if (str_contains($code, 'function') || str_contains($code, 'const ') || 
+            str_contains($code, 'let ') || str_contains($code, 'var ') ||
+            str_contains($code, '=>') || str_contains($code, 'console.log') ||
+            str_contains($code, 'console.') || str_contains($code, 'document.')) {
+            return 'javascript';
+        }
+        
+        // CSS detection
+        if (preg_match('/\{[^}]*[a-zA-Z-]+\s*:\s*[^}]+\}/', $code) || 
+            (str_contains($code, '{') && str_contains($code, ':') && str_contains($code, '}') &&
+             !str_contains($code, 'function') && !str_contains($code, 'const') && !str_contains($code, 'let'))) {
+            return 'css';
+        }
+        
+        // Python detection
+        if (str_contains($code, 'def ') || str_contains($code, 'import ') ||
+            str_contains($code, 'print(') || str_contains($code, 'if __name__')) {
+            return 'python';
+        }
+        
+        // JSON detection
+        if ((str_starts_with($code, '{') && str_ends_with($code, '}')) ||
+            (str_starts_with($code, '[') && str_ends_with($code, ']'))) {
+            $decoded = json_decode($code);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                return 'json';
+            }
+        }
+        
+        // SQL detection
+        if (preg_match('/\b(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP)\b/i', $code)) {
+            return 'sql';
+        }
+        
+        // Bash detection
+        if (str_starts_with($code, '#!/bin/bash') || str_starts_with($code, '#!') ||
+            str_contains($code, '$ ') || preg_match('/\b(echo|ls|cd|mkdir|rm)\b/', $code)) {
+            return 'bash';
+        }
+        
+        // SCSS detection
+        if (str_contains($code, '$') && str_contains($code, ':') && str_contains($code, ';')) {
+            return 'scss';
+        }
+        
+        // Default fallback
+        return 'text';
     }
 }

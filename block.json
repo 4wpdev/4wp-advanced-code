@@ -75,6 +75,5 @@
     },
     "editorScript": "file:./build/index.js",
     "editorStyle": "file:./build/style.css",
-    "style": "file:./assets/frontend.css",
-    "render": "file:./includes/render.php"
+    "style": "file:./assets/frontend.css"
 }

@@ -94,7 +94,9 @@ class AdvancedCodePlugin
      */
     public function registerBlock(): void
     {
-        register_block_type(FORWP_ADVANCED_CODE_PATH . 'block.json');
+        register_block_type(FORWP_ADVANCED_CODE_PATH . 'block.json', [
+            'render_callback' => [BlockWrapper::class, 'renderBlock']
+        ]);
     }
 
     /**

@@ -29,6 +29,14 @@ class BlockWrapper
     }
 
     /**
+     * Render block callback for registration
+     */
+    public static function renderBlock(array $attributes, string $content, object $block): string
+    {
+        return self::buildEnhancedBlock($attributes['content'] ?? '', ['attrs' => $attributes]);
+    }
+
+    /**
      * Render enhanced code block
      */
     public static function renderAdvancedCode(string $blockContent, array $block): string
@@ -83,6 +91,12 @@ class BlockWrapper
         
         // Get block settings
         $language = $attrs['language'] ?? 'auto';
+        
+        // Detect language if set to auto
+        if ($language === 'auto') {
+            $language = SeoHandler::detectLanguage($code);
+        }
+        
         $theme = $attrs['theme'] ?? get_option('4wp_advanced_code_theme', 'light');
         $showCopy = $attrs['showCopy'] ?? true;
         $showShare = $attrs['showShare'] ?? true;
@@ -100,7 +114,7 @@ class BlockWrapper
             
             <div class="code-container">
                 <div class="code-header">
-                    <span class="code-language"><?php echo esc_html($language); ?></span>
+                    <span class="code-language"><?php echo esc_html(ucfirst($language)); ?></span>
                     <div class="code-actions">
                         <?php if ($showCopy): ?>
                             <button class="code-copy-btn" data-code="<?php echo esc_attr($code); ?>">
