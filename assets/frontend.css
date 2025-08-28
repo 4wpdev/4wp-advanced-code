@@ -1,0 +1,240 @@
+/**
+ * 4WP Advanced Code - Frontend Styles
+ * 
+ * Enhanced styling for code blocks with themes and interactive elements
+ */
+
+/* Base code block container */
+.wp-block-code-advanced {
+    margin: 1.5em 0;
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+}
+
+/* Code note styling */
+.code-note {
+    padding: 12px 16px;
+    background: #fff;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 14px;
+    color: #495057;
+    font-style: italic;
+}
+
+/* Code container */
+.code-container {
+    position: relative;
+}
+
+/* Code header with language and actions */
+.code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    background: #fff;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 12px;
+}
+
+.code-language {
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.code-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Action buttons */
+.code-copy-btn,
+.code-share-btn {
+    padding: 4px 12px;
+    font-size: 11px;
+    font-weight: 500;
+    border: 1px solid #dee2e6;
+    background: #fff;
+    color: #495057;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.code-copy-btn:hover,
+.code-share-btn:hover {
+    background: #007cba;
+    color: #fff;
+    border-color: #007cba;
+}
+
+.code-copy-btn:disabled,
+.code-share-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Code block styling */
+.wp-block-code-advanced pre {
+    margin: 0;
+    padding: 16px;
+    background: #f8f9fa;
+    overflow-x: auto;
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.wp-block-code-advanced code {
+    background: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+}
+
+/* Theme variations */
+
+/* Light Theme (default) */
+.wp-block-code-advanced[data-theme="light"] {
+    background: #f8f9fa;
+    border-color: #e9ecef;
+}
+
+.wp-block-code-advanced[data-theme="light"] .code-header {
+    background: #fff;
+}
+
+.wp-block-code-advanced[data-theme="light"] pre {
+    background: #f8f9fa;
+    color: #212529;
+}
+
+/* Dark Theme */
+.wp-block-code-advanced[data-theme="dark"] {
+    background: #2d3748;
+    border-color: #4a5568;
+}
+
+.wp-block-code-advanced[data-theme="dark"] .code-note {
+    background: #4a5568;
+    color: #e2e8f0;
+    border-color: #718096;
+}
+
+.wp-block-code-advanced[data-theme="dark"] .code-header {
+    background: #4a5568;
+    border-color: #718096;
+}
+
+.wp-block-code-advanced[data-theme="dark"] .code-language {
+    color: #a0aec0;
+}
+
+.wp-block-code-advanced[data-theme="dark"] .code-copy-btn,
+.wp-block-code-advanced[data-theme="dark"] .code-share-btn {
+    background: #2d3748;
+    color: #e2e8f0;
+    border-color: #718096;
+}
+
+.wp-block-code-advanced[data-theme="dark"] .code-copy-btn:hover,
+.wp-block-code-advanced[data-theme="dark"] .code-share-btn:hover {
+    background: #007cba;
+    border-color: #007cba;
+}
+
+.wp-block-code-advanced[data-theme="dark"] pre {
+    background: #2d3748;
+    color: #e2e8f0;
+}
+
+/* Terminal Theme */
+.wp-block-code-advanced[data-theme="terminal"] {
+    background: #0d1117;
+    border-color: #30363d;
+}
+
+.wp-block-code-advanced[data-theme="terminal"] .code-note {
+    background: #21262d;
+    color: #7c3aed;
+    border-color: #30363d;
+}
+
+.wp-block-code-advanced[data-theme="terminal"] .code-header {
+    background: #21262d;
+    border-color: #30363d;
+}
+
+.wp-block-code-advanced[data-theme="terminal"] .code-language {
+    color: #7c3aed;
+}
+
+.wp-block-code-advanced[data-theme="terminal"] .code-copy-btn,
+.wp-block-code-advanced[data-theme="terminal"] .code-share-btn {
+    background: #0d1117;
+    color: #58a6ff;
+    border-color: #30363d;
+}
+
+.wp-block-code-advanced[data-theme="terminal"] .code-copy-btn:hover,
+.wp-block-code-advanced[data-theme="terminal"] .code-share-btn:hover {
+    background: #58a6ff;
+    color: #0d1117;
+    border-color: #58a6ff;
+}
+
+.wp-block-code-advanced[data-theme="terminal"] pre {
+    background: #0d1117;
+    color: #58a6ff;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .code-header {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+    }
+    
+    .code-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+    
+    .wp-block-code-advanced pre {
+        padding: 12px;
+        font-size: 13px;
+    }
+}
+
+/* Accessibility improvements */
+.code-copy-btn:focus,
+.code-share-btn:focus {
+    outline: 2px solid #007cba;
+    outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+    .code-header {
+        display: none;
+    }
+    
+    .wp-block-code-advanced {
+        border: 1px solid #000;
+        background: #fff !important;
+    }
+    
+    .wp-block-code-advanced pre {
+        background: #fff !important;
+        color: #000 !important;
+    }
+}
