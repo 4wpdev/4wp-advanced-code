@@ -6,47 +6,58 @@
 - [x] Register block wrapper over core/code
 - [x] Add render_callback for frontend PHP control
 - [x] Set up ForWP\Bundle namespace architecture
+- [x] Download and integrate Highlight.js (11.9.0)
+- [x] Create block.json for proper block registration
+- [x] Implement server-side rendering with render.php
 
-## 2. Frontend — UX & UI
+## 2. Frontend — UX & UI ✅
 
-- [ ] **Auto-detect language** (Highlight.js integration)
-- [ ] **Manual language selection** (via inspector controls)
-- [ ] **Copy to clipboard button**
-- [ ] **Share code functionality** (link + social media)
-- [ ] **Additional note field** (above or below block)
-- [ ] **Custom styling themes:**
-  - [ ] Light theme
-  - [ ] Dark theme  
-  - [ ] Terminal-style theme (optional)
+- [x] **Auto-detect language** (Highlight.js integration)
+- [x] **Manual language selection** (via inspector controls)
+- [x] **Copy to clipboard button**
+- [x] **Share code functionality** (link + social media)
+- [x] **Additional note field** (above or below block)
+- [x] **Custom styling themes:**
+  - [x] Light theme
+  - [x] Dark theme  
+  - [x] Terminal-style theme
+- [x] **Frontend JavaScript** (frontend.js with all functionality)
+- [x] **Responsive CSS** (frontend.css with mobile support)
 
-## 3. Global Settings (WordPress Admin)
+## 3. Global Settings (WordPress Admin) ✅
 
-- [ ] **Toggle**: Enable Advanced Features for Code block
-- [ ] **Default language** dropdown
-- [ ] **Default theme** selection (light/dark/terminal)
-- [ ] **Enable SEO snippets** checkbox
+- [x] **Toggle**: Enable Advanced Features for Code block
+- [x] **Default language** dropdown
+- [x] **Default theme** selection (light/dark/terminal)
+- [x] **Enable SEO snippets** checkbox
+- [x] **WordPress Settings API** integration
+- [x] **Settings page** in Admin → Settings → 4WP Advanced Code
 
-## 4. Editor Settings (Per-Block)
+## 4. Editor Settings (Per-Block) ✅
 
-- [ ] **Allow/disallow advanced features** for specific blocks
-- [ ] **Override style** selection (light/dark/terminal)
-- [ ] **Override language** dropdown
-- [ ] **SEO snippet settings:**
-  - [ ] Title field
-  - [ ] Description field
-  - [ ] Type selection (example/full)
+- [x] **Allow/disallow advanced features** for specific blocks
+- [x] **Override style** selection (light/dark/terminal)
+- [x] **Override language** dropdown
+- [x] **SEO snippet settings:**
+  - [x] Title field
+  - [x] Description field
+  - [x] Type selection (example/full)
+- [x] **Inspector Controls** with organized panels
+- [x] **Editor component** (src/index.js) with full UI
+- [x] **Editor styles** (src/editor.scss) with theme preview
 
-## 5. SEO Implementation
+## 5. SEO Implementation ✅
 
-- [ ] **Generate JSON-LD SoftwareSourceCode** for each block
-- [ ] **Inline script approach** (MVP - after each block)
-- [ ] **Advanced option**: Collect all snippets in `<head>`
-- [ ] **JSON-LD fields implementation:**
-  - [ ] `programmingLanguage`
-  - [ ] `codeSampleType` (example/full)
-  - [ ] `text` (code content)
-  - [ ] `description` (from individual settings)
-  - [ ] `author` (global setting)
+- [x] **Generate JSON-LD SoftwareSourceCode** for each block
+- [x] **Advanced approach**: Collect all snippets in `<head>`
+- [x] **JSON-LD fields implementation:**
+  - [x] `programmingLanguage`
+  - [x] `codeSampleType` (example/full)
+  - [x] `text` (code content)
+  - [x] `description` (from individual settings)
+  - [x] `author` (global setting)
+- [x] **SeoHandler class** with complete implementation
+- [x] **Schema.org WebPage** structure with mainEntity
 
 ## 6. Bonus Features (Time Permitting)
 
@@ -72,14 +83,15 @@
 - [ ] **Settings persistence** across page reloads
 - [ ] **Multisite compatibility** (if applicable)
 
-## 9. Documentation
+## 9. Documentation ✅
 
 - [x] Course notes documentation
 - [x] Roadmap planning
 - [x] Development checklist
-- [ ] README.md for GitHub
-- [ ] Code comments in English
-- [ ] Installation instructions
+- [x] README.md for GitHub
+- [x] Code comments in English
+- [x] Plugin metadata headers
+- [x] Complete docs/ folder structure
 
 ## 10. Deployment Preparation
 

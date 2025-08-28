@@ -1,0 +1,80 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "forwp/advanced-code",
+    "title": "Advanced Code",
+    "category": "formatting",
+    "icon": "editor-code",
+    "description": "Enhanced code block with syntax highlighting, copy/share functionality, and SEO optimization.",
+    "keywords": [
+        "code",
+        "syntax",
+        "highlighting",
+        "seo",
+        "developer"
+    ],
+    "version": "1.0.0",
+    "textdomain": "4wp-advanced-code",
+    "attributes": {
+        "content": {
+            "type": "string",
+            "source": "text",
+            "selector": "code",
+            "default": ""
+        },
+        "language": {
+            "type": "string",
+            "default": "auto"
+        },
+        "theme": {
+            "type": "string",
+            "default": ""
+        },
+        "showCopy": {
+            "type": "boolean",
+            "default": true
+        },
+        "showShare": {
+            "type": "boolean",
+            "default": true
+        },
+        "note": {
+            "type": "string",
+            "default": ""
+        },
+        "advancedEnabled": {
+            "type": "boolean",
+            "default": true
+        },
+        "seoEnabled": {
+            "type": "boolean",
+            "default": true
+        },
+        "seoTitle": {
+            "type": "string",
+            "default": ""
+        },
+        "seoDescription": {
+            "type": "string",
+            "default": ""
+        },
+        "seoType": {
+            "type": "string",
+            "default": "example"
+        },
+        "slug": {
+            "type": "string",
+            "default": ""
+        }
+    },
+    "supports": {
+        "html": false,
+        "className": true,
+        "customClassName": true,
+        "anchor": true
+    },
+    "editorScript": "file:./build/index.js",
+    "editorStyle": "file:./build/style.css",
+    "style": "file:./assets/frontend.css",
+    "render": "file:./includes/render.php"
+}

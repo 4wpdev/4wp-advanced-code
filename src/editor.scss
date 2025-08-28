@@ -1,0 +1,131 @@
+/**
+ * 4WP Advanced Code - Editor Styles
+ */
+
+.wp-block-code-advanced {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+
+    .code-note-preview {
+        padding: 8px 12px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        font-size: 14px;
+        font-style: italic;
+        color: #6c757d;
+    }
+
+    .code-header-preview {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 12px;
+        background: #fff;
+        border-bottom: 1px solid #dee2e6;
+        font-size: 12px;
+
+        .language-indicator {
+            font-weight: 600;
+            color: #495057;
+            text-transform: uppercase;
+        }
+
+        .actions-preview {
+            display: flex;
+            gap: 8px;
+
+            .action-indicator {
+                padding: 2px 8px;
+                background: #e9ecef;
+                border-radius: 3px;
+                font-size: 10px;
+                color: #6c757d;
+                text-transform: uppercase;
+            }
+        }
+    }
+
+    .code-input {
+        margin: 0 !important;
+        padding: 12px !important;
+        border: none !important;
+        background: #f8f9fa !important;
+        font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace !important;
+        font-size: 14px !important;
+        line-height: 1.5 !important;
+        min-height: 120px;
+        resize: vertical;
+
+        &:focus {
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        &::placeholder {
+            color: #adb5bd;
+            font-style: italic;
+        }
+    }
+
+    // Theme variations in editor
+    &.theme-dark {
+        .code-note-preview {
+            background: #495057;
+            color: #e9ecef;
+        }
+
+        .code-header-preview {
+            background: #495057;
+            color: #e9ecef;
+
+            .language-indicator {
+                color: #adb5bd;
+            }
+
+            .action-indicator {
+                background: #6c757d;
+                color: #e9ecef;
+            }
+        }
+
+        .code-input {
+            background: #2d3748 !important;
+            color: #e2e8f0 !important;
+
+            &::placeholder {
+                color: #718096;
+            }
+        }
+    }
+
+    &.theme-terminal {
+        .code-note-preview {
+            background: #21262d;
+            color: #7c3aed;
+        }
+
+        .code-header-preview {
+            background: #21262d;
+            color: #58a6ff;
+
+            .language-indicator {
+                color: #7c3aed;
+            }
+
+            .action-indicator {
+                background: #30363d;
+                color: #58a6ff;
+            }
+        }
+
+        .code-input {
+            background: #0d1117 !important;
+            color: #58a6ff !important;
+
+            &::placeholder {
+                color: #6e7681;
+            }
+        }
+    }
+}
