@@ -97,7 +97,7 @@
     padding: 0;
     font-family: inherit;
     font-size: inherit;
-    color: inherit;
+    /* Let Highlight.js handle colors */
 }
 
 /* Theme variations */
@@ -114,7 +114,7 @@
 
 .wp-block-code-advanced[data-theme="light"] pre {
     background: #f8f9fa;
-    color: #212529;
+    /* Let Highlight.js handle text colors */
 }
 
 /* Dark Theme */
@@ -153,7 +153,7 @@
 
 .wp-block-code-advanced[data-theme="dark"] pre {
     background: #2d3748;
-    color: #e2e8f0;
+    /* Let Highlight.js handle text colors */
 }
 
 /* Terminal Theme */
@@ -193,7 +193,7 @@
 
 .wp-block-code-advanced[data-theme="terminal"] pre {
     background: #0d1117;
-    color: #58a6ff;
+    /* Let Highlight.js handle text colors */
 }
 
 /* Responsive design */

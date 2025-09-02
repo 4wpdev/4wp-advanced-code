@@ -109,12 +109,12 @@ class AdvancedCodePlugin
             return;
         }
 
-        // Enqueue Highlight.js
+        // Enqueue Highlight.js from CDN
         wp_enqueue_script(
             '4wp-highlight-js',
-            FORWP_ADVANCED_CODE_URL . 'assets/highlight.min.js',
+            'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js',
             [],
-            '11.9.0',
+            '11.11.1',
             true
         );
 
@@ -145,17 +145,18 @@ class AdvancedCodePlugin
      */
     private function enqueueHighlightTheme(string $theme): void
     {
+        // Use official Highlight.js themes from CDN
         $themeFile = match($theme) {
-            'dark' => 'highlight-dark.min.css',
-            'terminal' => 'highlight-dark.min.css', // Use dark for terminal base
-            default => 'highlight-default.min.css'
+            'dark' => 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css',
+            'terminal' => 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css',
+            default => 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github.min.css'
         };
 
         wp_enqueue_style(
             '4wp-highlight-theme',
-            FORWP_ADVANCED_CODE_URL . 'assets/' . $themeFile,
+            $themeFile,
             ['4wp-advanced-code-frontend'],
-            '11.9.0'
+            '11.11.1'
         );
     }
 
