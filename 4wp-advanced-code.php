@@ -4,7 +4,7 @@
  * Plugin URI: https://github.com/4wpdev/4wp-advanced-code
  * Description: The ultimate SEO & UX-enhanced Code Block for WordPress. Extends core/code blocks with syntax highlighting, copy/share functionality, and JSON-LD structured data.
  * Tags: blocks, code, syntax highlighting, seo, gutenberg, developer, json-ld
- * Version: 1.0.0
+ * Version: 0.1.0
  * Author: 4wp.dev
  * Author URI: https://4wp.dev
  * Text Domain: 4wp-advanced-code
