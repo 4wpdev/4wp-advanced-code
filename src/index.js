@@ -2,6 +2,8 @@
  * 4WP Advanced Code - Block Editor
  */
 
+import './editor.scss';
+
 import { registerBlockType } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
 import { 

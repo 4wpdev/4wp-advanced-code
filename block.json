@@ -13,7 +13,7 @@
         "seo",
         "developer"
     ],
-    "version": "1.0.0",
+    "version": "0.1.0",
     "textdomain": "4wp-advanced-code",
     "attributes": {
         "content": {
@@ -74,6 +74,6 @@
         "anchor": true
     },
     "editorScript": "file:./build/index.js",
-    "editorStyle": "file:./build/style.css",
+    "editorStyle": "file:./build/index.css",
     "style": "file:./assets/frontend.css"
 }

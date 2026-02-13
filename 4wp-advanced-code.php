@@ -27,7 +27,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('FORWP_ADVANCED_CODE_VERSION', '1.0.0');
+define('FORWP_ADVANCED_CODE_VERSION', '0.1.0');
 define('FORWP_ADVANCED_CODE_PATH', plugin_dir_path(__FILE__));
 define('FORWP_ADVANCED_CODE_URL', plugin_dir_url(__FILE__));
 
