@@ -1,0 +1,14 @@
+.git/
+.gitignore
+.distignore
+docs/
+info/
+node_modules/
+.wordpress-org/
+package.json
+package-lock.json
+src/
+README.md
+.editorconfig
+*.md
+!readme.txt

@@ -1,202 +1,101 @@
 <?php
 /**
- * Plugin Name: 4WP Advanced Code
- * Plugin URI: https://github.com/4wpdev/4wp-advanced-code
- * Description: The ultimate SEO & UX-enhanced Code Block for WordPress. Extends core/code blocks with syntax highlighting, copy/share functionality, and JSON-LD structured data.
- * Tags: blocks, code, syntax highlighting, seo, gutenberg, developer, json-ld
- * Version: 0.1.0
- * Author: 4wp.dev
- * Author URI: https://4wp.dev
- * Text Domain: 4wp-advanced-code
- * Domain Path: /languages
- * Requires at least: 6.0
- * Tested up to: 6.4
- * Requires PHP: 8.0
- * License: MIT
- * License URI: https://opensource.org/licenses/MIT
- * Network: false
+ * Plugin Name:       4WP Advanced Code
+ * Plugin URI:        https://4wp.dev/
+ * Description:       Enhanced Code block for Gutenberg: syntax highlighting, copy and share controls, and optional SoftwareSourceCode JSON-LD.
+ * Version:           1.0.1
+ * Requires at least: 6.4
+ * Requires PHP:      7.4
+ * Author:            4wpdev
+ * License:           GPL v2 or later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain:       4wp-advanced-code
  *
- * @package ForWP\Bundle
+ * @package ForWP\AdvancedCode
  */
 
-namespace ForWP\Bundle;
+defined( 'ABSPATH' ) || exit;
 
-// Prevent direct access
-if (!defined('ABSPATH')) {
-    exit;
-}
+define( 'FORWP_ADVANCED_CODE_VERSION', '1.0.1' );
+define( 'FORWP_ADVANCED_CODE_FILE', __FILE__ );
+define( 'FORWP_ADVANCED_CODE_PATH', plugin_dir_path( __FILE__ ) );
+define( 'FORWP_ADVANCED_CODE_URL', plugin_dir_url( __FILE__ ) );
 
-// Define plugin constants
-define('FORWP_ADVANCED_CODE_VERSION', '0.1.0');
-define('FORWP_ADVANCED_CODE_PATH', plugin_dir_path(__FILE__));
-define('FORWP_ADVANCED_CODE_URL', plugin_dir_url(__FILE__));
+require_once FORWP_ADVANCED_CODE_PATH . 'includes/class-block-wrapper.php';
+require_once FORWP_ADVANCED_CODE_PATH . 'includes/class-seo-handler.php';
+require_once FORWP_ADVANCED_CODE_PATH . 'includes/class-settings.php';
+
+ForWP\AdvancedCode\Block_Wrapper::init();
+ForWP\AdvancedCode\Seo_Handler::init();
+ForWP\AdvancedCode\Settings::init();
+
+add_action(
+	'init',
+	static function (): void {
+		register_block_type( FORWP_ADVANCED_CODE_PATH . 'block.json' );
+	}
+);
+
+add_action( 'wp_enqueue_scripts', 'forwp_advanced_code_enqueue_frontend_assets' );
 
 /**
- * Main plugin class
+ * Enqueue frontend assets when the page contains code blocks.
  */
-class AdvancedCodePlugin
-{
-    /**
-     * Plugin instance
-     */
-    private static $instance = null;
+function forwp_advanced_code_enqueue_frontend_assets(): void {
+	if ( ! forwp_advanced_code_page_has_code_blocks() ) {
+		return;
+	}
 
-    /**
-     * Get plugin instance
-     */
-    public static function getInstance(): self
-    {
-        if (self::$instance === null) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
+	wp_enqueue_script(
+		'forwp-advanced-code-highlight',
+		FORWP_ADVANCED_CODE_URL . 'assets/highlight.min.js',
+		array(),
+		'11.11.1',
+		true
+	);
 
-    /**
-     * Constructor
-     */
-    private function __construct()
-    {
-        $this->init();
-    }
+	wp_enqueue_script(
+		'forwp-advanced-code-frontend',
+		FORWP_ADVANCED_CODE_URL . 'assets/frontend.js',
+		array( 'forwp-advanced-code-highlight' ),
+		FORWP_ADVANCED_CODE_VERSION,
+		true
+	);
 
-    /**
-     * Initialize plugin
-     */
-    private function init(): void
-    {
-        // Load dependencies
-        $this->loadDependencies();
+	wp_enqueue_style(
+		'forwp-advanced-code-frontend',
+		FORWP_ADVANCED_CODE_URL . 'assets/frontend.css',
+		array(),
+		FORWP_ADVANCED_CODE_VERSION
+	);
 
-        // Initialize components
-        BlockWrapper::init();
-        SeoHandler::init();
-        Settings::init();
+	$theme = get_option( 'forwp_advanced_code_theme', 'light' );
+	$theme_file = 'highlight-default.min.css';
 
-        // Register hooks
-        add_action('init', [$this, 'registerBlock']);
-        add_action('wp_enqueue_scripts', [$this, 'enqueueFrontendAssets']);
-        add_action('enqueue_block_editor_assets', [$this, 'enqueueEditorAssets']);
-    }
+	if ( in_array( $theme, array( 'dark', 'terminal' ), true ) ) {
+		$theme_file = 'highlight-dark.min.css';
+	}
 
-    /**
-     * Load plugin dependencies
-     */
-    private function loadDependencies(): void
-    {
-        require_once FORWP_ADVANCED_CODE_PATH . 'includes/class-block-wrapper.php';
-        require_once FORWP_ADVANCED_CODE_PATH . 'includes/class-seo-handler.php';
-        require_once FORWP_ADVANCED_CODE_PATH . 'includes/class-settings.php';
-    }
-
-    /**
-     * Register the advanced code block
-     */
-    public function registerBlock(): void
-    {
-        register_block_type(FORWP_ADVANCED_CODE_PATH . 'block.json', [
-            'render_callback' => [BlockWrapper::class, 'renderBlock']
-        ]);
-    }
-
-    /**
-     * Enqueue frontend assets
-     */
-    public function enqueueFrontendAssets(): void
-    {
-        // Only load on pages with code blocks
-        if (!$this->hasAdvancedCodeBlocks()) {
-            return;
-        }
-
-        // Enqueue Highlight.js from CDN
-        wp_enqueue_script(
-            '4wp-highlight-js',
-            'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js',
-            [],
-            '11.11.1',
-            true
-        );
-
-        // Enqueue frontend functionality
-        wp_enqueue_script(
-            '4wp-advanced-code-frontend',
-            FORWP_ADVANCED_CODE_URL . 'assets/frontend.js',
-            ['4wp-highlight-js'],
-            FORWP_ADVANCED_CODE_VERSION,
-            true
-        );
-
-        // Enqueue base styles
-        wp_enqueue_style(
-            '4wp-advanced-code-frontend',
-            FORWP_ADVANCED_CODE_URL . 'assets/frontend.css',
-            [],
-            FORWP_ADVANCED_CODE_VERSION
-        );
-
-        // Enqueue theme-specific Highlight.js styles
-        $theme = get_option('4wp_advanced_code_theme', 'light');
-        $this->enqueueHighlightTheme($theme);
-    }
-
-    /**
-     * Enqueue Highlight.js theme styles
-     */
-    private function enqueueHighlightTheme(string $theme): void
-    {
-        // Use official Highlight.js themes from CDN
-        $themeFile = match($theme) {
-            'dark' => 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css',
-            'terminal' => 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css',
-            default => 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github.min.css'
-        };
-
-        wp_enqueue_style(
-            '4wp-highlight-theme',
-            $themeFile,
-            ['4wp-advanced-code-frontend'],
-            '11.11.1'
-        );
-    }
-
-    /**
-     * Check if current page has advanced code blocks
-     */
-    private function hasAdvancedCodeBlocks(): bool
-    {
-        // Simple check - can be optimized later
-        global $post;
-        
-        if (!$post || !has_blocks($post->post_content)) {
-            return false;
-        }
-
-        // Check if any core/code blocks exist
-        return has_block('core/code', $post);
-    }
-
-    /**
-     * Enqueue editor assets
-     */
-    public function enqueueEditorAssets(): void
-    {
-        wp_enqueue_script(
-            '4wp-advanced-code-editor',
-            FORWP_ADVANCED_CODE_URL . 'build/index.js',
-            ['wp-blocks', 'wp-element', 'wp-editor', 'wp-components'],
-            FORWP_ADVANCED_CODE_VERSION,
-            true
-        );
-
-        wp_enqueue_style(
-            '4wp-advanced-code-editor',
-            FORWP_ADVANCED_CODE_URL . 'build/style.css',
-            [],
-            FORWP_ADVANCED_CODE_VERSION
-        );
-    }
+	wp_enqueue_style(
+		'forwp-advanced-code-highlight-theme',
+		FORWP_ADVANCED_CODE_URL . 'assets/' . $theme_file,
+		array( 'forwp-advanced-code-frontend' ),
+		'11.11.1'
+	);
 }
 
-// Initialize plugin
-AdvancedCodePlugin::getInstance();
+/**
+ * Whether the current singular post contains core/code or forwp/advanced-code blocks.
+ */
+function forwp_advanced_code_page_has_code_blocks(): bool {
+	if ( ! is_singular() ) {
+		return false;
+	}
+
+	$post = get_post();
+	if ( ! $post instanceof WP_Post || ! has_blocks( $post->post_content ) ) {
+		return false;
+	}
+
+	return has_block( 'core/code', $post ) || has_block( 'forwp/advanced-code', $post );
+}

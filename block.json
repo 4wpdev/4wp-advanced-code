@@ -13,7 +13,7 @@
         "seo",
         "developer"
     ],
-    "version": "0.1.0",
+    "version": "1.0.1",
     "textdomain": "4wp-advanced-code",
     "attributes": {
         "content": {
@@ -75,5 +75,6 @@
     },
     "editorScript": "file:./build/index.js",
     "editorStyle": "file:./build/index.css",
-    "style": "file:./assets/frontend.css"
+    "style": "file:./assets/frontend.css",
+    "render": "file:./includes/render.php"
 }

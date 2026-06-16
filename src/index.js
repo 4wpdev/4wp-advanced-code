@@ -20,10 +20,12 @@ import {
 } from '@wordpress/components';
 import { code as icon } from '@wordpress/icons';
 
-// Register the advanced code block
-registerBlockType('forwp/advanced-code', {
+import metadata from '../block.json';
+
+registerBlockType(metadata.name, {
+    ...metadata,
     edit: EditComponent,
-    save: () => null, // Server-side rendering
+    save: () => null,
 });
 
 /**
