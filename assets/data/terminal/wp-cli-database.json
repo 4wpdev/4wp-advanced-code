@@ -1,0 +1,170 @@
+{
+	"version": 1,
+	"profile": "wp-cli",
+	"prompt": "$",
+	"title": "wp db — bash",
+	"categories": [
+		{
+			"id": "db",
+			"name": "Database",
+			"color": "#ce9178",
+			"commands": [
+				{ "cmd": "wp db export", "desc": "Export database" },
+				{ "cmd": "wp db import", "desc": "Import database" },
+				{ "cmd": "wp db create", "desc": "Create database" },
+				{ "cmd": "wp db drop --yes", "desc": "Drop database" },
+				{ "cmd": "wp db reset --yes", "desc": "Reset database" },
+				{ "cmd": "wp db size", "desc": "Show database size" },
+				{ "cmd": "wp db size --tables", "desc": "Size per table" },
+				{ "cmd": "wp db optimize", "desc": "Optimize tables" },
+				{ "cmd": "wp db repair", "desc": "Repair tables" },
+				{ "cmd": "wp db check", "desc": "Check table integrity" },
+				{ "cmd": "wp db tables", "desc": "List all tables" },
+				{ "cmd": "wp db search \"old-domain.com\"", "desc": "Search database" },
+				{ "cmd": "wp search-replace 'http://old.com' 'https://new.com' --dry-run", "desc": "Search & replace (dry run)" },
+				{ "cmd": "wp search-replace 'http://old.com' 'https://new.com'", "desc": "Search & replace" }
+			]
+		}
+	],
+	"commands": [
+		{
+			"command": "wp db export",
+			"slug": "db-export",
+			"output": "Success: Exported to 'wordpress-2026-06-16-abc123.sql'.",
+			"tip": "Use wp db export backup-$(date +%Y%m%d).sql to add a timestamp. Pipe to gzip: wp db export - | gzip > backup.sql.gz"
+		},
+		{
+			"pattern": "wp db export",
+			"slug": "db-export",
+			"output": "Success: Exported to 'wordpress-2026-06-16-abc123.sql'.",
+			"tip": "Use wp db export backup-$(date +%Y%m%d).sql to add a timestamp. Pipe to gzip for compressed backups."
+		},
+		{
+			"command": "wp db import",
+			"slug": "db-import",
+			"output": "Importing from 'backup.sql'...\nSuccess: Imported from 'backup.sql'.",
+			"tip": "Overwrites existing data. Always export current state first. Supports gzipped files directly."
+		},
+		{
+			"pattern": "wp db import",
+			"slug": "db-import",
+			"output": "Importing from '{param}'...\nSuccess: Imported from '{param}'.",
+			"tip": "Overwrites existing data. Always export current state first. Supports gzipped files directly."
+		},
+		{
+			"command": "wp db create",
+			"slug": "db-create",
+			"output": "Success: Database created.",
+			"tip": "Reads credentials from wp-config.php. Database user must have CREATE privileges. Run after wp config create."
+		},
+		{
+			"command": "wp db drop --yes",
+			"slug": "db-drop",
+			"output": "Success: Database dropped.",
+			"tip": "Permanently deletes all data. --yes skips the confirmation prompt. Commonly used when resetting a local environment."
+		},
+		{
+			"pattern": "wp db drop",
+			"slug": "db-drop",
+			"output": "Are you sure you want to drop the database? [y/n] y\nSuccess: Database dropped.",
+			"tip": "Permanently deletes all data. Use --yes to skip confirmation in scripts."
+		},
+		{
+			"command": "wp db reset --yes",
+			"slug": "db-reset",
+			"output": "Success: Database reset.",
+			"tip": "Drops all tables and re-creates an empty database. Often followed by wp core install to set up fresh."
+		},
+		{
+			"pattern": "wp db reset",
+			"slug": "db-reset",
+			"output": "Are you sure you want to reset the database? [y/n] y\nSuccess: Database reset.",
+			"tip": "Drops all tables and re-creates an empty database. Often followed by wp core install to set up fresh."
+		},
+		{
+			"command": "wp db size",
+			"slug": "db-size",
+			"output": "+-----------+\n| Size      |\n+-----------+\n| 23.4 MB   |\n+-----------+",
+			"tip": "Use --tables to break down size per table. Large wp_postmeta or wp_options tables are a common performance indicator."
+		},
+		{
+			"command": "wp db size --tables",
+			"slug": "db-size-tables",
+			"output": "+-------------------+-----------+\n| Name              | Size      |\n+-------------------+-----------+\n| wp_posts          | 12.5 MB   |\n| wp_postmeta       | 8.3 MB    |\n| wp_options        | 2.1 MB    |\n| wp_users          | 0.5 MB    |\n+-------------------+-----------+\n| Total             | 23.4 MB   |\n+-------------------+-----------+",
+			"tip": "Large wp_postmeta often means unused custom field data. Large wp_options often means bloated transients."
+		},
+		{
+			"pattern": "wp db size",
+			"slug": "db-size",
+			"output": "+-----------+\n| Size      |\n+-----------+\n| 23.4 MB   |\n+-----------+",
+			"tip": "Use --tables to break down size per table."
+		},
+		{
+			"command": "wp db optimize",
+			"slug": "db-optimize",
+			"output": "Optimizing: wp_posts... OK\nOptimizing: wp_postmeta... OK\nOptimizing: wp_options... OK\nSuccess: Optimized 12 tables.",
+			"tip": "Defragments tables and reclaims unused space. WooCommerce sites especially benefit from regular optimization."
+		},
+		{
+			"command": "wp db repair",
+			"slug": "db-repair",
+			"output": "Repairing: wp_posts... OK\nRepairing: wp_options... OK\nSuccess: Repaired 12 tables.",
+			"tip": "First step when a site goes down with database errors. Runs REPAIR TABLE on all WordPress tables."
+		},
+		{
+			"command": "wp db check",
+			"slug": "db-check",
+			"output": "Checking: wp_posts... OK\nChecking: wp_postmeta... OK\nChecking: wp_options... OK\nSuccess: Database checked.",
+			"tip": "Runs CHECK TABLE on all WordPress tables. Use proactively during maintenance or when diagnosing intermittent errors."
+		},
+		{
+			"command": "wp db tables",
+			"slug": "db-tables",
+			"output": "wp_commentmeta\nwp_comments\nwp_links\nwp_options\nwp_postmeta\nwp_posts\nwp_term_relationships\nwp_term_taxonomy\nwp_termmeta\nwp_terms\nwp_usermeta\nwp_users",
+			"tip": "Useful for auditing custom tables added by plugins or identifying leftover tables from deleted plugins."
+		},
+		{
+			"pattern": "wp db tables",
+			"slug": "db-tables",
+			"output": "wp_commentmeta\nwp_comments\nwp_options\nwp_postmeta\nwp_posts\nwp_usermeta\nwp_users",
+			"tip": "Use --format=csv to export the list. Use --scope=global on multisite."
+		},
+		{
+			"pattern": "wp db search",
+			"slug": "db-search",
+			"defaultParam": "old-domain.com",
+			"output": "wp_options: option_value\n  - https://old-domain.com (row 1)\nwp_posts: post_content\n  - http://old-domain.com/image.jpg (row 47)\n\nFound 2 matches.",
+			"tip": "Run before wp search-replace to see what will be affected. Use --stats for match count per table."
+		},
+		{
+			"command": "wp search-replace 'http://old.com' 'https://new.com' --dry-run",
+			"slug": "search-replace-dry-run",
+			"output": "Table          Column         Replacements\nwp_options     option_value   12\nwp_posts       post_content   47\nwp_postmeta    meta_value     3\n\nSuccess: 62 replacements to be made (--dry-run).",
+			"tip": "Always run --dry-run first. wp search-replace correctly handles PHP serialized data — raw SQL replace breaks it."
+		},
+		{
+			"pattern": "wp search-replace",
+			"slug": "search-replace",
+			"output": "Table          Column         Replacements\nwp_options     option_value   12\nwp_posts       post_content   47\nwp_postmeta    meta_value     3\n\nSuccess: Made 62 replacements.",
+			"tip": "Add --precise for safer handling of complex serialized structures. Add --dry-run to preview first."
+		},
+		{
+			"command": "wp search-replace 'http://old.com' 'https://new.com'",
+			"slug": "search-replace",
+			"output": "Table          Column         Replacements\nwp_options     option_value   12\nwp_posts       post_content   47\nwp_postmeta    meta_value     3\n\nSuccess: Made 62 replacements.",
+			"tip": "Add --precise for safer handling of complex serialized structures. Always run with --dry-run first."
+		},
+		{
+			"command": "help",
+			"slug": "help",
+			"output": "Database commands give direct control over the WordPress database.\n\nAvailable commands:\n• wp db export                    - Export to SQL file\n• wp db import                    - Import from SQL file\n• wp db create                    - Create database\n• wp db drop                      - Drop database\n• wp db reset                     - Reset all tables\n• wp db size                      - Show database size\n• wp db optimize                  - Optimize tables\n• wp db repair                    - Repair corrupted tables\n• wp db check                     - Check table integrity\n• wp db tables                    - List all tables\n• wp db search <string>           - Search across tables\n• wp search-replace <old> <new>   - Replace strings (handles serialized data)\n\nAnchors:\n→ 4wp.dev/wp-cli/database/#wp-db-export\n→ 4wp.dev/wp-cli/database/#wp-db-import\n→ 4wp.dev/wp-cli/database/#wp-search-replace\n→ 4wp.dev/wp-cli/database/#wp-db-optimize",
+			"tip": "Always run wp db export before any major operation. Always run wp search-replace with --dry-run first."
+		},
+		{
+			"command": "wp help",
+			"slug": "help",
+			"output": "Database commands give direct control over the WordPress database.\n\nAvailable commands:\n• wp db export                    - Export to SQL file\n• wp db import                    - Import from SQL file\n• wp db create                    - Create database\n• wp db drop                      - Drop database\n• wp db reset                     - Reset all tables\n• wp db size                      - Show database size\n• wp db optimize                  - Optimize tables\n• wp db repair                    - Repair corrupted tables\n• wp db check                     - Check table integrity\n• wp db tables                    - List all tables\n• wp db search <string>           - Search across tables\n• wp search-replace <old> <new>   - Replace strings (handles serialized data)\n\nAnchors:\n→ 4wp.dev/wp-cli/database/#wp-db-export\n→ 4wp.dev/wp-cli/database/#wp-db-import\n→ 4wp.dev/wp-cli/database/#wp-search-replace\n→ 4wp.dev/wp-cli/database/#wp-db-optimize",
+			"tip": "Always run wp db export before any major operation. Always run wp search-replace with --dry-run first."
+		}
+	]
+}

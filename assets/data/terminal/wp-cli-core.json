@@ -1,0 +1,141 @@
+{
+	"version": 1,
+	"profile": "wp-cli-core",
+	"prompt": "$",
+	"title": "wp core — bash",
+	"categories": [
+		{
+			"id": "core",
+			"name": "Core",
+			"color": "#569cd6",
+			"commands": [
+				{ "cmd": "wp core download", "desc": "Download WordPress" },
+				{ "cmd": "wp core install", "desc": "Install WordPress" },
+				{ "cmd": "wp core multisite-install", "desc": "Install Multisite" },
+				{ "cmd": "wp core version", "desc": "Show WordPress version" },
+				{ "cmd": "wp core check-update", "desc": "Check for updates" },
+				{ "cmd": "wp core update", "desc": "Update WordPress" },
+				{ "cmd": "wp core update-db", "desc": "Update database schema" },
+				{ "cmd": "wp core is-installed", "desc": "Check if installed" },
+				{ "cmd": "wp core verify-checksums", "desc": "Verify core files" },
+				{ "cmd": "wp core language install uk", "desc": "Install language pack" }
+			]
+		}
+	],
+	"commands": [
+		{
+			"command": "wp core download",
+			"slug": "core-download",
+			"output": "Downloading WordPress 7.0.0 (en_US)...\nmd5 hash verified: 8f9e2a1c4d7b3e6a0c5f1d9e2b4a7c3f\nSuccess: WordPress downloaded.",
+			"tip": "Use on an empty directory before wp config create. Downloads the current stable release (7.0.0)."
+		},
+		{
+			"pattern": "wp core download",
+			"slug": "core-download",
+			"output": "Downloading WordPress 7.0.0 (en_US)...\nmd5 hash verified: 8f9e2a1c4d7b3e6a0c5f1d9e2b4a7c3f\nSuccess: WordPress downloaded.",
+			"tip": "Add --locale=uk for Ukrainian. Pin an older release only when you intentionally need it: --version=6.9.0."
+		},
+		{
+			"command": "wp core install",
+			"slug": "core-install",
+			"output": "Success: WordPress installed successfully.\nURL:      https://mysite.test\nUser:     admin\nPassword: (generated)",
+			"tip": "Requires wp-config.php and a database. Typical flow: wp core download → wp config create → wp db create → wp core install."
+		},
+		{
+			"pattern": "wp core install",
+			"slug": "core-install",
+			"output": "Success: WordPress installed successfully.\nURL:      https://mysite.test\nUser:     admin\nPassword: (generated)",
+			"tip": "Requires wp-config.php and a database. Typical flow: wp core download → wp config create → wp db create → wp core install."
+		},
+		{
+			"command": "wp core multisite-install",
+			"slug": "core-multisite-install",
+			"output": "Installing Multisite network...\nCreating network tables...\nAdding multisite configs to wp-config.php...\nSuccess: Network installed. Don't forget to set up rewrite rules.",
+			"tip": "Use for multisite networks, agency stacks, or SaaS-style WordPress platforms."
+		},
+		{
+			"pattern": "wp core multisite-install",
+			"slug": "core-multisite-install",
+			"output": "Installing Multisite network...\nCreating network tables...\nAdding multisite configs to wp-config.php...\nSuccess: Network installed. Don't forget to set up rewrite rules.",
+			"tip": "Use for multisite networks, agency stacks, or SaaS-style WordPress platforms."
+		},
+		{
+			"command": "wp core version",
+			"slug": "core-version",
+			"output": "7.0.0",
+			"tip": "Site is on stable WordPress 7.0.0. Add --extra to also show PHP and database versions."
+		},
+		{
+			"pattern": "wp core version --extra",
+			"slug": "core-version",
+			"output": "WordPress version: 7.0.0\nPHP version: 8.4.4\nMySQL version: 8.0.36",
+			"tip": "Useful in support tickets and deployment audits."
+		},
+		{
+			"command": "wp core check-update",
+			"slug": "core-check-update",
+			"output": "Success: WordPress is at the latest version.",
+			"tip": "No core update is available because the site already runs stable 7.0.0. After a future security release (e.g. 7.0.1), this command would list it here."
+		},
+		{
+			"command": "wp core update",
+			"slug": "core-update",
+			"output": "Success: WordPress is up to date.",
+			"tip": "Nothing to install on 7.0.0 stable. To move from 6.x to 7.0, check-update must show a major release first — that is a core upgrade, not a routine patch."
+		},
+		{
+			"pattern": "wp core update",
+			"slug": "core-update",
+			"output": "Success: WordPress is up to date.",
+			"tip": "Use --minor only when you want to skip the next major. Always run wp db export before any core upgrade."
+		},
+		{
+			"command": "wp core update-db",
+			"slug": "core-update-db",
+			"output": "Success: WordPress database is already up to date.",
+			"tip": "Run after wp core update when files changed. On multisite use --network to upgrade all sites."
+		},
+		{
+			"pattern": "wp core update-db",
+			"slug": "core-update-db",
+			"output": "Success: WordPress database is already up to date.",
+			"tip": "Run after wp core update when files changed. On multisite use --network to upgrade all sites."
+		},
+		{
+			"command": "wp core is-installed",
+			"slug": "core-is-installed",
+			"output": "Success: WordPress is installed.",
+			"tip": "Exit code 0 means installed. Handy in provisioning scripts: if ! wp core is-installed; then wp core install ...; fi"
+		},
+		{
+			"command": "wp core verify-checksums",
+			"slug": "core-verify-checksums",
+			"output": "Success: WordPress installation verifies against checksums.",
+			"tip": "Detects modified or missing core files during security audits."
+		},
+		{
+			"command": "wp core language install uk",
+			"slug": "core-language-install",
+			"output": "Downloading translation from https://downloads.wordpress.org/translation/core/7.0.0/uk.zip...\nUnpacking the update...\nSuccess: Installed 1 of 1 languages.",
+			"tip": "Translation matches the installed core version (7.0.0). Run wp core language activate uk to switch the site language."
+		},
+		{
+			"pattern": "wp core language",
+			"slug": "core-language",
+			"output": "Success: Language operation completed.",
+			"tip": "Subcommands: install, activate, update, list. Example: wp core language activate uk"
+		},
+		{
+			"command": "help",
+			"slug": "help",
+			"output": "Core commands manage the WordPress installation itself.\n\nSimulated site: WordPress 7.0.0 (stable, latest).\n\nAvailable commands:\n• wp core download          - Download stable 7.0.0 to an empty directory\n• wp core install           - Install WordPress\n• wp core multisite-install - Install Multisite network\n• wp core version           - Show current version (7.0.0)\n• wp core check-update      - Check for available updates\n• wp core update            - Update WordPress core\n• wp core update-db         - Update database schema\n• wp core is-installed      - Check installation status\n• wp core verify-checksums  - Verify file integrity\n• wp core language          - Manage language packs\n\nAnchors:\n→ 4wp.dev/wp-cli/core/#wp-core-download\n→ 4wp.dev/wp-cli/core/#wp-core-install\n→ 4wp.dev/wp-cli/core/#wp-core-update\n→ 4wp.dev/wp-cli/core/#wp-core-verify-checksums",
+			"tip": "This profile models a site already on stable 7.0.0 — not a major upgrade from 6.x."
+		},
+		{
+			"command": "wp help",
+			"slug": "help",
+			"output": "Core commands manage the WordPress installation itself.\n\nSimulated site: WordPress 7.0.0 (stable, latest).\n\nAvailable commands:\n• wp core download          - Download stable 7.0.0 to an empty directory\n• wp core install           - Install WordPress\n• wp core multisite-install - Install Multisite network\n• wp core version           - Show current version (7.0.0)\n• wp core check-update      - Check for available updates\n• wp core update            - Update WordPress core\n• wp core update-db         - Update database schema\n• wp core is-installed      - Check installation status\n• wp core verify-checksums  - Verify file integrity\n• wp core language          - Manage language packs\n\nAnchors:\n→ 4wp.dev/wp-cli/core/#wp-core-download\n→ 4wp.dev/wp-cli/core/#wp-core-install\n→ 4wp.dev/wp-cli/core/#wp-core-update\n→ 4wp.dev/wp-cli/core/#wp-core-verify-checksums",
+			"tip": "This profile models a site already on stable 7.0.0 — not a major upgrade from 6.x."
+		}
+	]
+}

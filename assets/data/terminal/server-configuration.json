@@ -1,0 +1,59 @@
+{
+	"version": 1,
+	"profile": "server-configuration",
+	"title": "server — bash",
+	"prompt": "$",
+	"categories": [
+		{
+			"id": "nginx",
+			"name": "Nginx",
+			"color": "#569cd6",
+			"commands": [
+				{ "cmd": "nginx -t", "desc": "Test configuration" },
+				{ "cmd": "systemctl reload nginx", "desc": "Reload Nginx" }
+			]
+		},
+		{
+			"id": "php",
+			"name": "PHP-FPM",
+			"color": "#4ec9b0",
+			"commands": [
+				{ "cmd": "php -v", "desc": "PHP version" },
+				{ "cmd": "systemctl status php8.2-fpm", "desc": "FPM status" }
+			]
+		}
+	],
+	"commands": [
+		{
+			"command": "help",
+			"slug": "help",
+			"output": "Server configuration commands:\n• nginx -t\n• systemctl reload nginx\n• php -v\n\nEdit this JSON file to add your own server walkthrough.",
+			"tip": "Duplicate this template and customize commands for your lesson."
+		},
+		{
+			"command": "nginx -t",
+			"slug": "nginx-test",
+			"output": "nginx: the configuration file /etc/nginx/nginx.conf syntax is ok\nnginx: configuration file /etc/nginx/nginx.conf test is successful",
+			"tip": "Always test Nginx config before reload."
+		},
+		{
+			"command": "systemctl reload nginx",
+			"slug": "nginx-reload",
+			"output": "Success: reloaded nginx.service",
+			"tip": "reload applies config without dropping connections."
+		},
+		{
+			"command": "php -v",
+			"slug": "php-version",
+			"output": "PHP 8.2.18 (cli) (built: Apr  9 2024 12:01:45) (NTS)",
+			"tip": "Match PHP version with your hosting stack."
+		},
+		{
+			"pattern": "systemctl status",
+			"slug": "systemctl-status",
+			"defaultParam": "php8.2-fpm",
+			"output": "● {param}.service - The PHP FastCGI Process Manager\n   Active: active (running)",
+			"tip": "Check service name for your PHP version."
+		}
+	]
+}

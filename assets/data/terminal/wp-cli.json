@@ -1,0 +1,228 @@
+{
+	"version": 1,
+	"profile": "wp-cli",
+	"prompt": "$",
+	"title": "wp-cli — bash",
+	"categories": [
+		{
+			"id": "core",
+			"name": "Core",
+			"color": "#569cd6",
+			"commands": [
+				{ "cmd": "wp core version", "desc": "Show WordPress version" },
+				{ "cmd": "wp core check-update", "desc": "Check for updates" },
+				{ "cmd": "wp core download", "desc": "Download WordPress" },
+				{ "cmd": "wp core update", "desc": "Update WordPress" }
+			]
+		},
+		{
+			"id": "plugin",
+			"name": "Plugins",
+			"color": "#4ec9b0",
+			"commands": [
+				{ "cmd": "wp plugin list", "desc": "List all plugins" },
+				{ "cmd": "wp plugin activate akismet", "desc": "Activate plugin" },
+				{ "cmd": "wp plugin deactivate akismet", "desc": "Deactivate plugin" },
+				{ "cmd": "wp plugin install wordpress-seo", "desc": "Install plugin" }
+			]
+		},
+		{
+			"id": "theme",
+			"name": "Themes",
+			"color": "#c586c0",
+			"commands": [
+				{ "cmd": "wp theme list", "desc": "List all themes" },
+				{ "cmd": "wp theme activate twentytwentyfive", "desc": "Activate theme" },
+				{ "cmd": "wp theme install storefront", "desc": "Install theme" }
+			]
+		},
+		{
+			"id": "db",
+			"name": "Database",
+			"color": "#ce9178",
+			"commands": [
+				{ "cmd": "wp db export", "desc": "Export database" },
+				{ "cmd": "wp db import", "desc": "Import database" },
+				{ "cmd": "wp db size", "desc": "Show database size" },
+				{ "cmd": "wp db optimize", "desc": "Optimize database" }
+			]
+		},
+		{
+			"id": "user",
+			"name": "Users",
+			"color": "#dcdcaa",
+			"commands": [
+				{ "cmd": "wp user list", "desc": "List all users" },
+				{ "cmd": "wp user create", "desc": "Create new user" },
+				{ "cmd": "wp user delete 3", "desc": "Delete user" }
+			]
+		},
+		{
+			"id": "cache",
+			"name": "Cache",
+			"color": "#4fc1ff",
+			"commands": [
+				{ "cmd": "wp cache flush", "desc": "Flush cache" },
+				{ "cmd": "wp cache type", "desc": "Show cache type" }
+			]
+		}
+	],
+	"commands": [
+		{
+			"command": "wp core version",
+			"slug": "core-version",
+			"output": "7.0.0",
+			"tip": "Site is on stable WordPress 7.0.0. Add --extra to also show PHP and database versions."
+		},
+		{
+			"pattern": "wp core version --extra",
+			"slug": "core-version",
+			"output": "WordPress version: 7.0.0\nPHP version: 8.4.4\nMySQL version: 8.0.36",
+			"tip": "Useful in support tickets and deployment audits."
+		},
+		{
+			"command": "wp core check-update",
+			"slug": "core-check-update",
+			"output": "Success: WordPress is at the latest version.",
+			"tip": "No core update is available because the site already runs stable 7.0.0."
+		},
+		{
+			"command": "wp core download",
+			"slug": "core-download",
+			"output": "Downloading WordPress 7.0.0 (en_US)...\nmd5 hash verified: 8f9e2a1c4d7b3e6a0c5f1d9e2b4a7c3f\nSuccess: WordPress downloaded.",
+			"tip": "Use on an empty directory before wp config create. Downloads the current stable release (7.0.0)."
+		},
+		{
+			"pattern": "wp core download",
+			"slug": "core-download",
+			"output": "Downloading WordPress 7.0.0 (en_US)...\nmd5 hash verified: 8f9e2a1c4d7b3e6a0c5f1d9e2b4a7c3f\nSuccess: WordPress downloaded.",
+			"tip": "Add --locale=uk for Ukrainian. Pin an older release only when you intentionally need it: --version=6.9.0."
+		},
+		{
+			"command": "wp core update",
+			"slug": "core-update",
+			"output": "Success: WordPress is up to date.",
+			"tip": "Nothing to install on 7.0.0 stable. Always run wp db export before any core upgrade."
+		},
+		{
+			"pattern": "wp core update",
+			"slug": "core-update",
+			"output": "Success: WordPress is up to date.",
+			"tip": "Use --minor only when you want to skip the next major release."
+		},
+		{
+			"command": "wp plugin list",
+			"slug": "plugin-list",
+			"output": "+------------------+----------+--------+---------+\n| name             | status   | update | version |\n+------------------+----------+--------+---------+\n| akismet          | inactive | none   | 5.3     |\n| contact-form-7   | active   | none   | 5.8.4   |\n| woocommerce      | active   | none   | 8.5.2   |\n+------------------+----------+--------+---------+",
+			"tip": "Add --status=active to view only active plugins."
+		},
+		{
+			"pattern": "wp plugin activate",
+			"slug": "plugin-activate",
+			"defaultParam": "akismet",
+			"output": "Plugin '{param}' activated.\nSuccess: Activated 1 of 1 plugins.",
+			"tip": "Plugin activation triggers its hooks and initializes functionality."
+		},
+		{
+			"pattern": "wp plugin deactivate",
+			"slug": "plugin-deactivate",
+			"defaultParam": "akismet",
+			"output": "Plugin '{param}' deactivated.\nSuccess: Deactivated 1 of 1 plugins.",
+			"tip": "Deactivation does not delete plugin data, only disables it."
+		},
+		{
+			"pattern": "wp plugin install",
+			"slug": "plugin-install",
+			"defaultParam": "wordpress-seo",
+			"output": "Installing {param} (1.0.0)\nDownloading installation package from WordPress.org...\nUnpacking the package...\nInstalling the plugin...\nPlugin installed successfully.\nSuccess: Installed 1 of 1 plugins.",
+			"tip": "Add --activate flag to install and activate plugin in one command."
+		},
+		{
+			"command": "wp theme list",
+			"slug": "theme-list",
+			"output": "+------------------+----------+--------+---------+\n| name             | status   | update | version |\n+------------------+----------+--------+---------+\n| twentytwentyfive | active   | none   | 1.2     |\n| twentytwentyfour | inactive | none   | 1.3     |\n+------------------+----------+--------+---------+",
+			"tip": "WordPress 7.0 ships with Twenty Twenty-Five as the default theme."
+		},
+		{
+			"pattern": "wp theme activate",
+			"slug": "theme-activate",
+			"defaultParam": "twentytwentyfive",
+			"output": "Success: Switched to '{param}' theme.",
+			"tip": "Theme changes may require re-saving menu and widget settings."
+		},
+		{
+			"pattern": "wp theme install",
+			"slug": "theme-install",
+			"defaultParam": "storefront",
+			"output": "Installing {param} (1.0.0)\nDownloading installation package...\nUnpacking the package...\nInstalling the theme...\nTheme installed successfully.\nSuccess: Installed 1 of 1 themes.",
+			"tip": "Install themes directly from WordPress.org repository using theme slug."
+		},
+		{
+			"command": "wp db export",
+			"slug": "db-export",
+			"output": "Success: Exported to 'wordpress-2026-06-16-abc123.sql'.",
+			"tip": "Always backup database before major changes or updates."
+		},
+		{
+			"command": "wp db size",
+			"slug": "db-size",
+			"output": "+-------------------+-----------+\n| Name              | Size      |\n+-------------------+-----------+\n| wp_posts          | 12.5 MB   |\n| wp_postmeta       | 8.3 MB    |\n| wp_options        | 2.1 MB    |\n| wp_users          | 0.5 MB    |\n+-------------------+-----------+\n| Total             | 23.4 MB   |\n+-------------------+-----------+",
+			"tip": "Large postmeta tables often indicate need for optimization."
+		},
+		{
+			"command": "wp db optimize",
+			"slug": "db-optimize",
+			"output": "Success: Optimized 12 tables.",
+			"tip": "Optimization defragments tables and frees unused space."
+		},
+		{
+			"command": "wp db import",
+			"slug": "db-import",
+			"output": "Importing from 'backup.sql'...\nSuccess: Imported from 'backup.sql'.",
+			"tip": "Always backup current database before importing a new one."
+		},
+		{
+			"command": "wp user list",
+			"slug": "user-list",
+			"output": "+----+------------+----------------+---------------------+\n| ID | user_login | user_email     | user_registered     |\n+----+------------+----------------+---------------------+\n| 1  | admin      | admin@site.com | 2023-01-15 10:30:00 |\n| 2  | editor     | edit@site.com  | 2023-02-20 14:15:00 |\n+----+------------+----------------+---------------------+",
+			"tip": "Add --role=administrator to filter by user role."
+		},
+		{
+			"pattern": "wp user create",
+			"slug": "user-create",
+			"output": "Success: Created user 3.\nPassword: randomPass123",
+			"tip": "Use --role=editor to assign role during user creation."
+		},
+		{
+			"pattern": "wp user delete",
+			"slug": "user-delete",
+			"defaultParam": "3",
+			"output": "Success: Removed user {param}.",
+			"tip": "Use --reassign=<user-id> to reassign posts before deletion."
+		},
+		{
+			"command": "wp cache flush",
+			"slug": "cache-flush",
+			"output": "Success: The cache was flushed.",
+			"tip": "Flush cache after plugin/theme updates or configuration changes."
+		},
+		{
+			"command": "wp cache type",
+			"slug": "cache-type",
+			"output": "Cache Type: Redis\nCache Status: Connected\nUptime: 30 days",
+			"tip": "Object caching significantly improves WordPress performance."
+		},
+		{
+			"command": "help",
+			"slug": "help",
+			"output": "Available command categories (simulated site: WordPress 7.0.0 stable):\n• wp core       - Manage WordPress installation\n• wp plugin     - Manage plugins\n• wp theme      - Manage themes\n• wp db         - Database operations\n• wp user       - User management\n• wp cache      - Object cache\n\nType any command to see simulated output.\nClick a command in the sidebar to run it.",
+			"tip": "Core commands reflect stable 7.0.0 — no fake downgrades or phantom patch releases."
+		},
+		{
+			"command": "wp help",
+			"slug": "help",
+			"output": "Available command categories (simulated site: WordPress 7.0.0 stable):\n• wp core       - Manage WordPress installation\n• wp plugin     - Manage plugins\n• wp theme      - Manage themes\n• wp db         - Database operations\n• wp user       - User management\n• wp cache      - Object cache\n\nType any command to see simulated output.\nClick a command in the sidebar to run it.",
+			"tip": "Core commands reflect stable 7.0.0 — no fake downgrades or phantom patch releases."
+		}
+	]
+}

@@ -48,10 +48,13 @@ class Block_Wrapper {
 	 * @param array<string, mixed> $block Block data.
 	 */
 	private static function is_advanced_enabled( array $block ): bool {
-		$global_enabled = (bool) get_option( 'forwp_advanced_code_enabled', true );
-		$block_enabled  = $block['attrs']['advancedEnabled'] ?? true;
+		if ( ! Modules::is_code_enabled() ) {
+			return false;
+		}
 
-		return $global_enabled && $block_enabled;
+		$block_enabled = $block['attrs']['advancedEnabled'] ?? true;
+
+		return $block_enabled;
 	}
 
 	/**

@@ -10,6 +10,7 @@
     "@wordpress/scripts": "^26.0.0"
   },
   "dependencies": {
+    "@wordpress/api-fetch": "^7.0.0",
     "@wordpress/blocks": "^13.0.0",
     "@wordpress/components": "^28.0.0",
     "@wordpress/element": "^6.0.0",

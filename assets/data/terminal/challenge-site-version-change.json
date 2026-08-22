@@ -1,0 +1,327 @@
+{
+	"version": 1,
+	"type": "challenge",
+	"profile": "challenge-site-version-change",
+	"slug": "site-version-change",
+	"prompt": "user@server:/var/www/html$",
+	"title": "Switch Site Version",
+	"description": "Old site: premium theme + WPBakery + legacy plugins. New version is ready — on a Git branch or uploaded as an archive. Replace the live site without losing the old one.",
+	"instructions": "You are SSH'd into /var/www/html on the production server. Execute steps in order. Every step either protects the old site or prepares the new one.",
+	"difficulty": "intermediate",
+	"estimated_time": "15 min",
+	"related_page": "/wp-cli/practice-cases/site-version-change/",
+	"author_url": "/about/",
+	"image": "/wp-content/uploads/practice-cases/site-version-change.jpg",
+	"steps": [
+		{
+			"id": 1,
+			"hint": "Enable maintenance mode — visitors get a clean notice, not a broken page while you work",
+			"accepted": [
+				"wp maintenance-mode activate",
+				"wp maintenance-mode activate --user=admin"
+			],
+			"output": "Enabling Maintenance mode...\nSuccess: Activated Maintenance mode.",
+			"feedback_wrong": "First step is always protecting visitors. Enable maintenance mode before touching anything.",
+			"feedback_correct": "Visitors see the holding page. You can work safely.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp maintenance-mode activate"
+		},
+		{
+			"id": 2,
+			"hint": "Export the production database — your only rollback if anything goes wrong",
+			"accepted": [
+				"wp db export",
+				"wp db export backup-old.sql",
+				"wp db export ~/backup-old.sql",
+				"wp db export backup-$(date +%Y%m%d).sql",
+				"wp db export ~/backup-$(date +%Y%m%d).sql"
+			],
+			"output": "Success: Exported to 'backup-old.sql'.",
+			"feedback_wrong": "Export the database before touching any files. This file is your restore point if something breaks.",
+			"feedback_correct": "Database backed up. You have a full restore point.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp db export backup-old.sql"
+		},
+		{
+			"id": 3,
+			"hint": "Move the old wp-content to a backup directory — do not overwrite, do not delete. The old site must survive intact",
+			"accepted": [
+				"mv wp-content wp-content-old",
+				"mv wp-content/ wp-content-old",
+				"mv /var/www/html/wp-content /var/www/html/wp-content-old"
+			],
+			"output": "renamed 'wp-content' -> 'wp-content-old'",
+			"feedback_wrong": "Do not extract or pull on top of existing files. Move wp-content aside first — the old site must be recoverable.",
+			"feedback_correct": "Old site preserved in wp-content-old. Now deploy the new version.",
+			"reveal_after_attempts": 2,
+			"command_hint": "mv wp-content wp-content-old"
+		},
+		{
+			"id": 4,
+			"hint": "Deploy the new version — pull from the repository or extract from the uploaded archive",
+			"accepted": [
+				"git pull",
+				"git pull origin main",
+				"git pull origin master",
+				"git fetch && git merge origin/main",
+				"git fetch origin && git reset --hard origin/main",
+				"tar -xzf ~/new-site.tar.gz",
+				"tar -xzf ~/new-site.tar.gz -C /var/www/html",
+				"tar -xf ~/new-site.tar.gz",
+				"unzip ~/new-site.zip",
+				"unzip ~/new-site.zip -d /var/www/html"
+			],
+			"output": "Updating a3f2c1d..e8b5a29\nFast-forward\n wp-content/themes/newsite/style.css     |  12 ++\n wp-content/themes/newsite/functions.php |  489 +++\n wp-content/plugins/acf-blocks/blocks.php|  204 ++\n312 files changed, 9847 insertions(+)",
+			"feedback_wrong": "Old site is safely backed up — now bring in the new files. Use git pull if the server has Git, or tar -xzf for an uploaded archive.",
+			"feedback_correct": "New files deployed. Now fix the database URLs.",
+			"reveal_after_attempts": 2,
+			"command_hint": "git pull origin main"
+		},
+		{
+			"id": 5,
+			"hint": "Database still contains staging URLs — replace the staging domain with the production domain across all tables",
+			"accepted": [
+				"wp search-replace 'staging.mysite.com' 'mysite.com' --all-tables",
+				"wp search-replace 'https://staging.mysite.com' 'https://mysite.com' --all-tables",
+				"wp search-replace 'http://staging.mysite.com' 'https://mysite.com' --all-tables",
+				"wp search-replace staging.mysite.com mysite.com --all-tables"
+			],
+			"output": "+-------------------+----------------+------+---------+\n| Table             | Column         | Rows | Changed |\n+-------------------+----------------+------+---------+\n| wp_options        | option_value   |   14 |       5 |\n| wp_posts          | guid           |  842 |     842 |\n| wp_posts          | post_content   |  842 |     201 |\n| wp_postmeta       | meta_value     | 2847 |      49 |\n+-------------------+----------------+------+---------+\nSuccess: Made 1097 replacements.",
+			"feedback_wrong": "Every internal link and image path still points to the staging domain. Run search-replace before activating the theme.",
+			"feedback_correct": "All URLs updated to the production domain.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp search-replace 'staging.mysite.com' 'mysite.com' --all-tables"
+		},
+		{
+			"id": 6,
+			"hint": "Activate the new theme",
+			"accepted": [
+				"wp theme activate newsite",
+				"wp theme activate newsite-theme",
+				"wp theme activate new-theme"
+			],
+			"output": "Success: Switched to 'newsite' theme.",
+			"feedback_wrong": "The new theme is on disk but still inactive — activate it.",
+			"feedback_correct": "New theme active. WPBakery layout is no longer served.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp theme activate newsite"
+		},
+		{
+			"id": 7,
+			"hint": "Deactivate legacy plugins from the old version — they're still registered as active in the database",
+			"accepted": [
+				"wp plugin deactivate js_composer",
+				"wp plugin deactivate js_composer revslider",
+				"wp plugin deactivate js_composer revslider layerslider-wp"
+			],
+			"output": "Plugin 'js_composer' deactivated.\nSuccess: Deactivated 1 of 1 plugins.",
+			"feedback_wrong": "Old plugins are still registered as active in the database even though their files are gone. Deactivate them.",
+			"feedback_correct": "Legacy plugins off. No dead code loading on the frontend.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp plugin deactivate js_composer"
+		},
+		{
+			"id": 8,
+			"hint": "Update the database schema — new plugins or a newer WordPress version may require it",
+			"accepted": [
+				"wp core update-db",
+				"wp core update-db --network"
+			],
+			"output": "Success: WordPress database upgraded successfully from db version 53496 to 57155.",
+			"feedback_wrong": "After deploying new code, apply any pending database schema changes.",
+			"feedback_correct": "Database schema is current.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp core update-db"
+		},
+		{
+			"id": 9,
+			"hint": "Flush object cache and rebuild rewrite rules — the new theme registers different URLs and post types",
+			"accepted": [
+				"wp cache flush && wp rewrite flush",
+				"wp rewrite flush && wp cache flush",
+				"wp cache flush",
+				"wp rewrite flush"
+			],
+			"output": "Success: The cache was flushed.\nSuccess: Rewrite rules flushed.",
+			"feedback_wrong": "Stale cache and old rewrite rules cause 404s after a theme switch. Clear both.",
+			"feedback_correct": "Cache cleared, routing rebuilt.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp cache flush && wp rewrite flush"
+		},
+		{
+			"id": 10,
+			"hint": "Everything is in place — take the site out of maintenance mode",
+			"accepted": [
+				"wp maintenance-mode deactivate",
+				"wp maintenance-mode deactivate --user=admin"
+			],
+			"output": "Disabling Maintenance mode...\nSuccess: Deactivated Maintenance mode.",
+			"feedback_wrong": "Visitors are still seeing the holding page. Deactivate maintenance mode.",
+			"feedback_correct": "Site is live. New version is in production. Old site preserved in wp-content-old.",
+			"reveal_after_attempts": 1,
+			"command_hint": "wp maintenance-mode deactivate"
+		}
+	],
+	"content": {
+		"goal": "Replace a live WordPress site with a new version — using Git or an uploaded archive — without losing the old site and without exposing visitors to a broken state.",
+		"steps": [
+			{
+				"title": "1. Enable maintenance mode",
+				"paragraphs": [
+					"Before touching any file or database row, put visitors behind a clean holding page. A broken front end during deployment destroys trust — maintenance mode prevents that.",
+					"WP-CLI writes a .maintenance file to the WordPress root. Visitors see a default 'Briefly unavailable for scheduled maintenance' message until you remove it."
+				],
+				"command": "wp maintenance-mode activate"
+			},
+			{
+				"title": "2. Export the database",
+				"paragraphs": [
+					"The database is the only part of the old site that cannot be recovered from files alone. Export it before touching anything — this is your rollback if the import or search-replace goes wrong.",
+					"Use a timestamped filename on production. Move the dump off the server (S3, backup destination) after export — a backup on the same machine is not a real backup."
+				],
+				"command": "wp db export backup-old.sql"
+			},
+			{
+				"title": "3. Move old wp-content aside",
+				"paragraphs": [
+					"Never deploy on top of the existing wp-content. Moving it to wp-content-old keeps the old site fully intact and recoverable at any point during or after the deployment.",
+					"If rollback is needed: mv wp-content wp-content-broken && mv wp-content-old wp-content, then wp db import backup-old.sql. Full restore in two commands."
+				],
+				"command": "mv wp-content wp-content-old"
+			},
+			{
+				"title": "4. Deploy the new version",
+				"paragraphs": [
+					"If the server has Git, pull the new branch directly. If the new version was uploaded as an archive, extract it into the current directory — either way creates a fresh wp-content.",
+					"After this step, the new files are in place and the old site is untouched in wp-content-old."
+				],
+				"command": "git pull origin main"
+			},
+			{
+				"title": "5. Replace staging URLs in the database",
+				"paragraphs": [
+					"The database was built on staging — every option, post GUID, and serialized URL still points to the staging domain. Search-replace updates all tables in one pass.",
+					"Run with --all-tables to catch serialized data in postmeta and options. Always do a --dry-run first on production if you are unsure of the scope."
+				],
+				"command": "wp search-replace 'staging.mysite.com' 'mysite.com' --all-tables"
+			},
+			{
+				"title": "6. Activate the new theme",
+				"paragraphs": [
+					"The new theme files are on disk but WordPress still serves the old one — the active theme is stored in wp_options. Activate it now.",
+					"At this point the old WPBakery shortcodes will stop rendering — that is expected. The new theme handles layout without them."
+				],
+				"command": "wp theme activate newsite"
+			},
+			{
+				"title": "7. Deactivate legacy plugins",
+				"paragraphs": [
+					"Even though the old plugin files are in wp-content-old (not on the active path), WordPress still has them registered as active in the database. They will throw errors on every request.",
+					"Deactivate them explicitly. Then consider wp plugin delete to remove them from the database registry entirely."
+				],
+				"command": "wp plugin deactivate js_composer"
+			},
+			{
+				"title": "8. Update the database schema",
+				"paragraphs": [
+					"New plugins or a newer WordPress core version may include database table changes. This step applies any pending schema migrations against the current database.",
+					"Safe to run even if no schema changes are needed — it checks and exits cleanly."
+				],
+				"command": "wp core update-db"
+			},
+			{
+				"title": "9. Flush cache and rewrite rules",
+				"paragraphs": [
+					"The new theme registers different custom post types and rewrite rules. Old cached rules cause 404s. Flush both in the same step.",
+					"If a page cache plugin is active (WP Rocket, W3TC), purge it too — WP-CLI alone does not reach page-level caches."
+				],
+				"command": "wp cache flush && wp rewrite flush"
+			},
+			{
+				"title": "10. Disable maintenance mode",
+				"paragraphs": [
+					"All changes are in place. Remove the maintenance lock and let traffic in.",
+					"Spot-check the front end, admin, and at least one post before declaring the deployment done."
+				],
+				"command": "wp maintenance-mode deactivate"
+			}
+		],
+		"troubleshooting": [
+			"Deploying on top of the existing wp-content instead of moving it aside — files from the old and new versions mix and the site is unrecoverable without a backup.",
+			"Forgetting <code>wp search-replace</code> — every image, internal link, and serialized URL still points to the staging domain after the switch.",
+			"Not running <code>wp core update-db</code> after deploying new code — schema mismatches cause subtle admin and plugin bugs.",
+			"Leaving maintenance mode on after the deployment — visitors stay locked out indefinitely.",
+			"Running <code>wp rewrite flush</code> without <code>wp cache flush</code> — stale object cache can override fresh rewrite rules.",
+			"Keeping wp-content-old on the server indefinitely — after confirming the new version is stable, schedule its removal to free disk space."
+		],
+		"real_cases": [
+			{"label": "4wp.dev — WP-CLI Core command group", "url": "/wp-cli/core/"},
+			{"label": "4wp.dev — WP-CLI Database command group", "url": "/wp-cli/database/"},
+			{"label": "Official handbook — wp maintenance-mode", "url": "https://developer.wordpress.org/cli/commands/maintenance-mode/"},
+			{"label": "Official handbook — wp search-replace", "url": "https://developer.wordpress.org/cli/commands/search-replace/"},
+			{"label": "Official handbook — wp cache flush", "url": "https://developer.wordpress.org/cli/commands/cache/flush/"}
+		],
+		"faq": [
+			{
+				"question": "Why move wp-content instead of deleting it?",
+				"answer": "Moving preserves the entire old site — themes, plugins, uploads — at a known path. If anything in the new version is broken, you can restore in two commands: <code>mv wp-content wp-content-broken && mv wp-content-old wp-content</code>, then import the database backup. Deleting removes that option."
+			},
+			{
+				"question": "Do I need Git on the server to run this workflow?",
+				"answer": "No. Step 4 accepts both <code>git pull</code> and <code>tar -xzf</code>. If the server has Git, pull the branch. If not, upload a tar archive via SFTP and extract it. All other steps are identical."
+			},
+			{
+				"question": "Why run wp search-replace before activating the new theme?",
+				"answer": "The active theme reads options and postmeta on activation. If those still contain staging URLs, the theme may write them into new records. Fixing URLs first means the theme starts with clean data."
+			},
+			{
+				"question": "What if wp plugin deactivate fails because the plugin files are missing?",
+				"answer": "If the plugin files are in wp-content-old (not on the active path), WP-CLI may error. Use <code>wp plugin deactivate js_composer --skip-plugins</code> to bypass the missing-file check, or update the active_plugins option directly with <code>wp option get active_plugins</code> and <code>wp option update</code>."
+			},
+			{
+				"question": "Is wp cache flush enough after a theme switch?",
+				"answer": "For the WordPress object cache, yes. But it does not clear page-level caches (WP Rocket, W3 Total Cache, Varnish, or CDN edge). After the deployment, also purge those separately — otherwise visitors may see the old theme from cache for hours."
+			},
+			{
+				"question": "When is it safe to delete wp-content-old?",
+				"answer": "After at least one week of stable production traffic. Bugs in a new deployment often surface days later — broken checkout flows, edge-case 404s, plugin conflicts. Keep the backup directory on the server until you are confident, then remove it and move the database dump off-server."
+			}
+		],
+		"taxonomies": {
+			"pc_tool": "wp-cli",
+			"pc_category": "deploy"
+		}
+	},
+	"seo": {
+		"title": "Switch WordPress Site Version with WP-CLI — Practice Case",
+		"description": "Practice replacing a live WordPress site: maintenance mode, database backup, preserve old wp-content, deploy via Git or archive, search-replace URLs, switch theme, flush cache. Interactive terminal.",
+		"keywords": [
+			"wp-cli practice terminal",
+			"wp-cli practice",
+			"wp-cli site migration",
+			"wordpress version switch",
+			"wp maintenance-mode",
+			"wp search-replace",
+			"wp-cli deploy",
+			"wordpress deployment cli",
+			"switch wordpress theme cli",
+			"wp cache flush"
+		]
+	},
+	"completion": {
+		"perfect": [
+			"You backed up both the database AND preserved wp-content files before deploying — that is a full restore point, not a partial one.",
+			"Correct sequence: protect → backup DB → move old → deploy new → fix URLs → activate theme → deactivate legacy plugins → update schema → flush → go live."
+		],
+		"optimize": [
+			"Run wp plugin delete js_composer after deactivating — deactivated plugins still get scanned for vulnerabilities.",
+			"Check wp cron event list after the switch — jobs registered by deactivated plugins can linger in the cron table.",
+			"Move the database backup off the server to S3 or a backup destination — a backup on the same server is not a backup.",
+			"Use wp search-replace --dry-run first on production to preview the scope before committing."
+		],
+		"next": [
+			"Review /wp-cli/practice-cases/ for the rollback challenge.",
+			"Try the maintenance challenge to learn the safe update workflow."
+		]
+	}
+}

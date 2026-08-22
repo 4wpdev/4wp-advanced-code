@@ -35,7 +35,7 @@ class Seo_Handler {
 	 * @param string $content Post content.
 	 */
 	public static function collect_code_blocks( string $content ): string {
-		if ( ! is_singular() || ! get_option( 'forwp_advanced_code_seo_enabled', true ) ) {
+		if ( ! Modules::is_code_enabled() || ! is_singular() || ! get_option( 'forwp_advanced_code_seo_enabled', true ) ) {
 			return $content;
 		}
 

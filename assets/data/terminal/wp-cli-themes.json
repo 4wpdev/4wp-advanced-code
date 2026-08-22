@@ -1,0 +1,123 @@
+{
+	"version": 1,
+	"profile": "wp-cli",
+	"prompt": "$",
+	"title": "wp theme — bash",
+	"categories": [
+		{
+			"id": "theme",
+			"name": "Themes",
+			"color": "#c586c0",
+			"commands": [
+				{ "cmd": "wp theme list", "desc": "List all themes" },
+				{ "cmd": "wp theme install storefront", "desc": "Install theme" },
+				{ "cmd": "wp theme activate twentytwentyfour", "desc": "Activate theme" },
+				{ "cmd": "wp theme update --all", "desc": "Update all themes" },
+				{ "cmd": "wp theme update --all --dry-run", "desc": "Preview updates" },
+				{ "cmd": "wp theme delete storefront", "desc": "Delete theme" },
+				{ "cmd": "wp theme get storefront", "desc": "Get theme details" },
+				{ "cmd": "wp theme is-installed storefront", "desc": "Check if installed" },
+				{ "cmd": "wp theme mod get", "desc": "Get theme mods" },
+				{ "cmd": "wp theme search portfolio", "desc": "Search repository" }
+			]
+		}
+	],
+	"commands": [
+		{
+			"command": "wp theme list",
+			"slug": "theme-list",
+			"output": "+-------------------+----------+--------+---------+\n| name              | status   | update | version |\n+-------------------+----------+--------+---------+\n| twentytwentyfour  | active   | none   | 1.0     |\n| twentytwentythree | inactive | none   | 1.3     |\n| storefront        | inactive | none   | 4.4.0   |\n+-------------------+----------+--------+---------+",
+			"tip": "WordPress always has one active theme. Delete unused inactive themes — they're a security risk if outdated."
+		},
+		{
+			"pattern": "wp theme list",
+			"slug": "theme-list",
+			"output": "+-------------------+----------+--------+---------+\n| name              | status   | update | version |\n+-------------------+----------+--------+---------+\n| twentytwentyfour  | active   | none   | 1.0     |\n| twentytwentythree | inactive | none   | 1.3     |\n| storefront        | inactive | none   | 4.4.0   |\n+-------------------+----------+--------+---------+",
+			"tip": "Use --status=inactive to audit unused themes. Use --format=json to pipe into scripts."
+		},
+		{
+			"pattern": "wp theme install",
+			"slug": "theme-install",
+			"defaultParam": "storefront",
+			"output": "Installing {param} (latest)\nDownloading installation package...\nUnpacking the package...\nInstalling the theme...\nTheme installed successfully.\nSuccess: Installed 1 of 1 themes.",
+			"tip": "Add --activate to install and switch immediately. Pass a ZIP path or URL for premium or custom themes."
+		},
+		{
+			"pattern": "wp theme activate",
+			"slug": "theme-activate",
+			"defaultParam": "twentytwentyfour",
+			"output": "Success: Switched to '{param}' theme.",
+			"tip": "Switching theme may affect menus, widgets, and customizer settings. Always test on staging first."
+		},
+		{
+			"command": "wp theme update --all",
+			"slug": "theme-update-all",
+			"output": "Enabling Maintenance mode...\nUpdating 'storefront' (4.3.0 => 4.4.0)... Success.\nDisabling Maintenance mode...\nSuccess: Updated 1 of 1 themes.",
+			"tip": "Check for child theme dependencies before updating a parent theme. Always run wp db export first."
+		},
+		{
+			"pattern": "wp theme update",
+			"slug": "theme-update",
+			"output": "Enabling Maintenance mode...\nUpdating theme... Success.\nDisabling Maintenance mode...\nSuccess: Updated 1 of 1 themes.",
+			"tip": "Use --dry-run to preview what will be updated. Use --all to update everything at once."
+		},
+		{
+			"command": "wp theme update --all --dry-run",
+			"slug": "theme-update-dry-run",
+			"output": "+------------+---------+---------+\n| name       | current | latest  |\n+------------+---------+---------+\n| storefront | 4.3.0   | 4.4.0   |\n+------------+---------+---------+\n\nSuccess: 1 theme would be updated (--dry-run).",
+			"tip": "Preview what will be updated without making changes. Run before updating on production."
+		},
+		{
+			"pattern": "wp theme delete",
+			"slug": "theme-delete",
+			"defaultParam": "storefront",
+			"output": "Deleted '{param}' theme.\nSuccess: Deleted 1 of 1 themes.",
+			"tip": "Cannot delete the currently active theme. Keep at least one fallback theme — WordPress requires it."
+		},
+		{
+			"pattern": "wp theme get",
+			"slug": "theme-get",
+			"defaultParam": "storefront",
+			"output": "+-----------+--------------------------------------------+\n| Field     | Value                                      |\n+-----------+--------------------------------------------+\n| name      | Storefront                                 |\n| status    | inactive                                   |\n| version   | 4.4.0                                      |\n| author    | WooCommerce                                |\n+-----------+--------------------------------------------+",
+			"tip": "Use --format=json to pipe theme details into scripts that check state before running operations."
+		},
+		{
+			"pattern": "wp theme is-installed",
+			"slug": "theme-is-installed",
+			"defaultParam": "storefront",
+			"output": "Success: Theme '{param}' is installed.",
+			"tip": "Returns exit code 0 if installed, 1 if not. Use in scripts: if ! wp theme is-installed storefront; then wp theme install storefront --activate; fi"
+		},
+		{
+			"command": "wp theme mod get",
+			"slug": "theme-mod-get",
+			"output": "+-------------------+-------------------+\n| Key               | Value             |\n+-------------------+-------------------+\n| header_textcolor  | 333333            |\n| background_color  | ffffff            |\n| custom_logo       | 42                |\n+-------------------+-------------------+",
+			"tip": "Use wp theme mod set <key> <value> to update customizer settings from the terminal — useful in automated workflows."
+		},
+		{
+			"pattern": "wp theme mod",
+			"slug": "theme-mod",
+			"output": "Success: Theme mod operation completed.",
+			"tip": "Subcommands: get, set, remove. Example: wp theme mod set header_textcolor 333333"
+		},
+		{
+			"pattern": "wp theme search",
+			"slug": "theme-search",
+			"defaultParam": "portfolio",
+			"output": "+------------------+------------------+--------+----------+\n| name             | slug             | rating | installs |\n+------------------+------------------+--------+----------+\n| Astra            | astra            | 95     | 2000000+ |\n| OceanWP          | oceanwp          | 90     | 700000+  |\n| Neve             | neve             | 92     | 300000+  |\n+------------------+------------------+--------+----------+",
+			"tip": "Returns slug, rating, and active installs. Use the slug with wp theme install."
+		},
+		{
+			"command": "help",
+			"slug": "help",
+			"output": "Theme commands manage WordPress themes from the terminal.\n\nAvailable commands:\n• wp theme list              - List all installed themes\n• wp theme install <slug>    - Install from repository or ZIP\n• wp theme activate <slug>   - Switch active theme\n• wp theme update --all      - Update all themes\n• wp theme delete <slug>     - Remove theme files\n• wp theme get <slug>        - Get theme details\n• wp theme is-installed      - Check if installed\n• wp theme mod get/set       - Manage customizer settings\n• wp theme search <term>     - Search repository\n\nAnchors:\n→ 4wp.dev/wp-cli/themes/#wp-theme-list\n→ 4wp.dev/wp-cli/themes/#wp-theme-install\n→ 4wp.dev/wp-cli/themes/#wp-theme-activate\n→ 4wp.dev/wp-cli/themes/#wp-theme-mod-get--set--remove",
+			"tip": "Install parent theme first, then child theme. Activate the child — not the parent."
+		},
+		{
+			"command": "wp help",
+			"slug": "help",
+			"output": "Theme commands manage WordPress themes from the terminal.\n\nAvailable commands:\n• wp theme list              - List all installed themes\n• wp theme install <slug>    - Install from repository or ZIP\n• wp theme activate <slug>   - Switch active theme\n• wp theme update --all      - Update all themes\n• wp theme delete <slug>     - Remove theme files\n• wp theme get <slug>        - Get theme details\n• wp theme is-installed      - Check if installed\n• wp theme mod get/set       - Manage customizer settings\n• wp theme search <term>     - Search repository\n\nAnchors:\n→ 4wp.dev/wp-cli/themes/#wp-theme-list\n→ 4wp.dev/wp-cli/themes/#wp-theme-install\n→ 4wp.dev/wp-cli/themes/#wp-theme-activate\n→ 4wp.dev/wp-cli/themes/#wp-theme-mod-get--set--remove",
+			"tip": "Install parent theme first, then child theme. Activate the child — not the parent."
+		}
+	]
+}

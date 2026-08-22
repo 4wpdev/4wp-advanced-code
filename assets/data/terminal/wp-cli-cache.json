@@ -1,0 +1,117 @@
+{
+	"version": 1,
+	"profile": "wp-cli",
+	"prompt": "$",
+	"title": "wp cache — bash",
+	"categories": [
+		{
+			"id": "cache",
+			"name": "Cache",
+			"color": "#4fc1ff",
+			"commands": [
+				{ "cmd": "wp cache flush", "desc": "Flush object cache" },
+				{ "cmd": "wp cache type", "desc": "Show cache backend" },
+				{ "cmd": "wp cache get my_key my_group", "desc": "Get cached value" },
+				{ "cmd": "wp cache set my_key \"value\" my_group 3600", "desc": "Set cached value" },
+				{ "cmd": "wp cache delete my_key my_group", "desc": "Delete cached value" },
+				{ "cmd": "wp transient delete --all", "desc": "Delete all transients" },
+				{ "cmd": "wp transient list", "desc": "List transients" },
+				{ "cmd": "wp transient get my_transient", "desc": "Get transient value" },
+				{ "cmd": "wp transient set my_transient \"value\" 3600", "desc": "Set transient" }
+			]
+		}
+	],
+	"commands": [
+		{
+			"command": "wp cache flush",
+			"slug": "cache-flush",
+			"output": "Success: The cache was flushed.",
+			"tip": "Run after deployments, plugin/theme updates, and database imports. If something looks wrong after an update — this is the first command to try."
+		},
+		{
+			"command": "wp cache type",
+			"slug": "cache-type",
+			"output": "Cache Type: Redis\nCache Status: Connected\nUptime: 30 days",
+			"tip": "If this returns 'Default' when you expect Redis — the drop-in is missing or not connected. Check with wp plugin status redis-cache."
+		},
+		{
+			"pattern": "wp cache get",
+			"slug": "cache-get",
+			"defaultParam": "my_key my_group",
+			"output": "my_value",
+			"tip": "Reads a cached value by key and group. Use when debugging whether a value is being cached correctly."
+		},
+		{
+			"pattern": "wp cache set",
+			"slug": "cache-set",
+			"defaultParam": "my_key \"my_value\" my_group 3600",
+			"output": "Success: Set object 'my_key' in group 'my_group'.",
+			"tip": "Arguments: key, value, group, expiration in seconds. Useful for testing cache behavior during debugging."
+		},
+		{
+			"pattern": "wp cache delete",
+			"slug": "cache-delete",
+			"defaultParam": "my_key my_group",
+			"output": "Success: Object deleted.",
+			"tip": "Removes one cached item by key and group. Use when you need to invalidate a specific value without flushing everything."
+		},
+		{
+			"pattern": "wp cache add",
+			"slug": "cache-add",
+			"defaultParam": "my_key \"my_value\" my_group 3600",
+			"output": "Success: Added object 'my_key' in group 'my_group'.",
+			"tip": "Will not overwrite an existing cached value. Useful for testing cache write behavior."
+		},
+		{
+			"command": "wp transient delete --all",
+			"slug": "transient-delete-all",
+			"output": "Success: 143 transients deleted from the database.",
+			"tip": "Clears all transients from wp_options. Run alongside wp cache flush for a complete cache clear."
+		},
+		{
+			"pattern": "wp transient delete",
+			"slug": "transient-delete",
+			"defaultParam": "my_transient",
+			"output": "Success: Transient deleted.",
+			"tip": "Use --all to delete every transient at once. Useful when debugging stale plugin data."
+		},
+		{
+			"command": "wp transient list",
+			"slug": "transient-list",
+			"output": "+--------------------------------+---------------------+\n| name                           | expiration          |\n+--------------------------------+---------------------+\n| _transient_feed_abc123         | 2026-06-17 10:00:00 |\n| _transient_wc_product_ids      | 2026-06-16 18:30:00 |\n| _transient_timeout_feed_abc123 | 2026-06-17 10:00:00 |\n+--------------------------------+---------------------+",
+			"tip": "Use --format=count to see how many transients are stored. A bloated list means wp_options needs cleanup."
+		},
+		{
+			"pattern": "wp transient list",
+			"slug": "transient-list",
+			"output": "+--------------------------------+---------------------+\n| name                           | expiration          |\n+--------------------------------+---------------------+\n| _transient_feed_abc123         | 2026-06-17 10:00:00 |\n| _transient_wc_product_ids      | 2026-06-16 18:30:00 |\n+--------------------------------+---------------------+",
+			"tip": "Use --format=count to see total count. Use --format=json to pipe into scripts."
+		},
+		{
+			"pattern": "wp transient get",
+			"slug": "transient-get",
+			"defaultParam": "my_transient",
+			"output": "my_cached_value",
+			"tip": "Returns the stored value or an error if expired. Use to debug whether a plugin is caching its data correctly."
+		},
+		{
+			"pattern": "wp transient set",
+			"slug": "transient-set",
+			"defaultParam": "my_transient \"value\" 3600",
+			"output": "Success: Transient added.",
+			"tip": "Third argument is expiration in seconds. 3600 = 1 hour. Use for testing transient behavior in custom plugin code."
+		},
+		{
+			"command": "help",
+			"slug": "help",
+			"output": "Cache commands manage the WordPress object cache and transients.\n\nAvailable commands:\n• wp cache flush                         - Clear entire object cache\n• wp cache type                          - Show active cache backend\n• wp cache get <key> <group>             - Read a cached value\n• wp cache set <key> <value> <group>     - Store a cached value\n• wp cache delete <key> <group>          - Remove a cached value\n• wp cache add <key> <value> <group>     - Add only if key does not exist\n• wp transient delete --all              - Delete all transients\n• wp transient list                      - List stored transients\n• wp transient get <name>                - Get transient value\n• wp transient set <name> <value>        - Set transient with expiry\n\nCache backends: Default (in-memory), Redis, Memcached\n\nAnchors:\n→ 4wp.dev/wp-cli/cache/#wp-cache-flush\n→ 4wp.dev/wp-cli/cache/#wp-cache-type\n→ 4wp.dev/wp-cli/cache/#wp-transient-get--set--delete\n→ 4wp.dev/wp-cli/cache/#notes-on-cache-backends",
+			"tip": "wp cache flush + wp transient delete --all = complete cache clear. Run both after migrations and major updates."
+		},
+		{
+			"command": "wp help",
+			"slug": "help",
+			"output": "Cache commands manage the WordPress object cache and transients.\n\nAvailable commands:\n• wp cache flush                         - Clear entire object cache\n• wp cache type                          - Show active cache backend\n• wp cache get <key> <group>             - Read a cached value\n• wp cache set <key> <value> <group>     - Store a cached value\n• wp cache delete <key> <group>          - Remove a cached value\n• wp cache add <key> <value> <group>     - Add only if key does not exist\n• wp transient delete --all              - Delete all transients\n• wp transient list                      - List stored transients\n• wp transient get <name>                - Get transient value\n• wp transient set <name> <value>        - Set transient with expiry\n\nCache backends: Default (in-memory), Redis, Memcached\n\nAnchors:\n→ 4wp.dev/wp-cli/cache/#wp-cache-flush\n→ 4wp.dev/wp-cli/cache/#wp-cache-type\n→ 4wp.dev/wp-cli/cache/#wp-transient-get--set--delete\n→ 4wp.dev/wp-cli/cache/#notes-on-cache-backends",
+			"tip": "wp cache flush + wp transient delete --all = complete cache clear. Run both after migrations and major updates."
+		}
+	]
+}

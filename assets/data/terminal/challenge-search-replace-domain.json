@@ -1,0 +1,234 @@
+{
+	"version": 1,
+	"type": "challenge",
+	"profile": "challenge-search-replace-domain",
+	"slug": "search-replace-domain",
+	"prompt": "user@server:/var/www/html$",
+	"title": "Search and Replace After Domain Change",
+	"description": "Site files are on the new domain. The database still contains the old domain in every option, URL, and serialized value. Replace it safely.",
+	"instructions": "You are SSH'd into /var/www/html on the new server. The site is reachable but internal links and images point to the old domain. Execute steps in order.",
+	"difficulty": "beginner",
+	"estimated_time": "10 min",
+	"related_page": "/wp-cli/practice-cases/search-replace-domain/",
+	"author_url": "/about/",
+	"image": "/wp-content/uploads/practice-cases/search-replace-domain.jpg",
+	"steps": [
+		{
+			"id": 1,
+			"hint": "Check what domain is currently stored in the siteurl option",
+			"accepted": [
+				"wp option get siteurl",
+				"wp option get home"
+			],
+			"output": "https://oldsite.com",
+			"feedback_wrong": "Before replacing anything, read the current state. Confirm the old domain is still in the database.",
+			"feedback_correct": "Confirmed — the database still uses the old domain. Export before changing anything.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp option get siteurl"
+		},
+		{
+			"id": 2,
+			"hint": "Export the database — this is your rollback point if the replacement produces unexpected results",
+			"accepted": [
+				"wp db export",
+				"wp db export backup-before-replace.sql",
+				"wp db export ~/backup-before-replace.sql",
+				"wp db export backup-$(date +%Y%m%d).sql",
+				"wp db export ~/backup-$(date +%Y%m%d).sql"
+			],
+			"output": "Success: Exported to 'backup-before-replace.sql'.",
+			"feedback_wrong": "Always export the database before a search-replace. If the replacement goes wrong, this file restores the old state.",
+			"feedback_correct": "Backup in place. Now preview the scope before committing.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp db export backup-before-replace.sql"
+		},
+		{
+			"id": 3,
+			"hint": "Preview how many rows will change — without writing anything to the database",
+			"accepted": [
+				"wp search-replace 'oldsite.com' 'newsite.com' --all-tables --dry-run",
+				"wp search-replace oldsite.com newsite.com --all-tables --dry-run",
+				"wp search-replace 'https://oldsite.com' 'https://newsite.com' --all-tables --dry-run",
+				"wp search-replace 'http://oldsite.com' 'https://newsite.com' --all-tables --dry-run"
+			],
+			"output": "+-------------------+----------------+------+---------+\n| Table             | Column         | Rows | Changed |\n+-------------------+----------------+------+---------+\n| wp_options        | option_value   |   22 |       8 |\n| wp_posts          | guid           |  842 |     842 |\n| wp_posts          | post_content   |  842 |     201 |\n| wp_postmeta       | meta_value     | 2847 |      49 |\n+-------------------+----------------+------+---------+\nSuccess: 1100 replacements to be made.",
+			"feedback_wrong": "Use --dry-run to preview the scope before committing. Never run search-replace on production without checking the count first.",
+			"feedback_correct": "1100 rows will change — that matches a typical site. Now run the actual replacement.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp search-replace 'oldsite.com' 'newsite.com' --all-tables --dry-run"
+		},
+		{
+			"id": 4,
+			"hint": "Run the actual search-replace across all database tables",
+			"accepted": [
+				"wp search-replace 'oldsite.com' 'newsite.com' --all-tables",
+				"wp search-replace oldsite.com newsite.com --all-tables",
+				"wp search-replace 'https://oldsite.com' 'https://newsite.com' --all-tables",
+				"wp search-replace 'http://oldsite.com' 'https://newsite.com' --all-tables"
+			],
+			"output": "+-------------------+----------------+------+---------+\n| Table             | Column         | Rows | Changed |\n+-------------------+----------------+------+---------+\n| wp_options        | option_value   |   22 |       8 |\n| wp_posts          | guid           |  842 |     842 |\n| wp_posts          | post_content   |  842 |     201 |\n| wp_postmeta       | meta_value     | 2847 |      49 |\n+-------------------+----------------+------+---------+\nSuccess: Made 1100 replacements.",
+			"feedback_wrong": "The dry run confirmed the scope. Remove --dry-run and run the actual replacement.",
+			"feedback_correct": "1100 replacements made. Verify the siteurl now shows the new domain.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp search-replace 'oldsite.com' 'newsite.com' --all-tables"
+		},
+		{
+			"id": 5,
+			"hint": "Verify the siteurl option now contains the new domain",
+			"accepted": [
+				"wp option get siteurl",
+				"wp option get home"
+			],
+			"output": "https://newsite.com",
+			"feedback_wrong": "After the replacement, read the siteurl option to confirm the change took effect.",
+			"feedback_correct": "siteurl is now the new domain. Clear cache and rebuild routing.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp option get siteurl"
+		},
+		{
+			"id": 6,
+			"hint": "Flush the object cache and rebuild rewrite rules",
+			"accepted": [
+				"wp cache flush && wp rewrite flush",
+				"wp rewrite flush && wp cache flush",
+				"wp cache flush",
+				"wp rewrite flush"
+			],
+			"output": "Success: The cache was flushed.\nSuccess: Rewrite rules flushed.",
+			"feedback_wrong": "Stale cache and old rewrite rules keep serving broken URLs even after the database is updated.",
+			"feedback_correct": "Cache cleared, routing rebuilt. The site is fully on the new domain.",
+			"reveal_after_attempts": 1,
+			"command_hint": "wp cache flush && wp rewrite flush"
+		}
+	],
+	"content": {
+		"goal": "Replace all occurrences of an old domain with a new domain across every WordPress database table — options, posts, postmeta, and serialized data — without breaking the site and with a full rollback point in place.",
+		"steps": [
+			{
+				"title": "1. Check the current siteurl",
+				"paragraphs": [
+					"Before changing anything, read the current state. The siteurl and home options are the canonical domain reference in WordPress — if they still show the old domain, the database has not been updated.",
+					"This step confirms you are targeting the right domain and connected to the right database. Running search-replace against the wrong database is an unrecoverable mistake without a backup."
+				],
+				"command": "wp option get siteurl"
+			},
+			{
+				"title": "2. Export the database",
+				"paragraphs": [
+					"A search-replace touches thousands of rows across multiple tables and modifies serialized PHP data. If the replacement produces unexpected results — wrong row count, encoding issue, wrong domain pattern — you need to be able to restore instantly.",
+					"Export to a timestamped filename. On production, move the dump off-server to a backup destination immediately after export — a backup on the same disk is not a real backup."
+				],
+				"command": "wp db export backup-before-replace.sql"
+			},
+			{
+				"title": "3. Dry run — preview the scope",
+				"paragraphs": [
+					"The --dry-run flag shows exactly how many rows in which tables will be changed, without writing anything to the database. On production this is not optional — run it every time.",
+					"Check the Changed column. If wp_options shows 0 changes, the domain pattern is likely wrong. If the count is unexpectedly high, double-check the search string before proceeding."
+				],
+				"command": "wp search-replace 'oldsite.com' 'newsite.com' --all-tables --dry-run"
+			},
+			{
+				"title": "4. Run the replacement",
+				"paragraphs": [
+					"WP-CLI handles PHP serialized data correctly — it updates the string length in the serialized wrapper alongside the value itself. Manual SQL UPDATE statements break serialization; wp search-replace does not.",
+					"Use --all-tables to reach custom plugin tables, WooCommerce tables, and any table outside the standard WordPress prefix. Without this flag, those tables keep the old domain."
+				],
+				"command": "wp search-replace 'oldsite.com' 'newsite.com' --all-tables"
+			},
+			{
+				"title": "5. Verify the siteurl",
+				"paragraphs": [
+					"Read the siteurl option after the replacement. It should now return the new domain. This is the fastest single-field confirmation that the core option was updated correctly.",
+					"Also check wp option get home — WordPress uses both siteurl (where WordPress is installed) and home (the public-facing URL). Both must point to the new domain."
+				],
+				"command": "wp option get siteurl"
+			},
+			{
+				"title": "6. Flush cache and rewrite rules",
+				"paragraphs": [
+					"The object cache may hold stale values from before the replacement — cached option values, transients, or fragment caches with old domain strings. Flushing forces a fresh read from the updated database.",
+					"Rewrite rules are stored in the database and cached in memory. After a domain change, WordPress must rebuild them against the new home URL so all permalink structures resolve correctly."
+				],
+				"command": "wp cache flush && wp rewrite flush"
+			}
+		],
+		"troubleshooting": [
+			"Running <code>wp search-replace</code> without <code>--dry-run</code> first on production — you have no preview of the scope and no way to catch a wrong domain pattern before it's applied to thousands of rows.",
+			"Not using <code>--all-tables</code> — custom plugin tables, WooCommerce tables, and third-party data keep the old domain even after all standard tables are updated.",
+			"Replacing only the naked domain but missing the protocol — if the database contains both <code>http://</code> and <code>https://</code> variants of the old domain, run two passes or replace the naked domain without protocol to cover both.",
+			"Skipping <code>wp db export</code> before the replacement — if serialized data breaks or the wrong pattern is applied, there is no clean restore point.",
+			"Not flushing cache after the replacement — the object cache returns stale old-domain values for minutes or hours after the database is updated.",
+			"Forgetting to check if <code>WP_HOME</code> or <code>WP_SITEURL</code> constants are defined in wp-config.php — those constants override the database options and will keep serving the old domain regardless of what search-replace did."
+		],
+		"real_cases": [
+			{"label": "4wp.dev — WP-CLI Database command group", "url": "/wp-cli/database/"},
+			{"label": "Official handbook — wp search-replace", "url": "https://developer.wordpress.org/cli/commands/search-replace/"},
+			{"label": "Official handbook — wp option get", "url": "https://developer.wordpress.org/cli/commands/option/get/"},
+			{"label": "Official handbook — wp cache flush", "url": "https://developer.wordpress.org/cli/commands/cache/flush/"},
+			{"label": "Official handbook — wp rewrite flush", "url": "https://developer.wordpress.org/cli/commands/rewrite/flush/"}
+		],
+		"faq": [
+			{
+				"question": "Why use --all-tables instead of the default scope?",
+				"answer": "By default, <code>wp search-replace</code> only searches tables with the WordPress table prefix (wp_posts, wp_options, etc.). WooCommerce, BuddyPress, and many other plugins create tables under different names. <code>--all-tables</code> searches every table in the database, including those outside the standard prefix."
+			},
+			{
+				"question": "Does wp search-replace handle serialized PHP data correctly?",
+				"answer": "Yes. WP-CLI recalculates the byte-length in the serialized string wrapper after replacing the value. Manual SQL UPDATE statements break serialization because the stored length no longer matches the actual string — WordPress throws unserialization errors on every request. Always use WP-CLI for domain replacements, never raw SQL."
+			},
+			{
+				"question": "Should I replace the protocol (http/https) or just the domain?",
+				"answer": "If you are also changing protocol, replace the full URL. Run two passes: first <code>wp search-replace 'http://oldsite.com' 'https://newsite.com' --all-tables</code>, then <code>wp search-replace 'https://oldsite.com' 'https://newsite.com' --all-tables</code>. If the protocol stays the same, replacing the naked domain (without protocol) covers both variants in a single pass."
+			},
+			{
+				"question": "What if the row count in --dry-run is much higher than expected?",
+				"answer": "Stop before running without --dry-run. A high count may mean your search string appears as a substring inside other unrelated values. Use <code>--include-columns=guid,option_value,post_content</code> to restrict which columns are searched, or narrow the pattern to include the protocol."
+			},
+			{
+				"question": "Can I roll back the search-replace if something goes wrong?",
+				"answer": "Yes — if you exported the database in step 2, restore with <code>wp db import backup-before-replace.sql</code>. This returns all tables to the pre-replacement state. This is the only reason the export step is never optional."
+			},
+			{
+				"question": "Do I need to update wp-config.php after a domain change?",
+				"answer": "Only if <code>WP_HOME</code> or <code>WP_SITEURL</code> constants are defined in wp-config.php — those constants override whatever is in the database. If they are set and still point to the old domain, search-replace alone will not fix the site. Update the constants in wp-config.php first, then run search-replace."
+			}
+		],
+		"taxonomies": {
+			"pc_tool": "wp-cli",
+			"pc_category": "database"
+		}
+	},
+	"seo": {
+		"title": "Search and Replace Domain with WP-CLI — Practice Case",
+		"description": "Practice replacing a domain across all WordPress database tables after migration: dry run, search-replace with --all-tables, verify siteurl, flush cache. Interactive WP-CLI terminal.",
+		"keywords": [
+			"wp-cli practice terminal",
+			"wp-cli practice",
+			"wp search-replace domain",
+			"wordpress domain change cli",
+			"wp-cli search replace all tables",
+			"wordpress migration url replace",
+			"wp option siteurl",
+			"wp cache flush",
+			"wordpress serialized data replace",
+			"wp-cli database"
+		]
+	},
+	"completion": {
+		"perfect": [
+			"You ran --dry-run before the actual replacement — the habit that catches wrong domain patterns before they propagate across thousands of rows.",
+			"You exported the database before touching it — a full restore point available throughout the entire process."
+		],
+		"optimize": [
+			"Run wp search-replace with --report-changed-only to get cleaner output showing only tables that actually changed.",
+			"After the replacement, run wp option list --search='*oldsite*' to catch any options the search-replace did not reach.",
+			"Move the database backup off the server immediately after export — S3, remote storage, or any off-disk destination.",
+			"If WP_HOME or WP_SITEURL are defined in wp-config.php, update those constants too — they override the database values."
+		],
+		"next": [
+			"Try the db-export-import challenge to practice the full database backup and restore workflow.",
+			"Try the rollback-deployment challenge to combine file restoration with database import."
+		]
+	}
+}

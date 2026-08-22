@@ -3,7 +3,7 @@
     "apiVersion": 3,
     "name": "forwp/advanced-code",
     "title": "Advanced Code",
-    "category": "formatting",
+    "category": "forwp-advanced-code",
     "icon": "editor-code",
     "description": "Enhanced code block with syntax highlighting, copy/share functionality, and SEO optimization.",
     "keywords": [

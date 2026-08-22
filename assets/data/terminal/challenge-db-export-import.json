@@ -1,0 +1,227 @@
+{
+	"version": 1,
+	"type": "challenge",
+	"profile": "challenge-db-export-import",
+	"slug": "db-export-import",
+	"prompt": "user@server:/var/www/html$",
+	"title": "Database Export and Import",
+	"description": "A clean database backup exists at ~/backup.sql. The current database has been partially corrupted by a failed plugin update. Restore from backup and bring the site back online.",
+	"instructions": "You are SSH'd into /var/www/html on production. The file ~/backup.sql is a clean export from before the corruption. Restore the database and return the site to a working state.",
+	"difficulty": "beginner",
+	"estimated_time": "10 min",
+	"related_page": "/wp-cli/practice-cases/db-export-import/",
+	"author_url": "/about/",
+	"image": "/wp-content/uploads/practice-cases/db-export-import.jpg",
+	"steps": [
+		{
+			"id": 1,
+			"hint": "Enable maintenance mode before touching the database",
+			"accepted": [
+				"wp maintenance-mode activate",
+				"wp maintenance-mode activate --user=admin"
+			],
+			"output": "Enabling Maintenance mode...\nSuccess: Activated Maintenance mode.",
+			"feedback_wrong": "Protect visitors before touching the database. Enable maintenance mode first.",
+			"feedback_correct": "Visitors are behind a holding page. Safe to work on the database.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp maintenance-mode activate"
+		},
+		{
+			"id": 2,
+			"hint": "Export the current database — even a corrupted one is useful evidence for debugging",
+			"accepted": [
+				"wp db export",
+				"wp db export corrupted-state.sql",
+				"wp db export ~/corrupted-state.sql",
+				"wp db export corrupted-$(date +%Y%m%d).sql",
+				"wp db export ~/corrupted-$(date +%Y%m%d).sql"
+			],
+			"output": "Success: Exported to 'corrupted-state.sql'.",
+			"feedback_wrong": "Export the current state before overwriting it — you may need it to understand what the plugin corrupted.",
+			"feedback_correct": "Corrupted state preserved for investigation. Now import the clean backup.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp db export corrupted-state.sql"
+		},
+		{
+			"id": 3,
+			"hint": "Import the clean backup to replace the corrupted database",
+			"accepted": [
+				"wp db import ~/backup.sql",
+				"wp db import backup.sql"
+			],
+			"output": "Importing from 'backup.sql'...\nSuccess: Imported from 'backup.sql'.",
+			"feedback_wrong": "The backup is at ~/backup.sql — import it to replace the corrupted database tables.",
+			"feedback_correct": "Clean database restored. Update the schema before going live.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp db import ~/backup.sql"
+		},
+		{
+			"id": 4,
+			"hint": "Update the database schema — the backup may pre-date a WordPress core or plugin version",
+			"accepted": [
+				"wp core update-db",
+				"wp core update-db --network"
+			],
+			"output": "Success: WordPress database upgraded successfully from db version 53496 to 57155.",
+			"feedback_wrong": "After importing a backup, always run update-db — the schema may be behind the current WordPress or plugin versions.",
+			"feedback_correct": "Schema is current. Clear the object cache before going live.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp core update-db"
+		},
+		{
+			"id": 5,
+			"hint": "Flush the object cache to clear any stale data from the corrupted state",
+			"accepted": [
+				"wp cache flush"
+			],
+			"output": "Success: The cache was flushed.",
+			"feedback_wrong": "Stale cache from the corrupted database can persist after the import. Flush it before removing maintenance mode.",
+			"feedback_correct": "Cache cleared. Take the site out of maintenance mode.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp cache flush"
+		},
+		{
+			"id": 6,
+			"hint": "Take the site out of maintenance mode",
+			"accepted": [
+				"wp maintenance-mode deactivate",
+				"wp maintenance-mode deactivate --user=admin"
+			],
+			"output": "Disabling Maintenance mode...\nSuccess: Deactivated Maintenance mode.",
+			"feedback_wrong": "Visitors are still seeing the holding page. Deactivate maintenance mode.",
+			"feedback_correct": "Site is live. Database restored from backup. Deactivate or remove the plugin that caused the corruption.",
+			"reveal_after_attempts": 1,
+			"command_hint": "wp maintenance-mode deactivate"
+		}
+	],
+	"content": {
+		"goal": "Safely restore a WordPress database from a backup dump — with maintenance mode protecting visitors, the corrupted state preserved for debugging, schema updated to match current code, and cache cleared before going live.",
+		"steps": [
+			{
+				"title": "1. Enable maintenance mode",
+				"paragraphs": [
+					"A database import replaces every table. If a visitor loads a page between the drop and the import, they get a blank page or a PHP fatal. Maintenance mode puts visitors behind a clean holding screen for the duration.",
+					"WordPress writes a .maintenance file to the site root. WP-CLI removes it when you run maintenance-mode deactivate at the end."
+				],
+				"command": "wp maintenance-mode activate"
+			},
+			{
+				"title": "2. Export the corrupted database",
+				"paragraphs": [
+					"Before overwriting the corrupted database, export it. Even broken data is useful — it shows exactly what the plugin changed, which helps identify the root cause and prevents the same corruption from happening again.",
+					"Name it clearly (corrupted-state.sql) so it is not confused with the clean backup. Keep it on the server for at least a few days after the restore."
+				],
+				"command": "wp db export corrupted-state.sql"
+			},
+			{
+				"title": "3. Import the clean backup",
+				"paragraphs": [
+					"wp db import drops the existing database content and imports the dump file. It does not merge — it replaces. This is what makes the export in step 2 important: anything not in the backup is gone after this step.",
+					"The import reads a .sql file and executes it against the current database credentials defined in wp-config.php. No credentials need to be passed on the command line."
+				],
+				"command": "wp db import ~/backup.sql"
+			},
+			{
+				"title": "4. Update the database schema",
+				"paragraphs": [
+					"The backup may have been taken before a WordPress core update or a plugin update that changed the database table structure. Running update-db applies any pending schema migrations against the restored data.",
+					"This step is safe to run even if no schema changes are needed — WP-CLI checks the current version and exits cleanly if the schema is already current."
+				],
+				"command": "wp core update-db"
+			},
+			{
+				"title": "5. Flush the object cache",
+				"paragraphs": [
+					"The object cache (Redis, Memcached, or the built-in transient store) may hold values from the corrupted database state. Even though the database is now clean, the cache can serve corrupted data to PHP until it is cleared.",
+					"This applies to the server-side object cache only. If the site uses a page cache plugin (WP Rocket, W3TC), purge that separately after going live."
+				],
+				"command": "wp cache flush"
+			},
+			{
+				"title": "6. Disable maintenance mode",
+				"paragraphs": [
+					"The database is restored, schema is current, cache is clean. Remove the maintenance lock and let traffic in.",
+					"After going live, deactivate or uninstall the plugin that caused the corruption. Run wp plugin list to see which plugins are active and identify the offender."
+				],
+				"command": "wp maintenance-mode deactivate"
+			}
+		],
+		"troubleshooting": [
+			"Not enabling maintenance mode before the import — visitors who load a page between the database drop and the import completion get a fatal error or blank screen.",
+			"Importing a backup without checking if it is from the correct environment — importing a local development dump into production with localhost URLs breaks the entire site.",
+			"Skipping <code>wp core update-db</code> after import — the restored database schema may be behind the current WordPress or plugin code, causing subtle admin and frontend bugs.",
+			"Not flushing the object cache after import — Redis or Memcached caches survive a database import and can serve stale or corrupted values for minutes after the restore.",
+			"Overwriting the corrupted database state without exporting it first — losing the corrupted data makes it impossible to understand what went wrong and prevent recurrence.",
+			"Forgetting to deactivate maintenance mode after the restore — visitors stay locked out indefinitely."
+		],
+		"real_cases": [
+			{"label": "4wp.dev — WP-CLI Database command group", "url": "/wp-cli/database/"},
+			{"label": "Official handbook — wp db import", "url": "https://developer.wordpress.org/cli/commands/db/import/"},
+			{"label": "Official handbook — wp db export", "url": "https://developer.wordpress.org/cli/commands/db/export/"},
+			{"label": "Official handbook — wp core update-db", "url": "https://developer.wordpress.org/cli/commands/core/update-db/"},
+			{"label": "Official handbook — wp maintenance-mode", "url": "https://developer.wordpress.org/cli/commands/maintenance-mode/"}
+		],
+		"faq": [
+			{
+				"question": "Does wp db import drop the existing database before importing?",
+				"answer": "Yes. WP-CLI runs the .sql file against the current database, which typically begins with DROP TABLE IF EXISTS statements for each table. The result is a clean replacement of the existing data, not a merge. This is why the export step before import is critical — anything not in the backup file will not exist after the import."
+			},
+			{
+				"question": "What credentials does wp db import use?",
+				"answer": "WP-CLI reads the database host, name, user, and password directly from wp-config.php. You do not need to pass credentials on the command line. This is why wp db import backup.sql works without any additional flags."
+			},
+			{
+				"question": "Why run wp core update-db after importing a backup?",
+				"answer": "The backup captures the database state at the time it was made. If WordPress core or any plugin was updated after that backup, the current PHP code expects a newer schema. <code>wp core update-db</code> applies any pending ALTER TABLE and schema changes that the code expects but the restored database does not yet have."
+			},
+			{
+				"question": "What if the import fails halfway through?",
+				"answer": "The database may be in a partially restored state. First, check the error message — it usually points to a specific table or SQL statement. If the import file is valid, try running it again (WP-CLI's import is generally idempotent for standard WordPress dumps because each table is dropped before recreating). If the file itself is corrupted, you need an earlier backup."
+			},
+			{
+				"question": "How do I know the backup I am importing is from the right environment?",
+				"answer": "Run <code>grep 'siteurl' backup.sql | head -5</code> before importing. The siteurl value in the dump shows which site and domain the backup came from. If it shows a localhost or staging URL, you will need to run <code>wp search-replace</code> after the import to fix all domain references."
+			},
+			{
+				"question": "What is the difference between wp db export and a manual mysqldump?",
+				"answer": "<code>wp db export</code> is a thin wrapper around mysqldump that reads credentials from wp-config.php automatically. The resulting .sql file is compatible with <code>wp db import</code> and standard MySQL import tools. The main advantage over raw mysqldump is that you do not need to manually pass host, user, password, and database name on the command line."
+			}
+		],
+		"taxonomies": {
+			"pc_tool": "wp-cli",
+			"pc_category": "database"
+		}
+	},
+	"seo": {
+		"title": "WordPress Database Export and Import with WP-CLI — Practice Case",
+		"description": "Practice restoring a WordPress database from backup: maintenance mode, export corrupted state, import clean backup, update schema, flush cache. Interactive WP-CLI terminal.",
+		"keywords": [
+			"wp-cli practice terminal",
+			"wp-cli practice",
+			"wp db import",
+			"wordpress database restore cli",
+			"wp db export",
+			"wordpress backup restore",
+			"wp core update-db",
+			"wordpress database cli",
+			"wp maintenance-mode",
+			"wp-cli database backup"
+		]
+	},
+	"completion": {
+		"perfect": [
+			"You exported the corrupted state before overwriting it — now you can investigate what the plugin changed instead of losing that information forever.",
+			"You ran wp core update-db after the import — the schema matches the current code, not the state it was in when the backup was made."
+		],
+		"optimize": [
+			"After going live, run wp plugin deactivate <slug> on the offending plugin before any further investigation.",
+			"Run wp db check after import to verify table integrity before deactivating maintenance mode.",
+			"Automate regular exports with a cron job: wp cron event schedule forwp_db_backup now daily — or use a dedicated backup plugin.",
+			"Move backup files off the server immediately after export — on-server backups are lost if the server itself fails."
+		],
+		"next": [
+			"Try the search-replace-domain challenge to fix URLs after importing a database from another environment.",
+			"Try the rollback-deployment challenge to combine database restore with file system restoration."
+		]
+	}
+}

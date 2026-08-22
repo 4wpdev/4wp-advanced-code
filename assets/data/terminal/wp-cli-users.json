@@ -1,0 +1,128 @@
+{
+	"version": 1,
+	"profile": "wp-cli",
+	"prompt": "$",
+	"title": "wp user — bash",
+	"categories": [
+		{
+			"id": "user",
+			"name": "Users",
+			"color": "#dcdcaa",
+			"commands": [
+				{ "cmd": "wp user list", "desc": "List all users" },
+				{ "cmd": "wp user list --role=administrator", "desc": "List admins" },
+				{ "cmd": "wp user create john john@example.com --role=editor", "desc": "Create user" },
+				{ "cmd": "wp user update 1 --role=administrator", "desc": "Update user role" },
+				{ "cmd": "wp user delete 3 --reassign=1", "desc": "Delete user" },
+				{ "cmd": "wp user get john", "desc": "Get user details" },
+				{ "cmd": "wp user add-role 1 editor", "desc": "Add role" },
+				{ "cmd": "wp user set-role 1 subscriber", "desc": "Set role" },
+				{ "cmd": "wp user reset-password john", "desc": "Reset password" },
+				{ "cmd": "wp user import-csv users.csv", "desc": "Import from CSV" },
+				{ "cmd": "wp user meta list 1", "desc": "List user meta" }
+			]
+		}
+	],
+	"commands": [
+		{
+			"command": "wp user list",
+			"slug": "user-list",
+			"output": "+----+------------+--------------------+---------------------+---------------+\n| ID | user_login | user_email         | user_registered     | roles         |\n+----+------------+--------------------+---------------------+---------------+\n| 1  | admin      | admin@site.com     | 2023-01-15 10:30:00 | administrator |\n| 2  | editor     | edit@site.com      | 2023-02-20 14:15:00 | editor        |\n| 3  | author     | author@site.com    | 2024-03-10 09:00:00 | author        |\n+----+------------+--------------------+---------------------+---------------+",
+			"tip": "Use --role to filter by role. Use --fields=ID,user_login,user_email,roles to limit output columns."
+		},
+		{
+			"pattern": "wp user list",
+			"slug": "user-list",
+			"output": "+----+------------+--------------------+---------------------+---------------+\n| ID | user_login | user_email         | user_registered     | roles         |\n+----+------------+--------------------+---------------------+---------------+\n| 1  | admin      | admin@site.com     | 2023-01-15 10:30:00 | administrator |\n| 2  | editor     | edit@site.com      | 2023-02-20 14:15:00 | editor        |\n+----+------------+--------------------+---------------------+---------------+",
+			"tip": "Use --role=administrator to filter admins. Use --format=json to pipe into scripts."
+		},
+		{
+			"pattern": "wp user create",
+			"slug": "user-create",
+			"defaultParam": "john john@example.com --role=editor",
+			"output": "Success: Created user 4.\nPassword: x8#mK2pL9q",
+			"tip": "Use --send-email to notify the user. Use --user_pass to set the password directly — omit it to let WordPress generate one."
+		},
+		{
+			"pattern": "wp user update",
+			"slug": "user-update",
+			"defaultParam": "1 --role=administrator",
+			"output": "Success: Updated user 1.",
+			"tip": "Accepts user ID or login as identifier. Use to promote users, fix emails, or reset passwords without the admin panel."
+		},
+		{
+			"pattern": "wp user delete",
+			"slug": "user-delete",
+			"defaultParam": "3 --reassign=1",
+			"output": "Success: Removed user 3 and reassigned their posts to user 1.",
+			"tip": "Always use --reassign on editorial sites to avoid orphaned content. Accepts multiple user IDs at once."
+		},
+		{
+			"pattern": "wp user get",
+			"slug": "user-get",
+			"defaultParam": "john",
+			"output": "+-----------------+-----------------------------+\n| Field           | Value                       |\n+-----------------+-----------------------------+\n| ID              | 4                           |\n| user_login      | john                        |\n| user_email      | john@example.com            |\n| user_registered | 2026-06-16 10:00:00         |\n| roles           | editor                      |\n+-----------------+-----------------------------+",
+			"tip": "Use --format=json to pipe user details into scripts that check state before performing operations."
+		},
+		{
+			"pattern": "wp user add-role",
+			"slug": "user-add-role",
+			"defaultParam": "1 editor",
+			"output": "Success: Added 'editor' role for user 1.",
+			"tip": "WordPress supports multiple roles per user. This adds a role without replacing existing ones."
+		},
+		{
+			"pattern": "wp user set-role",
+			"slug": "user-set-role",
+			"defaultParam": "1 subscriber",
+			"output": "Success: Set 'subscriber' role for user 1.",
+			"tip": "Replaces all current roles with the specified one. For bulk changes, pipe from wp user list."
+		},
+		{
+			"pattern": "wp user remove-role",
+			"slug": "user-remove-role",
+			"defaultParam": "1 editor",
+			"output": "Success: Removed 'editor' role for user 1.",
+			"tip": "Removes one role without affecting other roles the user may have."
+		},
+		{
+			"pattern": "wp user reset-password",
+			"slug": "user-reset-password",
+			"defaultParam": "john",
+			"output": "Success: Password reset email sent to john@example.com.",
+			"tip": "Triggers the standard WordPress password reset flow. Useful when onboarding users or recovering access."
+		},
+		{
+			"pattern": "wp user import-csv",
+			"slug": "user-import-csv",
+			"defaultParam": "users.csv",
+			"output": "Creating users...\nCreated user 5 (jane)\nCreated user 6 (mark)\nSuccess: 2 users imported.",
+			"tip": "CSV must include user_login and user_email columns. Add --send-email to notify all imported users."
+		},
+		{
+			"pattern": "wp user meta",
+			"slug": "user-meta",
+			"defaultParam": "list 1",
+			"output": "+----+---------+---------------------+---------------+\n| ID | user_id | meta_key            | meta_value    |\n+----+---------+---------------------+---------------+\n| 1  | 1       | _capabilities       | administrator |\n| 2  | 1       | locale              | en_US         |\n+----+---------+---------------------+---------------+",
+			"tip": "Subcommands: get, set, delete, list. Use wp user meta set to update plugin-stored settings during migrations."
+		},
+		{
+			"command": "wp user meta list 1",
+			"slug": "user-meta-list",
+			"output": "+----+---------+---------------------+---------------+\n| ID | user_id | meta_key            | meta_value    |\n+----+---------+---------------------+---------------+\n| 1  | 1       | _capabilities       | administrator |\n| 2  | 1       | session_tokens      | ...           |\n| 3  | 1       | locale              | en_US         |\n+----+---------+---------------------+---------------+",
+			"tip": "Use wp user meta get <id> <key> to read a specific value. Use wp user meta set to update plugin-stored user settings."
+		},
+		{
+			"command": "help",
+			"slug": "help",
+			"output": "User commands manage WordPress users from the terminal.\n\nAvailable commands:\n• wp user list                          - List all users\n• wp user create <login> <email>        - Create a user\n• wp user update <id>                   - Update user data or role\n• wp user delete <id>                   - Delete a user\n• wp user get <id>                      - Get user details\n• wp user add-role <id> <role>          - Add a role\n• wp user set-role <id> <role>          - Set role (replaces existing)\n• wp user remove-role <id> <role>       - Remove a role\n• wp user reset-password <login>        - Send password reset email\n• wp user import-csv <file>             - Bulk import from CSV\n• wp user meta get/set/delete           - Manage user meta\n\nAnchors:\n→ 4wp.dev/wp-cli/users/#wp-user-list\n→ 4wp.dev/wp-cli/users/#wp-user-create\n→ 4wp.dev/wp-cli/users/#wp-user-import-csv\n→ 4wp.dev/wp-cli/users/#wp-user-meta-get--set--delete",
+			"tip": "Use wp user list --role=administrator to audit admin accounts before a security review."
+		},
+		{
+			"command": "wp help",
+			"slug": "help",
+			"output": "User commands manage WordPress users from the terminal.\n\nAvailable commands:\n• wp user list                          - List all users\n• wp user create <login> <email>        - Create a user\n• wp user update <id>                   - Update user data or role\n• wp user delete <id>                   - Delete a user\n• wp user get <id>                      - Get user details\n• wp user add-role <id> <role>          - Add a role\n• wp user set-role <id> <role>          - Set role (replaces existing)\n• wp user remove-role <id> <role>       - Remove a role\n• wp user reset-password <login>        - Send password reset email\n• wp user import-csv <file>             - Bulk import from CSV\n• wp user meta get/set/delete           - Manage user meta\n\nAnchors:\n→ 4wp.dev/wp-cli/users/#wp-user-list\n→ 4wp.dev/wp-cli/users/#wp-user-create\n→ 4wp.dev/wp-cli/users/#wp-user-import-csv\n→ 4wp.dev/wp-cli/users/#wp-user-meta-get--set--delete",
+			"tip": "Use wp user list --role=administrator to audit admin accounts before a security review."
+		}
+	]
+}

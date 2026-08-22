@@ -1,0 +1,47 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "forwp-advanced-code/terminal",
+	"version": "1.0.0",
+	"title": "Terminal",
+	"category": "forwp-advanced-code",
+	"icon": {
+		"src": "<svg viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M19.5 4.5h-15A1.5 1.5 0 003 6v12a1.5 1.5 0 001.5 1.5h15a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5zM4.5 7.5 8.25 11 4.5 14.5V7.5zm3 7.5h10.5v-1.5H7.5V15z\"/></svg>"
+	},
+	"description": "Interactive CLI terminal simulator with command categories sidebar.",
+	"keywords": [ "terminal", "cli", "wp-cli", "bash", "education" ],
+	"example": {
+		"viewportWidth": 900
+	},
+	"supports": {
+		"html": false,
+		"align": [ "wide", "full" ]
+	},
+	"attributes": {
+		"profile": {
+			"type": "string",
+			"default": "wp-cli"
+		},
+		"welcomeMessage": {
+			"type": "string",
+			"default": "WP-CLI Interactive Terminal — type \"help\" for available commands"
+		},
+		"enableFullView": {
+			"type": "boolean",
+			"default": true
+		},
+		"enableSticky": {
+			"type": "boolean",
+			"default": true
+		},
+		"stickySide": {
+			"type": "string",
+			"default": "right"
+		}
+	},
+	"textdomain": "4wp-advanced-code",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"viewScript": "file:./view.js"
+}

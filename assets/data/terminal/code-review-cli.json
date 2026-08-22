@@ -1,0 +1,66 @@
+{
+	"version": 1,
+	"profile": "code-review-cli",
+	"title": "code-review — bash",
+	"prompt": "$",
+	"categories": [
+		{
+			"id": "git",
+			"name": "Git",
+			"color": "#c586c0",
+			"commands": [
+				{ "cmd": "git status", "desc": "Working tree status" },
+				{ "cmd": "git diff", "desc": "Unstaged changes" },
+				{ "cmd": "git log --oneline -5", "desc": "Recent commits" }
+			]
+		},
+		{
+			"id": "review",
+			"name": "Review",
+			"color": "#dcdcaa",
+			"commands": [
+				{ "cmd": "phpcs --standard=WordPress file.php", "desc": "Run PHPCS" },
+				{ "cmd": "phpunit", "desc": "Run tests" }
+			]
+		}
+	],
+	"commands": [
+		{
+			"command": "help",
+			"slug": "help",
+			"output": "Code review CLI training:\n• git status / git diff\n• phpcs --standard=WordPress\n• phpunit\n\nAdd commands matching your lesson scenario.",
+			"tip": "Use this profile for interactive code-review lessons."
+		},
+		{
+			"command": "git status",
+			"slug": "git-status",
+			"output": "On branch feature/login-refactor\nChanges not staged for commit:\n  modified:   includes/class-auth.php",
+			"tip": "Start every review with git status."
+		},
+		{
+			"command": "git diff",
+			"slug": "git-diff",
+			"output": "diff --git a/includes/class-auth.php b/includes/class-auth.php\n--- a/includes/class-auth.php\n+++ b/includes/class-auth.php\n@@ -42,7 +42,7 @@ class Auth {",
+			"tip": "Review diff line by line before approving."
+		},
+		{
+			"command": "git log --oneline -5",
+			"slug": "git-log",
+			"output": "a1b2c3d Refactor login nonce check\n9f8e7d6 Add auth unit tests\n5c4b3a2 Fix session cookie flags",
+			"tip": "Context from recent commits helps reviewers."
+		},
+		{
+			"pattern": "phpcs --standard=WordPress",
+			"slug": "phpcs",
+			"defaultParam": "file.php",
+			"output": "PHPCS scan complete for {param}\nFOUND 0 ERRORS AND 1 WARNING",
+			"tip": "Fix WPCS issues before merge."
+		},
+		{
+			"command": "phpunit",
+			"slug": "phpunit",
+			"output": "PHPUnit 9.6.0\n....                                                            4 / 4 (100%)\nOK (4 tests, 12 assertions)",
+			"tip": "Green tests are part of code review sign-off."
+		}
+	]
+}

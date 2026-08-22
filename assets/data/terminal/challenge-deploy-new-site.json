@@ -1,0 +1,191 @@
+{
+	"version": 1,
+	"type": "challenge",
+	"profile": "challenge-deploy-new-site",
+	"slug": "deploy-new-site",
+	"prompt": "$",
+	"title": "Deploy a New WordPress Site",
+	"description": "Complete a full WordPress installation from scratch using WP-CLI. Follow the steps in the correct order — each command builds on the previous one.",
+	"instructions": "Type each command in the terminal below. The terminal validates your input at every step. Hints describe the action — not the exact command.",
+	"difficulty": "beginner",
+	"estimated_time": "5 min",
+	"related_page": "/wp-cli/practice-cases/deploy-new-site/",
+	"author_url": "/about/",
+	"image": "/wp-content/uploads/practice-cases/deploy-new-site.jpg",
+	"steps": [
+		{
+			"id": 1,
+			"hint": "Download WordPress core files to the current directory",
+			"accepted": [
+				"wp core download",
+				"wp core download --locale=en_US",
+				"wp core download --locale=uk"
+			],
+			"output": "Downloading WordPress 7.0.0 (en_US)...\nmd5 hash verified: 8f9e2a1c4d7b3e6a0c5f1d9e2b4a7c3f\nSuccess: WordPress downloaded.",
+			"feedback_wrong": "Think about getting the WordPress files before anything else.",
+			"feedback_correct": "WordPress files downloaded. Now configure the database connection.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp core download"
+		},
+		{
+			"id": 2,
+			"hint": "Create the wp-config.php file with database credentials",
+			"accepted": [
+				"wp config create",
+				"wp config create --dbname=mydb --dbuser=root --dbpass=secret",
+				"wp config create --dbname=mydb --dbuser=root --dbpass=secret --dbhost=localhost"
+			],
+			"output": "Success: Generated 'wp-config.php' file.",
+			"feedback_wrong": "WordPress needs a configuration file to connect to the database.",
+			"feedback_correct": "Configuration file created. Now create the actual database.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp config create --dbname=mydb --dbuser=root --dbpass=secret"
+		},
+		{
+			"id": 3,
+			"hint": "Create the WordPress database",
+			"accepted": [
+				"wp db create"
+			],
+			"output": "Success: Database created.",
+			"feedback_wrong": "The database needs to exist before WordPress can install into it.",
+			"feedback_correct": "Database ready. Time to run the WordPress installer.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp db create"
+		},
+		{
+			"id": 4,
+			"hint": "Install WordPress and create the admin user",
+			"accepted": [
+				"wp core install",
+				"wp core install --url=https://mysite.com --title=\"My Site\" --admin_user=admin --admin_password=secret --admin_email=admin@mysite.com"
+			],
+			"output": "Success: WordPress installed successfully.\nURL:      https://mysite.com\nUser:     admin\nPassword: secret",
+			"feedback_wrong": "All files and database are ready — now run the WordPress installation.",
+			"feedback_correct": "WordPress is installed and running. Well done — full deployment complete.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp core install --url=https://mysite.com --title=\"My Site\" --admin_user=admin --admin_password=secret --admin_email=admin@mysite.com"
+		}
+	],
+	"content": {
+		"goal": "Install a fresh WordPress site from the command line using WP-CLI — without skipping prerequisites or running commands out of order.",
+		"steps": [
+			{
+				"title": "1. Download WordPress core",
+				"paragraphs": [
+					"Start in an empty project directory. Download the current stable release before creating any configuration files.",
+					"WP-CLI fetches WordPress core into the current directory. Add --locale=uk when the site language is known upfront."
+				],
+				"command": "wp core download"
+			},
+			{
+				"title": "2. Create wp-config.php",
+				"paragraphs": [
+					"WordPress needs database credentials in wp-config.php before it can connect to MySQL.",
+					"This generates salts and table prefix automatically. Match credentials to your local or staging MySQL setup."
+				],
+				"command": "wp config create --dbname=mydb --dbuser=root --dbpass=secret --dbhost=localhost"
+			},
+			{
+				"title": "3. Create the database",
+				"paragraphs": [
+					"The database name in wp-config.php must exist before installation. WP-CLI can create it if your MySQL user has privileges.",
+					"Reads connection details from wp-config.php. Run this after config create, never before."
+				],
+				"command": "wp db create"
+			},
+			{
+				"title": "4. Install WordPress",
+				"paragraphs": [
+					"With files and database ready, run the installer and set the site URL, title, and admin account.",
+					"After success, the site is ready. Use --skip-email in scripts to suppress the install notification email."
+				],
+				"command": "wp core install --url=https://mysite.test --title=\"My Site\" --admin_user=admin --admin_password=secret --admin_email=admin@example.com"
+			}
+		],
+		"troubleshooting": [
+			"Running <code>wp core install</code> before <code>wp config create</code> — WordPress has no database credentials.",
+			"Skipping <code>wp db create</code> when the database does not exist yet — install fails with connection errors.",
+			"Downloading WordPress into a non-empty directory — can mix old files with a fresh install.",
+			"Using raw SQL or manual wp-config edits when WP-CLI can generate salts and prefix safely."
+		],
+		"real_cases": [
+			{"label": "4wp.dev — WP-CLI Core command group", "url": "/wp-cli/core/"},
+			{"label": "Official handbook — wp core download", "url": "https://developer.wordpress.org/cli/commands/core/download/"},
+			{"label": "Official handbook — wp config create", "url": "https://developer.wordpress.org/cli/commands/config/create/"},
+			{"label": "Official handbook — wp db create", "url": "https://developer.wordpress.org/cli/commands/db/create/"}
+		],
+		"faq": [
+			{
+				"question": "What is the correct order to deploy WordPress with WP-CLI?",
+				"answer": "Download core (wp core download), create configuration (wp config create), create the database (wp db create), then install (wp core install). Each step depends on the previous one."
+			},
+			{
+				"question": "Can I run wp core install without wp config create?",
+				"answer": "No. WordPress needs database credentials in wp-config.php before installation. Without config, WP-CLI cannot connect to MySQL and the install will fail."
+			},
+			{
+				"question": "Do I always need wp db create?",
+				"answer": "Only when the database named in wp-config.php does not exist yet. On shared hosting the database is often pre-created — then skip this step. On local dev, create it with WP-CLI."
+			},
+			{
+				"question": "What directory should I run wp core download in?",
+				"answer": "Use an empty directory for a fresh site. WP-CLI downloads core files into the current working directory. Mixing with existing files can leave stale plugins or themes from an old project."
+			},
+			{
+				"question": "Can I install WordPress in a subdirectory with WP-CLI?",
+				"answer": "Yes. Pass the full URL including the path to wp core install --url=. Download and config steps stay the same; only the site URL changes."
+			},
+			{
+				"question": "Why use WP-CLI instead of the web installer?",
+				"answer": "WP-CLI is scriptable and repeatable — the same commands work on local, staging, and CI pipelines. No browser clicks, no upload limits, and easy to document as code."
+			},
+			{
+				"question": "What happens if I skip wp db create on a new local site?",
+				"answer": "wp core install fails because MySQL cannot connect to a database that does not exist. The error looks like a credentials problem but the fix is creating the database first."
+			},
+			{
+				"question": "Should I pin a WordPress version when downloading?",
+				"answer": "For most installs, use the latest stable release without --version. Pin a version only when you intentionally need parity with production or a legacy environment."
+			}
+		],
+		"taxonomies": {
+			"pc_tool": "wp-cli",
+			"pc_category": "deploy"
+		}
+	},
+	"seo": {
+		"title": "Deploy a New WordPress Site with WP-CLI — Practice Case",
+		"description": "Master WordPress deployment from the command line. Practice the exact sequence: wp core download → wp config create → wp db create → wp core install. Interactive WP-CLI terminal included.",
+		"keywords": [
+			"wp-cli practice terminal",
+			"wp-cli practice",
+			"wp-cli interactive practice",
+			"wordpress cli practice case",
+			"wp-cli",
+			"deploy wordpress",
+			"install wordpress cli",
+			"wp core download",
+			"wp core install",
+			"wordpress command line",
+			"wp config create",
+			"wordpress deployment",
+			"wpcli tutorial",
+			"wp db create"
+		]
+	},
+	"completion": {
+		"perfect": [
+			"You followed the correct provisioning order without skipping steps.",
+			"You used wp db create after wp config create — the sequence that prevents most install failures."
+		],
+		"optimize": [
+			"Add --skip-email to wp core install in automated scripts.",
+			"Pin --locale on wp core download when the site language is known upfront."
+		],
+		"next": [
+			"Try the maintenance challenge to learn the safe update workflow.",
+			"Review /wp-cli/core/ for update and checksum commands."
+		]
+	}
+}

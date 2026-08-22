@@ -1,0 +1,225 @@
+{
+	"version": 1,
+	"type": "challenge",
+	"profile": "challenge-maintenance",
+	"slug": "maintenance",
+	"prompt": "$",
+	"title": "WordPress Maintenance Workflow",
+	"description": "Run a safe maintenance sequence on a live WordPress site. Order matters — skipping steps can break production.",
+	"instructions": "Type each command in the terminal below. The terminal validates your input at every step. Hints describe the action — not the exact command.",
+	"difficulty": "beginner",
+	"estimated_time": "5 min",
+	"related_page": "/wp-cli/practice-cases/maintenance/",
+	"author_url": "/about/",
+	"image": "/wp-content/uploads/practice-cases/maintenance.jpg",
+	"steps": [
+		{
+			"id": 1,
+			"hint": "Check if WordPress core has available updates",
+			"accepted": [
+				"wp core check-update"
+			],
+			"output": "Success: WordPress is at the latest version.\nCurrent version: 7.0.0\nAvailable update: 7.0.1 (patch)",
+			"feedback_wrong": "Before making any changes, check what needs to be updated.",
+			"feedback_correct": "Update available. Before touching anything — backup the database.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp core check-update"
+		},
+		{
+			"id": 2,
+			"hint": "Export the database before making any changes",
+			"accepted": [
+				"wp db export",
+				"wp db export backup.sql",
+				"wp db export backup-$(date +%Y%m%d).sql"
+			],
+			"output": "Success: Exported to 'wordpress-2026-06-16-abc123.sql'.",
+			"feedback_wrong": "Always backup the database before updating anything on production.",
+			"feedback_correct": "Database backed up. Safe to proceed with updates now.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp db export"
+		},
+		{
+			"id": 3,
+			"hint": "Update WordPress core",
+			"accepted": [
+				"wp core update",
+				"wp core update --minor"
+			],
+			"output": "Updating to version 7.0.1...\nDownloading update...\nUnpacking the update...\nSuccess: WordPress updated successfully.",
+			"feedback_wrong": "Database is backed up — now update WordPress core.",
+			"feedback_correct": "Core updated. Update the database schema to match.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp core update"
+		},
+		{
+			"id": 4,
+			"hint": "Update the WordPress database schema after core update",
+			"accepted": [
+				"wp core update-db",
+				"wp core update-db --network"
+			],
+			"output": "Success: WordPress database upgraded successfully.",
+			"feedback_wrong": "Core updates sometimes include database changes — apply them now.",
+			"feedback_correct": "Database schema updated. Now update plugins.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp core update-db"
+		},
+		{
+			"id": 5,
+			"hint": "Update all plugins",
+			"accepted": [
+				"wp plugin update --all",
+				"wp plugin update --all --minor"
+			],
+			"output": "Enabling Maintenance mode...\nUpdating 'contact-form-7' (5.8.3 => 5.8.4)... Success.\nUpdating 'wordpress-seo' (22.0 => 22.1)... Success.\nDisabling Maintenance mode...\nSuccess: Updated 2 of 2 plugins.",
+			"feedback_wrong": "Core is done — update plugins next.",
+			"feedback_correct": "Plugins updated. Final step — flush the cache.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp plugin update --all"
+		},
+		{
+			"id": 6,
+			"hint": "Flush the object cache to clear stale data",
+			"accepted": [
+				"wp cache flush"
+			],
+			"output": "Success: The cache was flushed.",
+			"feedback_wrong": "After updates, stale cache can cause unexpected behavior. Clear it.",
+			"feedback_correct": "Cache flushed. Maintenance complete — site is up to date and clean.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp cache flush"
+		}
+	],
+	"content": {
+		"goal": "Run a safe WordPress maintenance sequence from the command line — checking for updates, backing up the database, updating core and plugins, and flushing cache in the correct order.",
+		"steps": [
+			{
+				"title": "1. Check for available updates",
+				"paragraphs": [
+					"Before touching anything, see what needs updating. This gives you a clear picture without making any changes.",
+					"Returns the current version and available release. Run this first — always know what you're about to update."
+				],
+				"command": "wp core check-update"
+			},
+			{
+				"title": "2. Export the database",
+				"paragraphs": [
+					"A database backup is your safety net before any update. If something breaks, you restore from this file.",
+					"Writes a .sql dump to the current directory. On production, move the file off-server immediately after export."
+				],
+				"command": "wp db export"
+			},
+			{
+				"title": "3. Update WordPress core",
+				"paragraphs": [
+					"With a backup in place, update the WordPress core files. WP-CLI puts the site into maintenance mode automatically during the update.",
+					"Use --minor in scripts to restrict updates to patch releases only — safer on production."
+				],
+				"command": "wp core update"
+			},
+			{
+				"title": "4. Update the database schema",
+				"paragraphs": [
+					"Core updates sometimes include database table changes. This step applies any pending schema migrations.",
+					"Always run this after wp core update, never before. Schema mismatches cause subtle bugs that are hard to trace."
+				],
+				"command": "wp core update-db"
+			},
+			{
+				"title": "5. Update all plugins",
+				"paragraphs": [
+					"With core stable and schema up to date, update plugins. WP-CLI enables maintenance mode automatically for each plugin update.",
+					"Use --dry-run first on production to preview which plugins will be updated before committing."
+				],
+				"command": "wp plugin update --all"
+			},
+			{
+				"title": "6. Flush the object cache",
+				"paragraphs": [
+					"After updates, stale cached data can serve old markup or broken asset URLs. Flushing clears everything and forces a fresh load.",
+					"This applies to the WordPress object cache (Redis, Memcached, or the default transient store)."
+				],
+				"command": "wp cache flush"
+			}
+		],
+		"troubleshooting": [
+			"Skipping <code>wp db export</code> before updating — you lose your rollback option if the update breaks something.",
+			"Running <code>wp core update-db</code> before <code>wp core update</code> — schema migrations reference new core tables that do not exist yet.",
+			"Updating plugins before core — plugin updates sometimes require a minimum WordPress version; update core first.",
+			"Not flushing cache after updates — stale object cache can serve old data and mask whether the update succeeded.",
+			"Running <code>wp core check-update</code> and skipping the rest — checking is not updating; it only reports what is available."
+		],
+		"real_cases": [
+			{"label": "4wp.dev — WP-CLI Core command group", "url": "/wp-cli/core/"},
+			{"label": "4wp.dev — WP-CLI Database command group", "url": "/wp-cli/database/"},
+			{"label": "Official handbook — wp core update", "url": "https://developer.wordpress.org/cli/commands/core/update/"},
+			{"label": "Official handbook — wp db export", "url": "https://developer.wordpress.org/cli/commands/db/export/"},
+			{"label": "Official handbook — wp plugin update", "url": "https://developer.wordpress.org/cli/commands/plugin/update/"}
+		],
+		"faq": [
+			{
+				"question": "Why must I backup the database before updating WordPress?",
+				"answer": "Updates modify core files and sometimes the database schema. If the update fails or causes incompatibility with a plugin, restoring from a <code>wp db export</code> dump brings the site back to its pre-update state in seconds."
+			},
+			{
+				"question": "Why is wp core update-db a separate step?",
+				"answer": "WordPress core updates sometimes include changes to database table structure. <code>wp core update-db</code> applies these schema migrations. Skipping it can cause undefined behavior — WordPress expects a schema version that does not match what is in the database."
+			},
+			{
+				"question": "Should I update plugins before or after core?",
+				"answer": "Always update core first. Plugin updates frequently declare a minimum WordPress version requirement. Updating plugins against an outdated core can trigger PHP errors if the plugin expects functions added in the newer core version."
+			},
+			{
+				"question": "What does wp cache flush actually clear?",
+				"answer": "It flushes the WordPress object cache — Redis, Memcached, or the built-in transient store, depending on your server setup. It does not clear browser cache or CDN cache. After major updates, also purge your CDN or page cache plugin separately."
+			},
+			{
+				"question": "Can I use wp core update --minor on production?",
+				"answer": "Yes, and it is recommended for automated pipelines. The --minor flag restricts updates to the current major branch (e.g. 6.x → 6.x patch), skipping major version jumps."
+			},
+			{
+				"question": "How do I preview plugin updates before applying them?",
+				"answer": "Run <code>wp plugin update --all --dry-run</code>. This shows which plugins have updates available and what versions they would move to, without making any changes."
+			},
+			{
+				"question": "What if wp core update fails midway?",
+				"answer": "WordPress enters maintenance mode at the start and exits on success. If the update fails, the .maintenance file may remain and lock the site. Delete it with <code>wp maintenance-mode deactivate</code> or remove .maintenance from the root. Then restore from the database export you made in step 2."
+			}
+		],
+		"taxonomies": {
+			"pc_tool": "wp-cli",
+			"pc_category": "maintenance"
+		}
+	},
+	"seo": {
+		"title": "WordPress Maintenance with WP-CLI — Practice Case",
+		"description": "Learn the safe WordPress update sequence from the command line: check updates, backup database, update core, update DB schema, update plugins, flush cache. Interactive WP-CLI terminal.",
+		"keywords": [
+			"wp-cli practice terminal",
+			"wp-cli practice",
+			"wp-cli maintenance",
+			"wordpress maintenance cli",
+			"wp core update",
+			"wp db export",
+			"wp plugin update all",
+			"wordpress update workflow",
+			"wp cache flush",
+			"wordpress cli maintenance"
+		]
+	},
+	"completion": {
+		"perfect": [
+			"You exported the database before making any changes.",
+			"You ran wp core update-db after wp core update — the order that prevents schema mismatches."
+		],
+		"optimize": [
+			"Run wp core verify-checksums after core updates on production.",
+			"Use wp plugin update --all --dry-run first to preview plugin changes."
+		],
+		"next": [
+			"Try the deploy challenge if you have not stepped through a fresh install yet.",
+			"Review /wp-cli/database/ for export and search-replace commands."
+		]
+	}
+}

@@ -1,0 +1,131 @@
+{
+	"version": 1,
+	"profile": "wp-cli",
+	"prompt": "$",
+	"title": "wp plugin — bash",
+	"categories": [
+		{
+			"id": "plugin",
+			"name": "Plugins",
+			"color": "#4ec9b0",
+			"commands": [
+				{ "cmd": "wp plugin list", "desc": "List all plugins" },
+				{ "cmd": "wp plugin install wordpress-seo", "desc": "Install plugin" },
+				{ "cmd": "wp plugin activate akismet", "desc": "Activate plugin" },
+				{ "cmd": "wp plugin deactivate akismet", "desc": "Deactivate plugin" },
+				{ "cmd": "wp plugin update --all", "desc": "Update all plugins" },
+				{ "cmd": "wp plugin update --all --dry-run", "desc": "Preview updates" },
+				{ "cmd": "wp plugin delete akismet", "desc": "Delete plugin" },
+				{ "cmd": "wp plugin get akismet", "desc": "Get plugin details" },
+				{ "cmd": "wp plugin is-installed akismet", "desc": "Check if installed" },
+				{ "cmd": "wp plugin search caching", "desc": "Search repository" },
+				{ "cmd": "wp plugin verify-checksums --all", "desc": "Verify plugin files" }
+			]
+		}
+	],
+	"commands": [
+		{
+			"command": "wp plugin list",
+			"slug": "plugin-list",
+			"output": "+------------------+----------+--------+---------+\n| name             | status   | update | version |\n+------------------+----------+--------+---------+\n| akismet          | inactive | none   | 5.3     |\n| contact-form-7   | active   | none   | 5.8.4   |\n| woocommerce      | active   | none   | 8.5.2   |\n| wordpress-seo    | active   | none   | 22.1    |\n+------------------+----------+--------+---------+",
+			"tip": "Use --status=active to filter. Use --format=json to pipe into scripts. Inactive plugins are still a security risk if outdated."
+		},
+		{
+			"pattern": "wp plugin list",
+			"slug": "plugin-list",
+			"output": "+------------------+----------+--------+---------+\n| name             | status   | update | version |\n+------------------+----------+--------+---------+\n| akismet          | inactive | none   | 5.3     |\n| contact-form-7   | active   | none   | 5.8.4   |\n| woocommerce      | active   | none   | 8.5.2   |\n| wordpress-seo    | active   | none   | 22.1    |\n+------------------+----------+--------+---------+",
+			"tip": "Use --status=active to filter. Use --format=json to pipe into scripts."
+		},
+		{
+			"pattern": "wp plugin install",
+			"slug": "plugin-install",
+			"defaultParam": "wordpress-seo",
+			"output": "Installing {param} (latest)\nDownloading installation package from WordPress.org...\nUnpacking the package...\nInstalling the plugin...\nPlugin installed successfully.\nSuccess: Installed 1 of 1 plugins.",
+			"tip": "Add --activate to install and activate in one step. Use --version to pin a specific release. Pass a ZIP path or URL for premium plugins."
+		},
+		{
+			"pattern": "wp plugin activate",
+			"slug": "plugin-activate",
+			"defaultParam": "akismet",
+			"output": "Plugin '{param}' activated.\nSuccess: Activated 1 of 1 plugins.",
+			"tip": "Activation triggers plugin hooks and initializes functionality. Use --all to activate every installed plugin at once."
+		},
+		{
+			"pattern": "wp plugin deactivate",
+			"slug": "plugin-deactivate",
+			"defaultParam": "akismet",
+			"output": "Plugin '{param}' deactivated.\nSuccess: Deactivated 1 of 1 plugins.",
+			"tip": "Deactivation does not delete plugin data. Use --all to deactivate everything — the go-to for debugging plugin conflicts."
+		},
+		{
+			"command": "wp plugin update --all",
+			"slug": "plugin-update-all",
+			"output": "Enabling Maintenance mode...\nUpdating 'contact-form-7' (5.8.3 => 5.8.4)... Success.\nUpdating 'wordpress-seo' (22.0 => 22.1)... Success.\nDisabling Maintenance mode...\nSuccess: Updated 2 of 2 plugins.",
+			"tip": "Always run wp db export before bulk updates on production."
+		},
+		{
+			"pattern": "wp plugin update",
+			"slug": "plugin-update",
+			"output": "Enabling Maintenance mode...\nUpdating plugin... Success.\nDisabling Maintenance mode...\nSuccess: Updated 1 of 1 plugins.",
+			"tip": "Use --dry-run to preview what will be updated. Use --all to update everything at once."
+		},
+		{
+			"command": "wp plugin update --all --dry-run",
+			"slug": "plugin-update-dry-run",
+			"output": "+-----------------+---------+---------+\n| name            | current | latest  |\n+-----------------+---------+---------+\n| contact-form-7  | 5.8.3   | 5.8.4   |\n| wordpress-seo   | 22.0    | 22.1    |\n+-----------------+---------+---------+\n\nSuccess: 2 plugins would be updated (--dry-run).",
+			"tip": "Preview what will be updated without making any changes. Always run this before updating on production."
+		},
+		{
+			"pattern": "wp plugin delete",
+			"slug": "plugin-delete",
+			"defaultParam": "akismet",
+			"output": "Deleted '{param}' plugin files.\nSuccess: Deleted 1 of 1 plugins.",
+			"tip": "Plugin must be deactivated first. Permanently removes files from disk — not just from the admin."
+		},
+		{
+			"pattern": "wp plugin get",
+			"slug": "plugin-get",
+			"defaultParam": "akismet",
+			"output": "+-----------+--------------------------------------------+\n| Field     | Value                                      |\n+-----------+--------------------------------------------+\n| name      | akismet                                    |\n| status    | inactive                                   |\n| version   | 5.3                                        |\n| author    | Automattic                                 |\n+-----------+--------------------------------------------+",
+			"tip": "Use --format=json to pipe plugin details into scripts that check state before running operations."
+		},
+		{
+			"pattern": "wp plugin is-installed",
+			"slug": "plugin-is-installed",
+			"defaultParam": "akismet",
+			"output": "Success: Plugin '{param}' is installed.",
+			"tip": "Returns exit code 0 if installed, 1 if not. Use in scripts: if ! wp plugin is-installed akismet; then wp plugin install akismet --activate; fi"
+		},
+		{
+			"pattern": "wp plugin search",
+			"slug": "plugin-search",
+			"defaultParam": "caching",
+			"output": "+---------------------+---------------------+--------+----------+\n| name                | slug                | rating | installs |\n+---------------------+---------------------+--------+----------+\n| W3 Total Cache      | w3-total-cache      | 78     | 1000000+ |\n| WP Super Cache      | wp-super-cache      | 82     | 2000000+ |\n| LiteSpeed Cache     | litespeed-cache     | 94     | 5000000+ |\n+---------------------+---------------------+--------+----------+",
+			"tip": "Useful when you don't know the exact slug. Use --per-page=5 to limit results."
+		},
+		{
+			"command": "wp plugin verify-checksums --all",
+			"slug": "plugin-verify-checksums",
+			"output": "Checking akismet... OK\nChecking contact-form-7... OK\nChecking woocommerce... OK\nSuccess: All plugins verified against checksums.",
+			"tip": "Detects modified or corrupted plugin files. Use during security audits or after a suspected compromise."
+		},
+		{
+			"pattern": "wp plugin verify-checksums",
+			"slug": "plugin-verify-checksums",
+			"output": "Checking plugin files...\nSuccess: Plugin verified against checksums.",
+			"tip": "Detects modified or corrupted plugin files. Use during security audits or after a suspected compromise."
+		},
+		{
+			"command": "help",
+			"slug": "help",
+			"output": "Plugin commands manage WordPress plugins from the terminal.\n\nAvailable commands:\n• wp plugin list              - List all installed plugins\n• wp plugin install <slug>    - Install from repository or ZIP\n• wp plugin activate <slug>   - Activate a plugin\n• wp plugin deactivate <slug> - Deactivate a plugin\n• wp plugin update --all      - Update all plugins\n• wp plugin delete <slug>     - Remove plugin files\n• wp plugin get <slug>        - Get plugin details\n• wp plugin is-installed      - Check if installed\n• wp plugin search <term>     - Search repository\n• wp plugin verify-checksums  - Security audit\n\nAnchors:\n→ 4wp.dev/wp-cli/plugins/#wp-plugin-list\n→ 4wp.dev/wp-cli/plugins/#wp-plugin-install\n→ 4wp.dev/wp-cli/plugins/#wp-plugin-update\n→ 4wp.dev/wp-cli/plugins/#wp-plugin-verify-checksums",
+			"tip": "Use wp plugin deactivate --all to debug conflicts — deactivate everything, then reactivate one by one."
+		},
+		{
+			"command": "wp help",
+			"slug": "help",
+			"output": "Plugin commands manage WordPress plugins from the terminal.\n\nAvailable commands:\n• wp plugin list              - List all installed plugins\n• wp plugin install <slug>    - Install from repository or ZIP\n• wp plugin activate <slug>   - Activate a plugin\n• wp plugin deactivate <slug> - Deactivate a plugin\n• wp plugin update --all      - Update all plugins\n• wp plugin delete <slug>     - Remove plugin files\n• wp plugin get <slug>        - Get plugin details\n• wp plugin is-installed      - Check if installed\n• wp plugin search <term>     - Search repository\n• wp plugin verify-checksums  - Security audit\n\nAnchors:\n→ 4wp.dev/wp-cli/plugins/#wp-plugin-list\n→ 4wp.dev/wp-cli/plugins/#wp-plugin-install\n→ 4wp.dev/wp-cli/plugins/#wp-plugin-update\n→ 4wp.dev/wp-cli/plugins/#wp-plugin-verify-checksums",
+			"tip": "Use wp plugin deactivate --all to debug conflicts — deactivate everything, then reactivate one by one."
+		}
+	]
+}

@@ -1,0 +1,248 @@
+{
+	"version": 1,
+	"type": "challenge",
+	"profile": "challenge-rollback-deployment",
+	"slug": "rollback-deployment",
+	"prompt": "user@server:/var/www/html$",
+	"title": "Roll Back a Failed Deployment",
+	"description": "The new deployment broke the live site. The previous wp-content is in wp-content-old and the pre-deployment database is in backup-old.sql. Restore the working version completely.",
+	"instructions": "You are SSH'd into /var/www/html on production. The new release has critical bugs. wp-content-old and backup-old.sql are on the server from the deployment workflow. Roll back without losing the investigation trail.",
+	"difficulty": "intermediate",
+	"estimated_time": "15 min",
+	"related_page": "/wp-cli/practice-cases/rollback-deployment/",
+	"author_url": "/about/",
+	"image": "/wp-content/uploads/practice-cases/rollback-deployment.jpg",
+	"steps": [
+		{
+			"id": 1,
+			"hint": "Enable maintenance mode before making any changes",
+			"accepted": [
+				"wp maintenance-mode activate",
+				"wp maintenance-mode activate --user=admin"
+			],
+			"output": "Enabling Maintenance mode...\nSuccess: Activated Maintenance mode.",
+			"feedback_wrong": "Protect visitors before touching files or the database. Enable maintenance mode first.",
+			"feedback_correct": "Visitors see the holding page. Safe to roll back.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp maintenance-mode activate"
+		},
+		{
+			"id": 2,
+			"hint": "Move the broken wp-content aside — keep it for investigation, do not delete it",
+			"accepted": [
+				"mv wp-content wp-content-broken",
+				"mv wp-content/ wp-content-broken"
+			],
+			"output": "renamed 'wp-content' -> 'wp-content-broken'",
+			"feedback_wrong": "Do not delete the broken wp-content — it is evidence. Move it to wp-content-broken so it is out of the way but still accessible.",
+			"feedback_correct": "Broken version set aside. Now restore the previous wp-content.",
+			"reveal_after_attempts": 2,
+			"command_hint": "mv wp-content wp-content-broken"
+		},
+		{
+			"id": 3,
+			"hint": "Restore the previous wp-content from the backup directory",
+			"accepted": [
+				"mv wp-content-old wp-content",
+				"mv wp-content-old/ wp-content"
+			],
+			"output": "renamed 'wp-content-old' -> 'wp-content'",
+			"feedback_wrong": "The previous site files are in wp-content-old — move them back to wp-content to restore the old version.",
+			"feedback_correct": "Previous wp-content restored. Now restore the database.",
+			"reveal_after_attempts": 2,
+			"command_hint": "mv wp-content-old wp-content"
+		},
+		{
+			"id": 4,
+			"hint": "Import the pre-deployment database backup to restore the previous database state",
+			"accepted": [
+				"wp db import backup-old.sql",
+				"wp db import ~/backup-old.sql"
+			],
+			"output": "Importing from 'backup-old.sql'...\nSuccess: Imported from 'backup-old.sql'.",
+			"feedback_wrong": "The database was changed during the deployment — restore it from backup-old.sql to match the restored wp-content.",
+			"feedback_correct": "Database restored to its pre-deployment state. Update the schema and clear cache.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp db import backup-old.sql"
+		},
+		{
+			"id": 5,
+			"hint": "Update the database schema to match the restored code",
+			"accepted": [
+				"wp core update-db",
+				"wp core update-db --network"
+			],
+			"output": "Success: WordPress database upgraded successfully.",
+			"feedback_wrong": "After restoring files and database, run update-db to ensure the schema matches the restored codebase.",
+			"feedback_correct": "Schema is current. Flush cache and routing next.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp core update-db"
+		},
+		{
+			"id": 6,
+			"hint": "Flush the object cache and rebuild rewrite rules",
+			"accepted": [
+				"wp cache flush && wp rewrite flush",
+				"wp rewrite flush && wp cache flush",
+				"wp cache flush",
+				"wp rewrite flush"
+			],
+			"output": "Success: The cache was flushed.\nSuccess: Rewrite rules flushed.",
+			"feedback_wrong": "The cache and rewrite rules were built against the broken deployment. Flush both before going live.",
+			"feedback_correct": "Cache cleared, routing rebuilt against the restored theme and plugins.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp cache flush && wp rewrite flush"
+		},
+		{
+			"id": 7,
+			"hint": "Take the site out of maintenance mode — rollback complete",
+			"accepted": [
+				"wp maintenance-mode deactivate",
+				"wp maintenance-mode deactivate --user=admin"
+			],
+			"output": "Disabling Maintenance mode...\nSuccess: Deactivated Maintenance mode.",
+			"feedback_wrong": "Visitors are still on the holding page. Deactivate maintenance mode to go live.",
+			"feedback_correct": "Site is live on the previous version. Investigate wp-content-broken before attempting another deployment.",
+			"reveal_after_attempts": 1,
+			"command_hint": "wp maintenance-mode deactivate"
+		}
+	],
+	"content": {
+		"goal": "Fully reverse a failed deployment — restoring both files and database to the pre-deployment state — while preserving the broken version for investigation, and returning the site to production with zero data loss.",
+		"steps": [
+			{
+				"title": "1. Enable maintenance mode",
+				"paragraphs": [
+					"A rollback involves moving directories and importing a database. Both operations leave the site in an inconsistent state for a short window. Maintenance mode prevents visitors from hitting the site during that window.",
+					"On a live site, even a 30-second window of file and database inconsistency can produce fatal errors, blank pages, or corrupted sessions. Always lock the site before starting."
+				],
+				"command": "wp maintenance-mode activate"
+			},
+			{
+				"title": "2. Move the broken wp-content aside",
+				"paragraphs": [
+					"The broken deployment is evidence — it shows exactly what was deployed and what files caused the issue. Moving it to wp-content-broken keeps it accessible for debugging without interfering with the restored site.",
+					"Do not delete it. You may need to diff specific files between wp-content-broken and wp-content to understand the root cause before attempting another deployment."
+				],
+				"command": "mv wp-content wp-content-broken"
+			},
+			{
+				"title": "3. Restore the previous wp-content",
+				"paragraphs": [
+					"The previous site was moved to wp-content-old during the deployment workflow. Moving it back to wp-content makes the old theme, plugins, and uploads active again.",
+					"After this step, the filesystem matches the pre-deployment state. The database still reflects any changes made during the deployment — that is fixed in the next step."
+				],
+				"command": "mv wp-content-old wp-content"
+			},
+			{
+				"title": "4. Import the pre-deployment database",
+				"paragraphs": [
+					"The database export from the deployment workflow (backup-old.sql) captures the production database state before any changes were made. Importing it restores options, posts, and plugin data to the pre-deployment values.",
+					"This step completes the rollback — both the filesystem and the database are now back to the state they were in before the failed deployment."
+				],
+				"command": "wp db import backup-old.sql"
+			},
+			{
+				"title": "5. Update the database schema",
+				"paragraphs": [
+					"After restoring files and database, run update-db to ensure the schema matches the restored codebase. The backup may pre-date a schema migration that already ran — this step reconciles any difference.",
+					"Safe to run even if the schema is already current — WP-CLI checks and exits cleanly with no changes if nothing needs updating."
+				],
+				"command": "wp core update-db"
+			},
+			{
+				"title": "6. Flush cache and rewrite rules",
+				"paragraphs": [
+					"The object cache and rewrite rules were built against the broken deployment. Flushing forces WordPress to rebuild them from the restored database and theme, so the first real requests after the rollback use clean state.",
+					"If a page cache plugin (WP Rocket, W3TC) is active, purge it separately — WP-CLI cache flush does not reach page-level caches."
+				],
+				"command": "wp cache flush && wp rewrite flush"
+			},
+			{
+				"title": "7. Disable maintenance mode",
+				"paragraphs": [
+					"The rollback is complete. The site is running on the previous version with a clean database and empty cache. Remove the maintenance lock.",
+					"Before attempting another deployment, investigate wp-content-broken to identify the root cause. Check wp plugin list, compare themes, and review error logs against the production domain."
+				],
+				"command": "wp maintenance-mode deactivate"
+			}
+		],
+		"troubleshooting": [
+			"Deleting wp-content-broken instead of moving it aside — you lose all evidence of what was deployed and cannot diff against the old version to find the root cause.",
+			"Forgetting to import backup-old.sql — the filesystem is restored but the database still contains data written during the broken deployment, causing data inconsistency between code and database.",
+			"Not running <code>wp core update-db</code> after the restore — if the broken deployment ran schema migrations before failing, those changes remain in the database until update-db reconciles the schema with the restored code.",
+			"Flushing cache without flushing rewrite rules — the routing table was built against the broken theme's registered post types and taxonomies. Old rewrite rules cause 404s after the rollback.",
+			"Leaving maintenance mode on after the rollback — visitors stay locked out after the site is already back to a working state.",
+			"Not reviewing wp-content-broken before the next deployment attempt — re-deploying the same broken version without investigation will cause the same failure."
+		],
+		"real_cases": [
+			{"label": "4wp.dev — WP-CLI Core command group", "url": "/wp-cli/core/"},
+			{"label": "4wp.dev — WP-CLI Database command group", "url": "/wp-cli/database/"},
+			{"label": "Official handbook — wp db import", "url": "https://developer.wordpress.org/cli/commands/db/import/"},
+			{"label": "Official handbook — wp maintenance-mode", "url": "https://developer.wordpress.org/cli/commands/maintenance-mode/"},
+			{"label": "Official handbook — wp cache flush", "url": "https://developer.wordpress.org/cli/commands/cache/flush/"}
+		],
+		"faq": [
+			{
+				"question": "Why move the broken wp-content to wp-content-broken instead of deleting it?",
+				"answer": "The broken deployment is the only artifact that tells you what went wrong. Keeping it in wp-content-broken lets you diff specific files against the restored version (<code>diff -r wp-content wp-content-broken</code>), check which plugin or theme files changed, and understand the root cause before attempting another deployment."
+			},
+			{
+				"question": "What if I do not have a backup-old.sql file?",
+				"answer": "This is why the deployment workflow always exports the database before touching any files. Without backup-old.sql, you can only restore the filesystem — the database remains in a partially changed state from the deployment. If no backup exists, assess the database changes manually: <code>wp option list</code>, <code>wp plugin list</code>, and review what the deployment was supposed to change."
+			},
+			{
+				"question": "Does importing backup-old.sql lose any content created after the deployment?",
+				"answer": "Yes. A database import replaces the current database with the backup state. Any posts, comments, orders, or settings created after the deployment export was taken will not exist in the restored database. This is the correct trade-off for a rollback — the goal is to return to a known-good state, not to preserve data from a broken release."
+			},
+			{
+				"question": "Why run wp core update-db after the rollback?",
+				"answer": "If the broken deployment ran database schema migrations (ALTER TABLE statements from new plugin or core versions), those changes are in the database but the restored code does not know about them. Running update-db reconciles the schema with the restored codebase. It is safe to run and exits cleanly if no changes are needed."
+			},
+			{
+				"question": "How long should I keep wp-content-broken and the backup files on the server?",
+				"answer": "Keep wp-content-broken until you have identified the root cause and are confident the next deployment will not repeat the same failure. Keep backup files for at least one week after a successful re-deployment — issues in complex codebases sometimes surface days later. Then move them off-server (S3, remote storage) rather than deleting."
+			},
+			{
+				"question": "What is the rollback procedure for a Git-deployed site?",
+				"answer": "If the site was deployed via Git: <code>git log --oneline</code> to find the previous commit, <code>git checkout &lt;commit-hash&gt;</code> to restore the previous code (or <code>git revert HEAD</code> if you want a clean revert commit). Then import the database backup. The mv-based rollback in this challenge applies to archive-deployed or non-Git workflows."
+			}
+		],
+		"taxonomies": {
+			"pc_tool": "wp-cli",
+			"pc_category": "deploy"
+		}
+	},
+	"seo": {
+		"title": "Roll Back a Failed WordPress Deployment with WP-CLI — Practice Case",
+		"description": "Practice rolling back a failed WordPress deployment: restore wp-content from backup, import pre-deployment database, flush cache, return site to production. Interactive WP-CLI terminal.",
+		"keywords": [
+			"wp-cli practice terminal",
+			"wp-cli practice",
+			"wordpress rollback deployment",
+			"wordpress deployment rollback cli",
+			"wp db import rollback",
+			"wordpress restore backup cli",
+			"wp maintenance-mode",
+			"wp cache flush rewrite",
+			"wordpress failed deployment fix",
+			"wp-cli deploy"
+		]
+	},
+	"completion": {
+		"perfect": [
+			"You moved wp-content to wp-content-broken instead of deleting it — the broken deployment is preserved as evidence for root cause analysis.",
+			"You imported backup-old.sql before going live — both filesystem and database are now fully consistent with the pre-deployment state."
+		],
+		"optimize": [
+			"Before the next deployment attempt, diff the broken and working versions: diff -r wp-content wp-content-broken to identify exactly which files caused the failure.",
+			"Run wp plugin list --status=active after the rollback to confirm the restored plugin set matches expectations.",
+			"Schedule a post-mortem: what caused the failure, what the deployment workflow is missing, and what automated check would have caught it before production.",
+			"Move backup-old.sql off-server after the incident is resolved — on-server backups do not protect against disk failure."
+		],
+		"next": [
+			"Review the site-version-change challenge to understand the full deployment workflow this rollback reverses.",
+			"Try the db-export-import challenge for a focused walkthrough of the database restore step."
+		]
+	}
+}
