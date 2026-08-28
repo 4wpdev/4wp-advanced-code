@@ -33,6 +33,10 @@ class Block_Wrapper {
 			return $block_content;
 		}
 
+		if ( self::is_ddd_panel_code( $block ) ) {
+			return $block_content;
+		}
+
 		if ( ! self::is_advanced_enabled( $block ) ) {
 			return $block_content;
 		}
@@ -40,6 +44,17 @@ class Block_Wrapper {
 		$code = self::extract_code_content( $block_content );
 
 		return self::build_enhanced_block( $code, $block );
+	}
+
+	/**
+	 * DDD panels ship their own dark code styling — skip Advanced Code wrapper.
+	 *
+	 * @param array<string, mixed> $block Block data.
+	 */
+	private static function is_ddd_panel_code( array $block ): bool {
+		$class = (string) ( $block['attrs']['className'] ?? '' );
+
+		return str_contains( $class, 'ddd-panel__code' );
 	}
 
 	/**
@@ -77,7 +92,7 @@ class Block_Wrapper {
 	public static function build_enhanced_block( string $code, array $block ): string {
 		$attrs = $block['attrs'] ?? array();
 
-		$language = $attrs['language'] ?? get_option( 'forwp_advanced_code_default_language', 'auto' );
+		$language = $attrs['language'] ?? 'auto';
 		if ( 'auto' === $language ) {
 			$language = Seo_Handler::detect_language( $code );
 		}
