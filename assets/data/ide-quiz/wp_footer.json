@@ -1,0 +1,18 @@
+{
+  "slug": "wp_footer",
+  "questions": [
+    {
+      "id": "when-footer",
+      "question": "When does wp_footer fire?",
+      "options": [
+        { "id": "a", "label": "Inside document <head>", "correct": false },
+        { "id": "b", "label": "Just before </body>", "correct": true },
+        { "id": "c", "label": "On every admin screen", "correct": false }
+      ],
+      "feedback": {
+        "correct": "Yes. It is the last print slot on the front-end.",
+        "incorrect": "wp_footer runs near the end of the front-end template, before </body>."
+      }
+    }
+  ]
+}

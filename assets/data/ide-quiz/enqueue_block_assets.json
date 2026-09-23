@@ -1,0 +1,30 @@
+{
+  "slug": "enqueue_block_assets",
+  "questions": [
+    {
+      "id": "runs-both-places",
+      "question": "What makes enqueue_block_assets different from the other enqueue hooks?",
+      "options": [
+        {
+          "id": "a",
+          "label": "It only runs in wp-admin",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "label": "It runs in both the block editor and the front-end",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "label": "It only runs in classic themes",
+          "correct": false
+        }
+      ],
+      "feedback": {
+        "correct": "Right — it's the one enqueue hook that fires in both contexts, which is why it's the natural place for a block's shared CSS.",
+        "incorrect": "enqueue_block_assets is unique because it fires in both the editor and the front-end, not just one or the other."
+      }
+    }
+  ]
+}

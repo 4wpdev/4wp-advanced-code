@@ -1,0 +1,30 @@
+{
+  "slug": "manage_posts_columns",
+  "questions": [
+    {
+      "id": "empty-cells",
+      "question": "You added a column with manage_posts_columns but every cell is empty. What's missing?",
+      "options": [
+        {
+          "id": "a",
+          "label": "You also need to hook manage_posts_custom_column to render the cell content",
+          "correct": true
+        },
+        {
+          "id": "b",
+          "label": "Columns need to be re-saved under Screen Options",
+          "correct": false
+        },
+        {
+          "id": "c",
+          "label": "The column key must match an existing meta key exactly",
+          "correct": false
+        }
+      ],
+      "feedback": {
+        "correct": "Exactly — manage_posts_columns only adds the header. manage_posts_custom_column is what actually echoes each row's value.",
+        "incorrect": "The header shows up on its own, but it stays empty until you also hook manage_posts_custom_column to output the value for each row."
+      }
+    }
+  ]
+}

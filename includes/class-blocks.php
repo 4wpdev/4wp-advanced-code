@@ -49,6 +49,10 @@ class Blocks {
 				$args['render_callback'] = array( Blocks\Terminal_Block_Render::class, 'render' );
 			}
 
+			if ( 'ide' === $block_name ) {
+				$args['render_callback'] = array( Blocks\Ide_Block_Render::class, 'render' );
+			}
+
 			register_block_type( $block_folder, $args );
 		}
 	}

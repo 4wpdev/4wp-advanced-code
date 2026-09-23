@@ -1,0 +1,18 @@
+{
+  "slug": "login_url",
+  "questions": [
+    {
+      "id": "custom-login",
+      "question": "login_url is used to:",
+      "options": [
+        { "id": "a", "label": "Change the URL that points to the login screen", "correct": true },
+        { "id": "b", "label": "Authenticate a user", "correct": false },
+        { "id": "c", "label": "Register a new role", "correct": false }
+      ],
+      "feedback": {
+        "correct": "Yes. Return your custom login permalink instead of wp-login.php.",
+        "incorrect": "This filter only changes the URL. It does not log anyone in."
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "slug": "plugins_loaded",
+  "questions": [
+    {
+      "id": "dependency-check-vs-registration",
+      "question": "What belongs on plugins_loaded?",
+      "options": [
+        { "id": "a", "label": "Registering custom post types", "correct": false },
+        { "id": "b", "label": "Checking if another plugin/class exists before depending on it", "correct": true },
+        { "id": "c", "label": "Enqueueing frontend scripts", "correct": false }
+      ],
+      "feedback": {
+        "correct": "Yes. plugins_loaded is the standard place for class_exists()/function_exists() dependency checks. Register post types on init instead.",
+        "incorrect": "plugins_loaded is for dependency checks (class_exists/function_exists), not for registering WordPress objects — use init for CPTs/taxonomies, wp_enqueue_scripts for assets."
+      }
+    }
+  ]
+}

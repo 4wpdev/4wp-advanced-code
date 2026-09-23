@@ -1,0 +1,18 @@
+{
+  "slug": "excerpt_length",
+  "questions": [
+    {
+      "id": "word-count",
+      "question": "excerpt_length controls:",
+      "options": [
+        { "id": "a", "label": "The character count of the_title", "correct": false },
+        { "id": "b", "label": "The word count of auto-generated excerpts", "correct": true },
+        { "id": "c", "label": "The number of posts per page", "correct": false }
+      ],
+      "feedback": {
+        "correct": "Yes. Default is 55 words. Return an integer.",
+        "incorrect": "It is the auto-excerpt word count, not titles or query size."
+      }
+    }
+  ]
+}

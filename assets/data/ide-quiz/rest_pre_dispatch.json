@@ -1,0 +1,30 @@
+{
+  "slug": "rest_pre_dispatch",
+  "questions": [
+    {
+      "id": "short-circuit-condition",
+      "question": "What actually short-circuits a REST request on rest_pre_dispatch?",
+      "options": [
+        {
+          "id": "a",
+          "label": "Returning true",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "label": "Returning any non-null value",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "label": "Calling wp_die() inside the filter",
+          "correct": false
+        }
+      ],
+      "feedback": {
+        "correct": "Yes — any non-null return value (a WP_Error, an array, a response object) short-circuits the request before routing.",
+        "incorrect": "It's not about true/false — returning null (the default) lets the request continue; any other non-null value short-circuits it."
+      }
+    }
+  ]
+}

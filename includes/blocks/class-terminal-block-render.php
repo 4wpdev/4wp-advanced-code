@@ -7,7 +7,10 @@
 
 namespace ForWP\AdvancedCode\Blocks;
 
+use ForWP\AdvancedCode\Terminal_Post_Meta;
+use ForWP\AdvancedCode\Terminal_Profiles;
 use ForWP\AdvancedCode\Terminal_Rest;
+use ForWP\AdvancedCode\Terminal_Seo_Handler;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -52,6 +55,14 @@ class Terminal_Block_Render {
 			: $rest_profile . ' — bash';
 
 		$is_challenge = 'embedded' === $profile;
+
+		if ( $is_challenge ) {
+			$post_id = (int) get_the_ID();
+			$data    = $post_id > 0 ? Terminal_Post_Meta::get_data( $post_id ) : null;
+			if ( is_array( $data ) && Terminal_Profiles::TYPE_CHALLENGE === Terminal_Profiles::detect_profile_type( $data, '' ) ) {
+				Terminal_Seo_Handler::register( $data, $post_id );
+			}
+		}
 
 		ob_start();
 		?>

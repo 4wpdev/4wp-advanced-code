@@ -38,7 +38,7 @@ class Modules {
 			'ide'      => array(
 				'option'      => self::OPTION_IDE,
 				'label'       => __( 'IDE', '4wp-advanced-code' ),
-				'description' => __( 'VS Code–style lesson shell for code review training (coming soon).', '4wp-advanced-code' ),
+				'description' => __( 'VS Code–style hook wizard: one tour per hook, practice add_action / add_filter.', '4wp-advanced-code' ),
 			),
 		);
 	}
@@ -68,7 +68,24 @@ class Modules {
 	 * Whether IDE module is active.
 	 */
 	public static function is_ide_enabled(): bool {
-		return (bool) get_option( self::OPTION_IDE, false );
+		self::maybe_unlock_ide();
+
+		$value = get_option( self::OPTION_IDE, null );
+
+		return null === $value ? true : (bool) $value;
+	}
+
+	/**
+	 * The Settings IDE checkbox used to be disabled, so saving the form stored 0.
+	 * Unlock once now that the block exists.
+	 */
+	private static function maybe_unlock_ide(): void {
+		if ( get_option( 'forwp_ac_ide_unlocked', false ) ) {
+			return;
+		}
+
+		update_option( self::OPTION_IDE, true );
+		update_option( 'forwp_ac_ide_unlocked', '1' );
 	}
 
 	/**

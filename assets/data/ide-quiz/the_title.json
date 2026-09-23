@@ -1,0 +1,18 @@
+{
+  "slug": "the_title",
+  "questions": [
+    {
+      "id": "title-return",
+      "question": "the_title is a filter, so your callback should:",
+      "options": [
+        { "id": "a", "label": "Print the title with echo", "correct": false },
+        { "id": "b", "label": "Return the title string", "correct": true },
+        { "id": "c", "label": "Update post_title in the database", "correct": false }
+      ],
+      "feedback": {
+        "correct": "Yes. It changes display only — the stored title stays put.",
+        "incorrect": "Return the string. This filter does not write to the database."
+      }
+    }
+  ]
+}

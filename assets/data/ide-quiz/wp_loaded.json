@@ -1,0 +1,18 @@
+{
+  "slug": "wp_loaded",
+  "questions": [
+    {
+      "id": "wp_loaded-vs-init",
+      "question": "What's true about wp_loaded that's NOT true about init?",
+      "options": [
+        { "id": "a", "label": "It fires before any plugin code runs", "correct": false },
+        { "id": "b", "label": "It fires only after every init callback (core, plugins, and theme) has already finished", "correct": true },
+        { "id": "c", "label": "It's the right place to register post types", "correct": false }
+      ],
+      "feedback": {
+        "correct": "Right. wp_loaded runs after all init callbacks finished, so it's the safe spot to read things other plugins registered on init (like checking a CPT exists).",
+        "incorrect": "wp_loaded runs after every init callback (core + plugins + theme) has finished — that's what makes it safe to read what others registered on init. Registering things there yourself is usually too late, e.g. rewrite rules for a CPT won't be ready this request."
+      }
+    }
+  ]
+}

@@ -91,7 +91,7 @@ class Settings {
 			array(
 				'type'              => 'boolean',
 				'sanitize_callback' => array( self::class, 'sanitize_checkbox' ),
-				'default'           => false,
+				'default'           => true,
 			)
 		);
 
@@ -263,13 +263,15 @@ class Settings {
 	 */
 	public static function render_module_field( string $key, array $module ): void {
 		$option  = $module['option'];
-		$enabled = (bool) get_option( $option, 'ide' === $key ? false : true );
+		$enabled = (bool) get_option( $option, true );
 
 		if ( Modules::OPTION_CODE === $option && null === get_option( $option, null ) ) {
 			$enabled = Modules::is_code_enabled();
 		}
 
-		$disabled = ( 'ide' === $key );
+		if ( Modules::OPTION_IDE === $option && null === get_option( $option, null ) ) {
+			$enabled = Modules::is_ide_enabled();
+		}
 		?>
 		<label for="<?php echo esc_attr( $option ); ?>">
 			<input
@@ -278,13 +280,9 @@ class Settings {
 				name="<?php echo esc_attr( $option ); ?>"
 				value="1"
 				<?php checked( $enabled ); ?>
-				<?php disabled( $disabled ); ?>
 			/>
 			<?php echo esc_html( $module['description'] ); ?>
 		</label>
-		<?php if ( $disabled ) : ?>
-			<p class="description"><?php esc_html_e( 'Not available yet — enable after IDE block migration.', '4wp-advanced-code' ); ?></p>
-		<?php endif; ?>
 		<?php
 	}
 

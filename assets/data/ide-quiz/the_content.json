@@ -1,0 +1,18 @@
+{
+  "slug": "the_content",
+  "questions": [
+    {
+      "id": "must-return",
+      "question": "A the_content callback must:",
+      "options": [
+        { "id": "a", "label": "Echo the HTML", "correct": false },
+        { "id": "b", "label": "Return the (possibly modified) string", "correct": true },
+        { "id": "c", "label": "Call wp_die()", "correct": false }
+      ],
+      "feedback": {
+        "correct": "Yes. Filters that echo instead of returning wipe the post body.",
+        "incorrect": "Always return $content. Echoing in a filter removes the post from the page."
+      }
+    }
+  ]
+}

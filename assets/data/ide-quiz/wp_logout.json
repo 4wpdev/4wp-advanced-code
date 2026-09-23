@@ -1,0 +1,30 @@
+{
+  "slug": "wp_logout",
+  "questions": [
+    {
+      "id": "read-user-after-logout",
+      "question": "Where can you safely read which user just logged out inside a wp_logout callback?",
+      "options": [
+        {
+          "id": "a",
+          "label": "wp_get_current_user() inside the callback",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "label": "The $user_id argument passed to the callback",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "label": "$_SESSION['user_id']",
+          "correct": false
+        }
+      ],
+      "feedback": {
+        "correct": "Yes. The session is already destroyed by the time wp_logout fires — use the $user_id argument WordPress passes in.",
+        "incorrect": "wp_get_current_user() no longer works — the session is already gone. Use the $user_id argument passed directly to your wp_logout callback."
+      }
+    }
+  ]
+}

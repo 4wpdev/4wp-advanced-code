@@ -1,13 +1,43 @@
 /**
- * Terminal display modes: full view (fullscreen) and sticky compact panel.
+ * Terminal display modes: full view (native fullscreen, CSS fallback) and sticky compact panel.
+ * Also used by the IDE wizard titlebar (Full view only).
  */
 
 function getBlockShell( root ) {
 	return (
 		root.closest( '.wp-block-forwp-advanced-code-terminal' ) ||
+		root.closest( '.wp-block-forwp-advanced-code-ide' ) ||
 		root.closest( '.forwp-ac-terminal-block' ) ||
 		root
 	);
+}
+
+function getHeader( root ) {
+	return root.querySelector(
+		'.forwp-ac-terminal__header, .forwp-ac-ide__titlebar'
+	);
+}
+
+function getKeyboardField( root ) {
+	return root.querySelector(
+		'.forwp-ac-terminal__input, .forwp-ac-ide__code'
+	);
+}
+
+function isIde( root ) {
+	return root.classList.contains( 'forwp-ac-ide' );
+}
+
+function fullViewClass( root ) {
+	return isIde( root )
+		? 'forwp-ac-ide--fullview'
+		: 'forwp-ac-terminal--fullview';
+}
+
+function keyboardClass( root ) {
+	return isIde( root )
+		? 'forwp-ac-ide--keyboard-open'
+		: 'forwp-ac-terminal--keyboard-open';
 }
 
 function readDisplaySettings( root ) {
@@ -29,6 +59,14 @@ function readDisplaySettings( root ) {
 			? 'left'
 			: 'right';
 
+	if ( isIde( root ) ) {
+		return {
+			enableFullView: readFlag( 'enableFullview' ),
+			enableSticky: false,
+			stickySide: 'right',
+		};
+	}
+
 	return {
 		enableFullView: readFlag( 'enableFullview' ),
 		enableSticky: readFlag( 'enableSticky' ),
@@ -37,10 +75,13 @@ function readDisplaySettings( root ) {
 }
 
 function getDisplayLabels() {
-	const i18n = window.forwpAdvancedCodeTerminal?.i18n || {};
+	const i18n =
+		window.forwpAdvancedCodeTerminal?.i18n ||
+		window.forwpAdvancedCodeIde?.labels ||
+		{};
 
 	return {
-		fullView: i18n.fullView || 'Full view',
+		fullView: i18n.fullView || i18n.fullscreen || 'Full view',
 		sticky: i18n.sticky || 'Sticky',
 	};
 }
@@ -64,7 +105,7 @@ function ensureDisplayControls( root, enableFullView, enableSticky ) {
 		return;
 	}
 
-	const header = root.querySelector( '.forwp-ac-terminal__header' );
+	const header = getHeader( root );
 	if ( ! header ) {
 		return;
 	}
@@ -90,10 +131,18 @@ function ensureDisplayControls( root, enableFullView, enableSticky ) {
 	header.appendChild( controls );
 }
 
-function isFullscreen( root ) {
-	const doc = document;
-	const fsEl = doc.fullscreenElement || doc.webkitFullscreenElement;
+function isNativeFullscreen( root ) {
+	const fsEl =
+		document.fullscreenElement || document.webkitFullscreenElement;
 	return fsEl === root || fsEl === getBlockShell( root );
+}
+
+function isFullscreen( root ) {
+	return (
+		isNativeFullscreen( root ) ||
+		root.classList.contains( 'forwp-ac-terminal--fullview' ) ||
+		root.classList.contains( 'forwp-ac-ide--fullview' )
+	);
 }
 
 function requestFullscreen( el ) {
@@ -149,22 +198,31 @@ function canOutputScroll( output, deltaY ) {
 	return false;
 }
 
-function bindFullscreenKeyboard( root ) {
-	const input = root.querySelector( '.forwp-ac-terminal__input' );
-	const viewport = window.visualViewport;
+function isMobileChrome() {
+	return window.matchMedia(
+		'(max-width: 900px), (hover: none) and (pointer: coarse)'
+	).matches;
+}
 
-	if ( ! input || ! viewport ) {
+function bindFullscreenKeyboard( root ) {
+	const input = getKeyboardField( root );
+	const viewport = window.visualViewport;
+	const kbClass = keyboardClass( root );
+
+	// Desktop: leave full viewport alone — visualViewport sync is for
+	// soft keyboards on phones (where it otherwise covers the IDE).
+	if ( ! input || ! viewport || ! isMobileChrome() ) {
 		return () => {};
 	}
 
 	const clearKeyboardLayout = () => {
-		root.classList.remove( 'forwp-ac-terminal--keyboard-open' );
+		root.classList.remove( kbClass );
 		root.style.removeProperty( 'height' );
 		root.style.removeProperty( 'transform' );
 	};
 
 	const syncKeyboardLayout = () => {
-		if ( ! isFullscreen( root ) ) {
+		if ( ! isFullscreen( root ) || ! isMobileChrome() ) {
 			clearKeyboardLayout();
 			return;
 		}
@@ -174,7 +232,7 @@ function bindFullscreenKeyboard( root ) {
 		const inputFocused = document.activeElement === input;
 
 		if ( inputFocused || keyboardGap > 80 ) {
-			root.classList.add( 'forwp-ac-terminal--keyboard-open' );
+			root.classList.add( kbClass );
 			root.style.height = `${ Math.round( viewport.height ) }px`;
 			root.style.transform = `translateY(${ Math.round(
 				viewport.offsetTop
@@ -312,7 +370,10 @@ export function initTerminalDisplay( root ) {
 			'forwp-ac-terminal--sticky-left',
 			'forwp-ac-terminal--sticky-right'
 		);
-		root.classList.remove( 'forwp-ac-terminal--fullview' );
+		root.classList.remove(
+			'forwp-ac-terminal--fullview',
+			'forwp-ac-ide--fullview'
+		);
 		removeStickyPlaceholder();
 		unbindStickyWheel();
 
@@ -330,7 +391,7 @@ export function initTerminalDisplay( root ) {
 		}
 
 		if ( next === 'fullview' ) {
-			root.classList.add( 'forwp-ac-terminal--fullview' );
+			root.classList.add( fullViewClass( root ) );
 		}
 
 		syncButtons( root, mode );
@@ -341,7 +402,7 @@ export function initTerminalDisplay( root ) {
 		keyboardUnbind?.();
 		keyboardUnbind = null;
 
-		if ( isFullscreen( root ) ) {
+		if ( isNativeFullscreen( root ) ) {
 			if ( mode === 'sticky' ) {
 				setMode( 'default' );
 			}
@@ -368,27 +429,48 @@ export function initTerminalDisplay( root ) {
 
 		if ( btnMode === 'fullview' && enableFullView ) {
 			event.preventDefault();
-			if ( isFullscreen( root ) ) {
+			if ( isNativeFullscreen( root ) ) {
 				void exitFullscreen();
+				return;
+			}
+			if ( mode === 'fullview' ) {
+				keyboardUnbind?.();
+				keyboardUnbind = null;
+				setMode( 'default' );
 				return;
 			}
 			if ( mode === 'sticky' ) {
 				setMode( 'default' );
 			}
-			void requestFullscreen( root );
+			const native =
+				root.requestFullscreen || root.webkitRequestFullscreen;
+			if ( ! native ) {
+				setMode( 'fullview' );
+				keyboardUnbind?.();
+				keyboardUnbind = bindFullscreenKeyboard( root );
+				return;
+			}
+			void requestFullscreen( root ).then( () => {
+				if ( isNativeFullscreen( root ) ) {
+					return;
+				}
+				setMode( 'fullview' );
+				keyboardUnbind?.();
+				keyboardUnbind = bindFullscreenKeyboard( root );
+			} );
 			return;
 		}
 
 		if ( btnMode === 'sticky' && enableSticky ) {
 			event.preventDefault();
 			if ( mode === 'sticky' ) {
-				if ( isFullscreen( root ) ) {
+				if ( isNativeFullscreen( root ) ) {
 					void exitFullscreen();
 				}
 				setMode( 'default' );
 				return;
 			}
-			if ( isFullscreen( root ) ) {
+			if ( isNativeFullscreen( root ) ) {
 				void exitFullscreen();
 			}
 			setMode( 'sticky' );

@@ -35,6 +35,12 @@ require_once FORWP_ADVANCED_CODE_PATH . 'includes/class-terminal-upgrade.php';
 require_once FORWP_ADVANCED_CODE_PATH . 'includes/blocks/class-terminal-block-render.php';
 require_once FORWP_ADVANCED_CODE_PATH . 'includes/class-terminal-block-runtime.php';
 require_once FORWP_ADVANCED_CODE_PATH . 'includes/class-terminal-admin.php';
+require_once FORWP_ADVANCED_CODE_PATH . 'includes/class-ide-catalog.php';
+require_once FORWP_ADVANCED_CODE_PATH . 'includes/class-ide-quiz.php';
+require_once FORWP_ADVANCED_CODE_PATH . 'includes/class-ide-rest.php';
+require_once FORWP_ADVANCED_CODE_PATH . 'includes/class-ide-seo-handler.php';
+require_once FORWP_ADVANCED_CODE_PATH . 'includes/class-terminal-seo-handler.php';
+require_once FORWP_ADVANCED_CODE_PATH . 'includes/blocks/class-ide-block-render.php';
 require_once FORWP_ADVANCED_CODE_PATH . 'includes/class-blocks.php';
 
 ForWP\AdvancedCode\Block_Category::init();
@@ -46,6 +52,9 @@ ForWP\AdvancedCode\Terminal_Block_Runtime::init();
 ForWP\AdvancedCode\Terminal_Upgrade::init();
 ForWP\AdvancedCode\Terminal_Rest::init();
 ForWP\AdvancedCode\Terminal_Admin::init();
+ForWP\AdvancedCode\Ide_Rest::init();
+ForWP\AdvancedCode\Ide_Seo_Handler::init();
+ForWP\AdvancedCode\Terminal_Seo_Handler::init();
 ForWP\AdvancedCode\Blocks::init();
 
 add_action(

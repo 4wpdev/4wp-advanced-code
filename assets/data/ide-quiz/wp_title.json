@@ -1,0 +1,18 @@
+{
+  "slug": "wp_title",
+  "questions": [
+    {
+      "id": "modern-title",
+      "question": "On a modern block theme, prefer which API over wp_title?",
+      "options": [
+        { "id": "a", "label": "document_title_parts", "correct": true },
+        { "id": "b", "label": "the_content", "correct": false },
+        { "id": "c", "label": "wp_footer", "correct": false }
+      ],
+      "feedback": {
+        "correct": "Yes. Block themes build <title> through document_title_parts.",
+        "incorrect": "wp_title is the classic filter. document_title_parts is the current path."
+      }
+    }
+  ]
+}

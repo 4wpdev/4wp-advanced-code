@@ -1,0 +1,18 @@
+{
+  "slug": "",
+  "questions": [
+    {
+      "id": "",
+      "question": "",
+      "options": [
+        { "id": "a", "label": "", "correct": false },
+        { "id": "b", "label": "", "correct": true },
+        { "id": "c", "label": "", "correct": false }
+      ],
+      "feedback": {
+        "correct": "",
+        "incorrect": ""
+      }
+    }
+  ]
+}

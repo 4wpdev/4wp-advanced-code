@@ -1,0 +1,18 @@
+{
+  "slug": "body_class",
+  "questions": [
+    {
+      "id": "array-in-out",
+      "question": "A body_class callback receives and should return:",
+      "options": [
+        { "id": "a", "label": "A string of class names", "correct": false },
+        { "id": "b", "label": "An array of CSS classes", "correct": true },
+        { "id": "c", "label": "A WP_Post object", "correct": false }
+      ],
+      "feedback": {
+        "correct": "Yes. Push onto the array and return it.",
+        "incorrect": "body_class filters a string[] — add your class and return the array."
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "slug": "init",
+  "questions": [
+    {
+      "id": "cpt-on-init",
+      "question": "The usual hook to register a public custom post type is:",
+      "options": [
+        { "id": "a", "label": "plugins_loaded", "correct": false },
+        { "id": "b", "label": "init", "correct": true },
+        { "id": "c", "label": "wp_footer", "correct": false }
+      ],
+      "feedback": {
+        "correct": "Yes. init is the default place for CPTs, taxonomies, and rewrite APIs.",
+        "incorrect": "Register post types on init so rewrite rules and admin menus see them."
+      }
+    }
+  ]
+}

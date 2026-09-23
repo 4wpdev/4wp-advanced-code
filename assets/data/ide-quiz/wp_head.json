@@ -1,0 +1,18 @@
+{
+  "slug": "wp_head",
+  "questions": [
+    {
+      "id": "print-vs-enqueue",
+      "question": "What belongs on wp_head?",
+      "options": [
+        { "id": "a", "label": "Enqueue CSS and JS files", "correct": false },
+        { "id": "b", "label": "Print meta tags and inline snippets", "correct": true },
+        { "id": "c", "label": "Register custom post types", "correct": false }
+      ],
+      "feedback": {
+        "correct": "Yes. wp_head is a print slot. Enqueue files on wp_enqueue_scripts.",
+        "incorrect": "wp_head prints markup in <head>. Assets go on wp_enqueue_scripts; CPTs on init."
+      }
+    }
+  ]
+}

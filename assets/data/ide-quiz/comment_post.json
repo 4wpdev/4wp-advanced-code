@@ -1,0 +1,30 @@
+{
+  "slug": "comment_post",
+  "questions": [
+    {
+      "id": "comment-approved-values",
+      "question": "What can $comment_approved be, besides 1?",
+      "options": [
+        {
+          "id": "a",
+          "label": "Only 0 or 1",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "label": "0 (pending) or the string 'spam'",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "label": "It's always 1 for logged-in users",
+          "correct": false
+        }
+      ],
+      "feedback": {
+        "correct": "Right — check for 'spam' and 0 too, or you'll email admins about held or spam comments as if they were approved.",
+        "incorrect": "$comment_approved can be 1 (approved), 0 (held for moderation), or the string 'spam' — not just a boolean-style 0/1."
+      }
+    }
+  ]
+}

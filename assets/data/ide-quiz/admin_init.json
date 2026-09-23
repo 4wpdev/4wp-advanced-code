@@ -1,0 +1,18 @@
+{
+  "slug": "admin_init",
+  "questions": [
+    {
+      "id": "admin-only",
+      "question": "admin_init runs:",
+      "options": [
+        { "id": "a", "label": "On every front-end request", "correct": false },
+        { "id": "b", "label": "On wp-admin requests (including admin-ajax)", "correct": true },
+        { "id": "c", "label": "Only on plugin activation", "correct": false }
+      ],
+      "feedback": {
+        "correct": "Yes. It is the admin counterpart to init.",
+        "incorrect": "admin_init is wp-admin only. Do not register front-end CPTs there."
+      }
+    }
+  ]
+}

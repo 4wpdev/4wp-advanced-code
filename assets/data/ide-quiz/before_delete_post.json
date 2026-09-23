@@ -1,0 +1,30 @@
+{
+  "slug": "before_delete_post",
+  "questions": [
+    {
+      "id": "trash-vs-delete",
+      "question": "Does before_delete_post fire when you move a post to Trash?",
+      "options": [
+        {
+          "id": "a",
+          "label": "Yes, every time",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "label": "No — that's wp_trash_post; before_delete_post only fires on permanent deletion",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "label": "Only for custom post types",
+          "correct": false
+        }
+      ],
+      "feedback": {
+        "correct": "Correct. Trashing fires wp_trash_post. before_delete_post only fires for a hard, permanent delete.",
+        "incorrect": "Trashing a post fires wp_trash_post, not this hook. before_delete_post is reserved for permanent/hard deletion only."
+      }
+    }
+  ]
+}

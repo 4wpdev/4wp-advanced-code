@@ -1,0 +1,375 @@
+{
+	"version": 1,
+	"type": "challenge",
+	"profile": "challenge-secure-maintenance",
+	"slug": "wp-cli-practice-secure-maintenance",
+	"prompt": "user@server:/var/www/html$",
+	"title": "Secure WordPress Maintenance",
+	"description": "Run a production-safe maintenance sequence on a live business WordPress site: back up first, update core and plugins, remove risky tools, install a premium plugin from a local package, and lock down file edits from wp-admin.",
+	"instructions": "You are SSH'd into /var/www/html on production. Order matters — never update before a database backup. Hints describe the action, not the exact command. Type each command in the terminal.",
+	"difficulty": "intermediate",
+	"estimated_time": "12–15 min",
+	"related_page": "/wp-cli/practice-cases/secure-maintenance/",
+	"author_url": "/about/",
+	"image": "/wp-content/uploads/practice-cases/secure-maintenance.jpg",
+	"steps": [
+		{
+			"id": 1,
+			"hint": "Confirm which WordPress version is running on this site",
+			"accepted": [
+				"wp core version",
+				"wp core version --extra"
+			],
+			"output": "6.8.2",
+			"feedback_wrong": "Start by reading the current core version — you need a baseline before any update.",
+			"feedback_correct": "Baseline recorded. Check whether a core update is available.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp core version"
+		},
+		{
+			"id": 2,
+			"hint": "Check whether WordPress core has an available update",
+			"accepted": [
+				"wp core check-update"
+			],
+			"output": "Available update:\n  version: 6.8.3\n  update_type: minor\n  package_url: https://downloads.wordpress.org/release/wordpress-6.8.3-no-content.zip",
+			"feedback_wrong": "Do not update blindly — check what core release is available first.",
+			"feedback_correct": "Update available. Before changing anything — export the database.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp core check-update"
+		},
+		{
+			"id": 3,
+			"hint": "Export the database to a dated backup file before any updates",
+			"accepted": [
+				"wp db export",
+				"wp db export backup.sql",
+				"wp db export db.sql",
+				"wp db export backup-$(date +%Y%m%d).sql",
+				"wp db export ~/backups/db.sql",
+				"wp db export /home/ubuntu/backups/db.sql"
+			],
+			"output": "Success: Exported to 'backup-20260921.sql'.",
+			"feedback_wrong": "Never update production without a database export you can restore from.",
+			"feedback_correct": "Database backed up. Safe to update WordPress core.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp db export backup-$(date +%Y%m%d).sql"
+		},
+		{
+			"id": 4,
+			"hint": "Update WordPress core to the latest available release",
+			"accepted": [
+				"wp core update",
+				"wp core update --minor"
+			],
+			"output": "Updating to version 6.8.3 (en_US)...\nDownloading update from https://downloads.wordpress.org/release/wordpress-6.8.3-no-content.zip...\nUnpacking the update...\nSuccess: WordPress updated successfully.",
+			"feedback_wrong": "Database is backed up — update WordPress core next.",
+			"feedback_correct": "Core files updated. Apply any pending database schema changes.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp core update"
+		},
+		{
+			"id": 5,
+			"hint": "Update the database schema so it matches the new core version",
+			"accepted": [
+				"wp core update-db",
+				"wp core update-db --network"
+			],
+			"output": "Success: WordPress database already at latest db version.\nSuccess: WordPress database upgraded successfully.",
+			"feedback_wrong": "After wp core update, always run update-db — schema may lag behind the code.",
+			"feedback_correct": "Schema is current. Review plugins before updating them.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp core update-db"
+		},
+		{
+			"id": 6,
+			"hint": "List installed plugins and see which ones have updates",
+			"accepted": [
+				"wp plugin list",
+				"wp plugin list --fields=name,status,update,version"
+			],
+			"output": "+------------------+----------+-----------+---------+\n| name             | status   | update    | version |\n+------------------+----------+-----------+---------+\n| contact-form-7   | active   | none      | 6.1.7   |\n| elementor        | active   | none      | 3.29.0  |\n| elementor-pro    | active   | available | 3.27.4  |\n| query-monitor    | active   | none      | 3.17.0  |\n| wordfence        | active   | none      | 8.0.1   |\n| wpforms-lite     | active   | available | 1.9.5   |\n+------------------+----------+-----------+---------+",
+			"feedback_wrong": "Inspect the plugin list before updating — know what will change.",
+			"feedback_correct": "Updates pending. Update all plugins that WP-CLI can fetch from the repository.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp plugin list"
+		},
+		{
+			"id": 7,
+			"hint": "Update all plugins that have available updates",
+			"accepted": [
+				"wp plugin update --all",
+				"wp plugin update --all --minor"
+			],
+			"output": "Enabling Maintenance mode...\nDownloading update from https://downloads.wordpress.org/plugin/wpforms-lite.1.9.6.zip...\nPlugin updated successfully.\nWarning: Download failed for elementor-pro. \"Unauthorized\"\nDisabling Maintenance mode...\n+---------------+-------------+-------------+---------+\n| name          | old_version | new_version | status  |\n+---------------+-------------+-------------+---------+\n| elementor-pro | 3.27.4      | 3.29.0      | Error   |\n| wpforms-lite  | 1.9.5       | 1.9.6       | Updated |\n+---------------+-------------+-------------+---------+\nError: Only updated 1 of 2 plugins (1 failed).",
+			"feedback_wrong": "Run a bulk plugin update. Premium plugins may fail — that is expected when the license download is blocked.",
+			"feedback_correct": "Free plugins updated. Premium failed with Unauthorized — install it from a local package next.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp plugin update --all"
+		},
+		{
+			"id": 8,
+			"hint": "Install the premium plugin from a local zip, replacing the current version and keeping it active",
+			"accepted": [
+				"wp plugin install /tmp/elementor-pro.zip --force --activate",
+				"wp plugin install ~/elementor-pro.zip --force --activate",
+				"wp plugin install elementor-pro.zip --force --activate"
+			],
+			"output": "Unpacking the package...\nInstalling the plugin...\nRemoving the old version of the plugin...\nPlugin updated successfully.\nActivating 'elementor-pro'...\nWarning: Plugin 'elementor-pro' is already active.\nSuccess: Installed 1 of 1 plugins.",
+			"feedback_wrong": "Premium updates often cannot be downloaded via the API. Install from a zip on the server with --force --activate.",
+			"feedback_correct": "Premium plugin replaced from the local package. Deactivate tools that should not run on production.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp plugin install /tmp/elementor-pro.zip --force --activate"
+		},
+		{
+			"id": 9,
+			"hint": "Deactivate the developer debugging plugin that should not stay on production",
+			"accepted": [
+				"wp plugin deactivate query-monitor",
+				"wp plugin deactivate query-monitor --uninstall"
+			],
+			"output": "Plugin 'query-monitor' deactivated.\nSuccess: Deactivated 1 of 1 plugins.",
+			"feedback_wrong": "Query Monitor is a development tool. Deactivate it on production after maintenance.",
+			"feedback_correct": "Dev tooling off. Lock down plugin and theme installs from wp-admin.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp plugin deactivate query-monitor"
+		},
+		{
+			"id": 10,
+			"hint": "Disable plugin and theme file modifications from the WordPress admin",
+			"accepted": [
+				"wp config set DISALLOW_FILE_MODS true --raw",
+				"wp config set DISALLOW_FILE_MODS true --raw --type=constant"
+			],
+			"output": "Success: Added the constant 'DISALLOW_FILE_MODS' to the 'wp-config.php' file with the raw value 'true'.",
+			"feedback_wrong": "Block install/update UI in wp-admin so production changes go through WP-CLI only.",
+			"feedback_correct": "Admin install/update path locked. Export a fresh database backup after the changes.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp config set DISALLOW_FILE_MODS true --raw"
+		},
+		{
+			"id": 11,
+			"hint": "Export a fresh database backup that reflects the post-maintenance state",
+			"accepted": [
+				"wp db export",
+				"wp db export backup.sql",
+				"wp db export db.sql",
+				"wp db export backup-$(date +%Y%m%d).sql",
+				"wp db export post-maintenance.sql",
+				"wp db export ~/backups/db.sql"
+			],
+			"output": "Success: Exported to 'post-maintenance-20260921.sql'.",
+			"feedback_wrong": "After successful maintenance, take a new export — the pre-update dump is no longer the current truth.",
+			"feedback_correct": "Post-maintenance backup saved. Flush the object cache before you finish.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp db export post-maintenance.sql"
+		},
+		{
+			"id": 12,
+			"hint": "Flush the object cache so visitors do not see stale data after updates",
+			"accepted": [
+				"wp cache flush"
+			],
+			"output": "Success: The cache was flushed.",
+			"feedback_wrong": "Updates can leave stale object-cache entries. Flush before you call the job done.",
+			"feedback_correct": "Maintenance complete: backed up, updated, hardened, re-backed up, cache cleared.",
+			"reveal_after_attempts": 1,
+			"command_hint": "wp cache flush"
+		}
+	],
+	"content": {
+		"goal": "Complete a production-safe WordPress maintenance workflow with WP-CLI: verify core version, back up the database before changes, update core and schema, update plugins, replace a premium plugin from a local zip, deactivate unsafe production tooling, lock down wp-admin file mods, take a post-change backup, and flush cache.",
+		"steps": [
+			{
+				"title": "1. Confirm the current core version",
+				"paragraphs": [
+					"Always establish a baseline before maintenance. Knowing the exact core version helps you confirm the update succeeded and makes post-mortems easier if something fails.",
+					"wp core version reads the installed WordPress release from the codebase — no admin login required."
+				],
+				"command": "wp core version"
+			},
+			{
+				"title": "2. Check for available core updates",
+				"paragraphs": [
+					"wp core check-update reports whether a newer release exists and what type it is (minor vs major). Checking is not updating — it only informs the next steps.",
+					"On production, prefer minor/patch updates unless you have a staged major-upgrade plan."
+				],
+				"command": "wp core check-update"
+			},
+			{
+				"title": "3. Export the database before any changes",
+				"paragraphs": [
+					"A database export is the minimum rollback tool for WordPress maintenance. If an update breaks the site, you restore from this dump.",
+					"Name the file with a date. Keep it outside the public web root when you work on real servers. File archives (tar of wp-content) are complementary — this challenge focuses on the WP-CLI path."
+				],
+				"command": "wp db export backup-$(date +%Y%m%d).sql"
+			},
+			{
+				"title": "4. Update WordPress core",
+				"paragraphs": [
+					"With a backup in place, update core files. WP-CLI handles download and replacement; maintenance mode is used during the process.",
+					"Use --minor in automated pipelines to avoid unexpected major jumps."
+				],
+				"command": "wp core update"
+			},
+			{
+				"title": "5. Update the database schema",
+				"paragraphs": [
+					"Core updates may ship schema changes. wp core update-db applies them. Skip this step and you risk subtle admin or frontend bugs.",
+					"Always run update-db after core update, never before."
+				],
+				"command": "wp core update-db"
+			},
+			{
+				"title": "6. List plugins",
+				"paragraphs": [
+					"wp plugin list shows status, versions, and available updates. Read it before bulk updates so you know which premium or abandoned plugins may need special handling."
+				],
+				"command": "wp plugin list"
+			},
+			{
+				"title": "7. Update all repository plugins",
+				"paragraphs": [
+					"wp plugin update --all updates everything WordPress.org (or licensed endpoints) can serve. Premium plugins often fail with Unauthorized when the license download cannot be fetched from CLI.",
+					"That failure is a signal to install from a verified local package — not to skip the plugin."
+				],
+				"command": "wp plugin update --all"
+			},
+			{
+				"title": "8. Install a premium plugin from a local zip",
+				"paragraphs": [
+					"Upload the vendor zip to the server (scp), then install with --force to replace the current copy and --activate to keep the site working.",
+					"This is the standard pattern for Elementor Pro, ACF PRO, and similar licensed plugins on production."
+				],
+				"command": "wp plugin install /tmp/elementor-pro.zip --force --activate"
+			},
+			{
+				"title": "9. Deactivate production-unsafe tooling",
+				"paragraphs": [
+					"Development plugins such as Query Monitor should not stay active on live business sites. Deactivate them as part of maintenance.",
+					"Reducing attack surface and noise is part of secure operations — not only patching versions."
+				],
+				"command": "wp plugin deactivate query-monitor"
+			},
+			{
+				"title": "10. Disallow file mods from wp-admin",
+				"paragraphs": [
+					"DISALLOW_FILE_MODS blocks plugin/theme install and update UI in the dashboard. Production changes then go through SSH and WP-CLI — auditable and harder to abuse after a compromised admin account.",
+					"Set it with wp config set so the constant lands in wp-config.php correctly."
+				],
+				"command": "wp config set DISALLOW_FILE_MODS true --raw"
+			},
+			{
+				"title": "11. Export a post-maintenance database backup",
+				"paragraphs": [
+					"The pre-update dump is history. After successful changes, export again so your latest restore point matches the hardened site.",
+					"On real servers, also refresh the files archive outside the web root."
+				],
+				"command": "wp db export post-maintenance.sql"
+			},
+			{
+				"title": "12. Flush the object cache",
+				"paragraphs": [
+					"Stale object cache can serve old options, menus, or plugin state after updates. Flush before you declare the job done.",
+					"Page cache / CDN may need a separate purge depending on the stack."
+				],
+				"command": "wp cache flush"
+			}
+		],
+		"troubleshooting": [
+			"Updating core or plugins before <code>wp db export</code> — you lose a clean rollback if the update fails.",
+			"Skipping <code>wp core update-db</code> after <code>wp core update</code> — schema and code versions diverge.",
+			"Assuming <code>wp plugin update --all</code> covers premium plugins — licensed downloads often return Unauthorized from CLI.",
+			"Leaving Query Monitor (or similar) active on production — leaks debug data and adds unnecessary load.",
+			"Relying only on the wp-admin Updates screen — a compromised admin can install malware; <code>DISALLOW_FILE_MODS</code> reduces that path.",
+			"Keeping only the pre-update backup — after success you need a new export that reflects the current site.",
+			"Forgetting <code>wp cache flush</code> — visitors and admins may still see stale behavior after a successful update."
+		],
+		"real_cases": [
+			{"label": "4wp.dev — WP-CLI Core commands", "url": "/wp-cli/core/"},
+			{"label": "4wp.dev — WP-CLI Plugins commands", "url": "/wp-cli/plugins/"},
+			{"label": "4wp.dev — WP-CLI Database commands", "url": "/wp-cli/database/"},
+			{"label": "Related practice — WordPress Maintenance Workflow", "url": "/wp-cli/practice-cases/maintenance/"},
+			{"label": "Related practice — Database Export and Import", "url": "/practice-case-wp-cli-database-db-export-import/"},
+			{"label": "Official handbook — wp config set", "url": "https://developer.wordpress.org/cli/commands/config/set/"},
+			{"label": "Official handbook — wp plugin install", "url": "https://developer.wordpress.org/cli/commands/plugin/install/"}
+		],
+		"faq": [
+			{
+				"question": "Why is this challenge intermediate if maintenance already exists?",
+				"answer": "The beginner maintenance case covers the happy path: check, export, update core, update plugins, flush cache. This case adds production security habits: plugin inventory, premium zip installs, deactivating unsafe tooling, locking wp-admin file mods, and a post-change backup."
+			},
+			{
+				"question": "Why does elementor-pro fail with Unauthorized?",
+				"answer": "Many premium plugins authenticate downloads against the vendor API using a license tied to the site. WP-CLI bulk update may not complete that handshake. Installing a verified zip with <code>wp plugin install … --force --activate</code> is the reliable production pattern."
+			},
+			{
+				"question": "What does DISALLOW_FILE_MODS actually block?",
+				"answer": "It disables plugin and theme install/update (and related file editing) from the WordPress admin UI. Updates then happen via WP-CLI or controlled deploy pipelines — which is what you want on production business sites."
+			},
+			{
+				"question": "Should I also back up files, not only the database?",
+				"answer": "Yes on real servers. Use a dated directory outside the web root for <code>tar</code> archives of the site plus <code>wp db export</code>. This interactive challenge focuses on WP-CLI commands; file archives remain part of the full protocol."
+			},
+			{
+				"question": "In which order should I update core and plugins?",
+				"answer": "Core first, then <code>wp core update-db</code>, then plugins. Plugins often require a minimum WordPress version; updating them against outdated core can cause fatals."
+			},
+			{
+				"question": "Do I need --allow-root?",
+				"answer": "Only when you run WP-CLI as root (common on some VPS setups). Prefer a dedicated deploy user that owns the site files. This simulator accepts the commands without --allow-root."
+			}
+		],
+		"taxonomies": {
+			"pc_tool": "wp-cli",
+			"pc_category": "maintenance"
+		}
+	},
+	"seo": {
+		"title": "Secure WordPress Maintenance with WP-CLI — Practice Case",
+		"description": "Practice production WordPress maintenance in an interactive WP-CLI terminal: wp db export, wp core update, wp core update-db, wp plugin list, wp plugin update --all, premium zip install, deactivate unsafe plugins, DISALLOW_FILE_MODS, post-change backup, wp cache flush.",
+		"keywords": [
+			"wp-cli practice terminal",
+			"wp-cli practice",
+			"wp-cli maintenance",
+			"secure wordpress maintenance",
+			"wordpress production maintenance cli",
+			"wp core version",
+			"wp core check-update",
+			"wp core update",
+			"wp core update-db",
+			"wp db export",
+			"wp plugin list",
+			"wp plugin update --all",
+			"wp plugin install force activate",
+			"wp plugin deactivate",
+			"wp config set DISALLOW_FILE_MODS",
+			"DISALLOW_FILE_MODS",
+			"wordpress premium plugin cli install",
+			"elementor pro wp-cli",
+			"wordpress hardening wp-cli",
+			"wordpress business site maintenance",
+			"wp cache flush",
+			"wordpress cli security",
+			"wp-cli intermediate practice"
+		]
+	},
+	"completion": {
+		"perfect": [
+			"You exported the database before any updates — that is the difference between maintenance and gambling.",
+			"You handled the premium plugin failure correctly: local zip with --force --activate instead of abandoning the update.",
+			"You set DISALLOW_FILE_MODS — production changes now prefer an auditable CLI path."
+		],
+		"optimize": [
+			"On real servers, also archive site files to /home/ubuntu/backups/<site>/<date>/ outside the web root.",
+			"Run wp core verify-checksums after core updates on production.",
+			"Use wp plugin update --all --dry-run before applying bulk plugin updates.",
+			"Document which plugins must stay inactive on production (Query Monitor, staging tools)."
+		],
+		"next": [
+			"Try the beginner Maintenance Workflow case if you want the shorter happy-path sequence.",
+			"Try Database Export and Import to practice restore under maintenance mode.",
+			"Read the WP-CLI Core and Plugins command groups for flags used in automation."
+		]
+	}
+}

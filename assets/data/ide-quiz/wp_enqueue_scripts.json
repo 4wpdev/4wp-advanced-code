@@ -1,0 +1,18 @@
+{
+  "slug": "wp_enqueue_scripts",
+  "questions": [
+    {
+      "id": "right-enqueue",
+      "question": "Where should you enqueue front-end CSS and JS?",
+      "options": [
+        { "id": "a", "label": "wp_head", "correct": false },
+        { "id": "b", "label": "wp_enqueue_scripts", "correct": true },
+        { "id": "c", "label": "init", "correct": false }
+      ],
+      "feedback": {
+        "correct": "Yes. Queue assets here; core prints the tags later.",
+        "incorrect": "wp_enqueue_scripts is the queue. wp_head only prints; init is too early for most assets."
+      }
+    }
+  ]
+}

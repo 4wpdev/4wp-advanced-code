@@ -1,0 +1,30 @@
+{
+  "slug": "authenticate",
+  "questions": [
+    {
+      "id": "reject-login",
+      "question": "How do you actually reject a login attempt from the authenticate filter?",
+      "options": [
+        {
+          "id": "a",
+          "label": "return false;",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "label": "return a WP_Error object",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "label": "return null;",
+          "correct": false
+        }
+      ],
+      "feedback": {
+        "correct": "Correct. A WP_Error stops the login. Returning null just lets the next registered authenticate callback run instead.",
+        "incorrect": "Only returning a WP_Error actually blocks the login. null falls through to the next check; false isn't a valid return type here at all."
+      }
+    }
+  ]
+}

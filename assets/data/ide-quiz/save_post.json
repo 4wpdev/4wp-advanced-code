@@ -1,0 +1,18 @@
+{
+  "slug": "save_post",
+  "questions": [
+    {
+      "id": "when-save",
+      "question": "save_post fires:",
+      "options": [
+        { "id": "a", "label": "Before the post is written to the database", "correct": false },
+        { "id": "b", "label": "After a post is saved or updated", "correct": true },
+        { "id": "c", "label": "Only when a post is first published", "correct": false }
+      ],
+      "feedback": {
+        "correct": "Yes. It receives the post ID and runs on insert and update.",
+        "incorrect": "save_post runs after the row is saved — both new posts and updates."
+      }
+    }
+  ]
+}

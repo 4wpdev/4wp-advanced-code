@@ -1,0 +1,30 @@
+{
+  "slug": "cron_schedules",
+  "questions": [
+    {
+      "id": "unregistered-interval",
+      "question": "You call wp_schedule_event() with interval 'every_fifteen_minutes' but the event never fires. Why?",
+      "options": [
+        {
+          "id": "a",
+          "label": "WP-Cron only supports hourly or longer intervals",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "label": "That interval name was never registered via cron_schedules",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "label": "wp_schedule_event() requires manual triggering every time",
+          "correct": false
+        }
+      ],
+      "feedback": {
+        "correct": "Right. wp_schedule_event() silently accepts any interval name — it only works if cron_schedules already registered a matching key.",
+        "incorrect": "WP-Cron supports any interval length. The real cause: wp_schedule_event() was called with an interval name that cron_schedules never registered."
+      }
+    }
+  ]
+}

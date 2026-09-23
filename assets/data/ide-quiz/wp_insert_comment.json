@@ -1,0 +1,30 @@
+{
+  "slug": "wp_insert_comment",
+  "questions": [
+    {
+      "id": "vs-comment-post",
+      "question": "wp_insert_comment vs comment_post — what's the key difference?",
+      "options": [
+        {
+          "id": "a",
+          "label": "They're identical, just different names for the same moment",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "label": "wp_insert_comment fires for every insert path, including REST API and imports — not just the comment form",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "label": "comment_post fires more often per request",
+          "correct": false
+        }
+      ],
+      "feedback": {
+        "correct": "Yes. wp_insert_comment is the lower-level hook — it catches programmatic and REST inserts that comment_post's front-end-oriented data doesn't.",
+        "incorrect": "The difference is scope: wp_insert_comment fires for every insertion path, including REST/import; comment_post is tied to the standard front-end submission flow."
+      }
+    }
+  ]
+}

@@ -1,0 +1,182 @@
+{
+	"version": 1,
+	"type": "challenge",
+	"profile": "challenge-profiling",
+	"slug": "profiling",
+	"prompt": "$",
+	"title": "WordPress Performance Profiling with wp profile",
+	"description": "A client says the site is slow. Install the WP-CLI profiler, profile the right site on a multisite network, and read the numbers before touching any code.",
+	"instructions": "Type each command in the terminal below. The terminal validates your input at every step. Hints describe the action — not the exact command.",
+	"difficulty": "beginner",
+	"estimated_time": "5 min",
+	"related_page": "/wp-cli/practice-cases/profiling/",
+	"author_url": "/about/",
+	"image": "/wp-content/uploads/practice-cases/profiling.jpg",
+	"steps": [
+		{
+			"id": 1,
+			"hint": "wp profile is not a core command — install the package first",
+			"accepted": [
+				"wp package install wp-cli/profile-command"
+			],
+			"output": "Installing package wp-cli/profile-command (this may take a while)...\nUpdating package index...\nSuccess: Package installed.",
+			"feedback_wrong": "Before profiling anything, install the profile-command package — it's not part of WP-CLI core.",
+			"feedback_correct": "Package installed. Confirm the command is actually available.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp package install wp-cli/profile-command"
+		},
+		{
+			"id": 2,
+			"hint": "Confirm the profile command is available",
+			"accepted": [
+				"wp profile --help"
+			],
+			"output": "usage: wp profile stage [<stage>] [--url=<url>] [--fields=<fields>] [--format=<format>]\n   or: wp profile hook [<hook>] [--url=<url>]\n   or: wp profile eval <php-code>\n   or: wp profile eval-file <file>",
+			"feedback_wrong": "Verify the install worked before you profile anything on this multisite network.",
+			"feedback_correct": "Command is live. This site is a multisite network — the client's complaint is about one specific sub-site, not the network's main site.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp profile --help"
+		},
+		{
+			"id": 3,
+			"hint": "Profile the network's main site first, the way most people do by default",
+			"accepted": [
+				"wp profile stage"
+			],
+			"output": "+------------+---------+------------+--------------+-------------+\n| stage      | time    | query_num  | cache_ratio  | cache_hits  |\n+------------+---------+------------+--------------+-------------+\n| bootstrap  | 0.1090s | 11         | 93.1%        | 22          |\n| main_query | 0.0398s | 3          | 90.0%        | 9           |\n| template   | 0.0812s | 9          | 88.4%        | 14          |\n| total      | 0.2300s | 23         | 90.5%        | 45          |\n+------------+---------+------------+--------------+-------------+",
+			"feedback_wrong": "Run wp profile stage with no arguments first — this is the mistake most people make on a multisite network.",
+			"feedback_correct": "These numbers look fine — because this just profiled the network's main site, not the sub-site the client complained about. Without --url, that's exactly what happens.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp profile stage"
+		},
+		{
+			"id": 4,
+			"hint": "Now profile the actual sub-site the client complained about, explicitly",
+			"accepted": [
+				"wp profile stage --url=shop.example.com"
+			],
+			"output": "+------------+---------+------------+--------------+-------------+\n| stage      | time    | query_num  | cache_ratio  | cache_hits  |\n+------------+---------+------------+--------------+-------------+\n| bootstrap  | 0.1181s | 12         | 92.3%        | 24          |\n| main_query | 0.0432s | 4          | 88.9%        | 8           |\n| template   | 0.2890s | 31         | 61.4%        | 19          |\n| total      | 0.4503s | 47         | 78.7%        | 51          |\n+------------+---------+------------+--------------+-------------+",
+			"feedback_wrong": "Add --url pointing at the specific sub-site the client reported as slow.",
+			"feedback_correct": "Now you have real numbers for the right site: template is the slow stage (0.2890s, 61.4% cache_ratio) — the other two stages are fine.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp profile stage --url=shop.example.com"
+		},
+		{
+			"id": 5,
+			"hint": "Narrow the output to just the columns that matter for the report",
+			"accepted": [
+				"wp profile stage --fields=stage,time,cache_ratio --url=shop.example.com"
+			],
+			"output": "+------------+---------+--------------+\n| stage      | time    | cache_ratio  |\n+------------+---------+--------------+\n| bootstrap  | 0.1181s | 92.3%        |\n| main_query | 0.0432s | 88.9%        |\n| template   | 0.2890s | 61.4%        |\n| total      | 0.4503s | 78.7%        |\n+------------+---------+--------------+",
+			"feedback_wrong": "Use --fields to keep the table to what you'll actually quote in the report: stage, time, cache_ratio.",
+			"feedback_correct": "Diagnosis done: the template stage on shop.example.com is the bottleneck, with a low cache_ratio pointing at uncached queries — that's where the follow-up investigation starts.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp profile stage --fields=stage,time,cache_ratio --url=shop.example.com"
+		}
+	],
+	"content": {
+		"goal": "Install wp-cli/profile-command, profile the correct site on a multisite network with an explicit --url, and read the stage table to point a client's vague \"the site is slow\" complaint at one concrete stage.",
+		"steps": [
+			{
+				"title": "1. Install wp-cli/profile-command",
+				"paragraphs": [
+					"wp profile is a separate WP-CLI package, not a core command. Install it once per environment.",
+					"On a managed host without shell package installs, this may need to be pre-approved or run locally first."
+				],
+				"command": "wp package install wp-cli/profile-command"
+			},
+			{
+				"title": "2. Confirm the command is available",
+				"paragraphs": [
+					"wp profile --help lists the four subcommands: stage, hook, eval, eval-file.",
+					"This site is a multisite network — keep that in mind for the next step."
+				],
+				"command": "wp profile --help"
+			},
+			{
+				"title": "3. Profile without --url (the default mistake)",
+				"paragraphs": [
+					"Running wp profile stage with no arguments profiles the network's main site — not necessarily the site anyone actually complained about.",
+					"The numbers come back looking healthy, which is the trap: they're real numbers, just for the wrong site."
+				],
+				"command": "wp profile stage"
+			},
+			{
+				"title": "4. Profile the actual sub-site explicitly",
+				"paragraphs": [
+					"Add --url pointing at the exact sub-site from the client's complaint.",
+					"Now the template stage stands out: 0.2890s and a cache_ratio of only 61.4%, against bootstrap and main_query staying fast and well-cached."
+				],
+				"command": "wp profile stage --url=shop.example.com"
+			},
+			{
+				"title": "5. Trim the output to what goes in the report",
+				"paragraphs": [
+					"--fields keeps the table to stage, time, and cache_ratio — the three numbers worth quoting back to the client or a teammate.",
+					"From here, the next step is drilling into the template stage's hooks — covered in the next article in this series."
+				],
+				"command": "wp profile stage --fields=stage,time,cache_ratio --url=shop.example.com"
+			}
+		],
+		"troubleshooting": [
+			"Running <code>wp profile stage</code> without <code>--url</code> on a multisite network — it profiles the network's main site, not the sub-site anyone reported as slow.",
+			"Treating a healthy-looking <code>wp profile stage</code> result as proof nothing is wrong — it may just be the wrong site.",
+			"Skipping <code>wp profile --help</code> after install — on some hosts the package installs but the binary isn't on PATH for the web user, only for SSH.",
+			"Reading <code>time</code> alone and ignoring <code>cache_ratio</code> — a slow stage with a low cache_ratio points at uncached queries, not raw PHP execution.",
+			"Profiling once and calling it done — stage numbers vary run to run; profile 2-3 times before quoting a number to a client."
+		],
+		"real_cases": [
+			{"label": "4wp.dev — WP-CLI Core command group", "url": "/wp-cli/core/"},
+			{"label": "4wp.dev — wp profile: перший профайлінг WordPress через WP-CLI", "url": "/wp-cli/profiling/wp-profile-start/"},
+			{"label": "Official handbook — wp-cli/profile-command", "url": "https://github.com/wp-cli/profile-command"}
+		],
+		"faq": [
+			{
+				"question": "Why does wp profile stage need --url on a multisite network?",
+				"answer": "Without <code>--url</code>, WP-CLI bootstraps the network's main site. On multisite, every sub-site can have different active plugins and theme setups, so profiling the wrong URL gives real but irrelevant numbers."
+			},
+			{
+				"question": "What does a low cache_ratio actually mean?",
+				"answer": "It means a large share of that stage's queries went straight to the database instead of the object cache — a common cause of slow template stages, and usually the next place to investigate, not the PHP code itself."
+			},
+			{
+				"question": "Is one wp profile stage run enough to diagnose a slow site?",
+				"answer": "No. Run it 2-3 times — caching, cron, and background jobs can make a single run look better or worse than the site's normal behavior."
+			},
+			{
+				"question": "What's the difference between wp profile stage and wp profile hook?",
+				"answer": "wp profile stage measures WordPress's three broad load phases. wp profile hook goes one level deeper, breaking down time spent inside a specific hook's callbacks — the next step once a stage is confirmed slow."
+			}
+		],
+		"taxonomies": {
+			"pc_tool": "wp-cli",
+			"pc_category": "profiling"
+		}
+	},
+	"seo": {
+		"title": "WordPress Performance Profiling with wp profile — Practice Case",
+		"description": "Practice installing wp-cli/profile-command and running wp profile stage on the right multisite sub-site to turn \"the site is slow\" into one concrete number. Interactive WP-CLI terminal.",
+		"keywords": [
+			"wp profile command",
+			"wp-cli profile command install",
+			"wp profile stage tutorial",
+			"wp cli performance profiling for beginners",
+			"wp-cli practice terminal",
+			"wordpress performance profiling cli"
+		]
+	},
+	"completion": {
+		"perfect": [
+			"You profiled the network's main site first and caught that the numbers looked healthy only because it was the wrong site.",
+			"You re-ran with an explicit --url before trusting any number."
+		],
+		"optimize": [
+			"Run wp profile stage 2-3 times before quoting a number in a client report — results vary run to run.",
+			"Use --fields to keep reports to the numbers that matter: stage, time, cache_ratio."
+		],
+		"next": [
+			"Try the next article in this series — wp profile stage: розбір стадій bootstrap/main_query/template.",
+			"Review /wp-cli/core/ for the core commands used to install and update the site being profiled."
+		]
+	}
+}

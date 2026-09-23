@@ -1,0 +1,30 @@
+{
+  "slug": "enqueue_block_editor_assets",
+  "questions": [
+    {
+      "id": "editor-only",
+      "question": "Does enqueue_block_editor_assets run on the public front-end of a block (FSE) theme?",
+      "options": [
+        {
+          "id": "a",
+          "label": "Yes, always",
+          "correct": false
+        },
+        {
+          "id": "b",
+          "label": "No — it's editor-only, even in a block theme",
+          "correct": true
+        },
+        {
+          "id": "c",
+          "label": "Only if the theme explicitly requests it",
+          "correct": false
+        }
+      ],
+      "feedback": {
+        "correct": "Correct. It never fires on the front-end, block theme or not. For assets needed in both places, use enqueue_block_assets instead.",
+        "incorrect": "It's editor-only, full stop — even a block (FSE) theme's front-end never triggers this hook. Use enqueue_block_assets for shared assets."
+      }
+    }
+  ]
+}

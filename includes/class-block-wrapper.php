@@ -33,7 +33,7 @@ class Block_Wrapper {
 			return $block_content;
 		}
 
-		if ( self::is_ddd_panel_code( $block ) ) {
+		if ( self::should_skip_wrapper( $block ) ) {
 			return $block_content;
 		}
 
@@ -47,14 +47,28 @@ class Block_Wrapper {
 	}
 
 	/**
-	 * DDD panels ship their own dark code styling — skip Advanced Code wrapper.
+	 * Pages/sections that ship their own terminal code styling.
 	 *
 	 * @param array<string, mixed> $block Block data.
 	 */
-	private static function is_ddd_panel_code( array $block ): bool {
+	private static function should_skip_wrapper( array $block ): bool {
 		$class = (string) ( $block['attrs']['className'] ?? '' );
 
-		return str_contains( $class, 'ddd-panel__code' );
+		if ( str_contains( $class, 'ddd-panel__code' ) || str_contains( $class, 'forwp-plain-code' ) ) {
+			return true;
+		}
+
+		// Functions hub uses dark terminal code blocks (no Copy/Share chrome).
+		if ( is_page( 'functions' ) ) {
+			return true;
+		}
+
+		$template = (string) get_page_template_slug( get_queried_object_id() );
+		if ( in_array( $template, array( 'page-functions', 'templates/page-functions.html' ), true ) ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
