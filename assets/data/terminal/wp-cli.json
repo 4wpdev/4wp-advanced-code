@@ -65,6 +65,17 @@
 				{ "cmd": "wp cache flush", "desc": "Flush cache" },
 				{ "cmd": "wp cache type", "desc": "Show cache type" }
 			]
+		},
+		{
+			"id": "profile",
+			"name": "Profiling",
+			"color": "#ffa657",
+			"commands": [
+				{ "cmd": "wp profile stage", "desc": "Profile bootstrap, main_query, template" },
+				{ "cmd": "wp profile stage template", "desc": "Isolate the template stage" },
+				{ "cmd": "wp profile hook template_redirect", "desc": "Profile callbacks on one hook" },
+				{ "cmd": "wp profile eval \"sleep(1);\"", "desc": "Benchmark a raw PHP snippet" }
+			]
 		}
 	],
 	"commands": [
@@ -213,15 +224,42 @@
 			"tip": "Object caching significantly improves WordPress performance."
 		},
 		{
+			"command": "wp profile stage",
+			"slug": "profile-stage",
+			"output": "+------------+---------+------------+--------------+-------------+\n| stage      | time    | query_num  | cache_ratio  | cache_hits  |\n+------------+---------+------------+--------------+-------------+\n| bootstrap  | 0.1181s | 12         | 92.3%        | 24          |\n| main_query | 0.0432s | 4          | 88.9%        | 8           |\n| template   | 0.2890s | 31         | 61.4%        | 19          |\n| total      | 0.4503s | 47         | 78.7%        | 51          |\n+------------+---------+------------+--------------+-------------+",
+			"tip": "The first command to run on any \"site feels slow\" ticket — no plugin required in production."
+		},
+		{
+			"pattern": "wp profile stage",
+			"slug": "profile-stage-stage",
+			"defaultParam": "template",
+			"output": "+----------+---------+------------+--------------+-----------+\n| stage    | time    | query_num  | cache_ratio  | hook_time |\n+----------+---------+------------+--------------+-----------+\n| template | 0.2890s | 31         | 61.4%        | 0.2510s   |\n+----------+---------+------------+--------------+-----------+",
+			"tip": "Passing a stage name isolates it and adds hook_time — how much of it ran in hooked plugin/theme code."
+		},
+		{
+			"pattern": "wp profile hook",
+			"slug": "profile-hook",
+			"defaultParam": "template_redirect",
+			"output": "+----------------------------+---------+\n| callback                   | time    |\n+----------------------------+---------+\n| wp_template_redirect        | 0.0021s |\n| crm_widget_track_pageview   | 0.2340s |\n| wc_maybe_redirect            | 0.0009s |\n+----------------------------+---------+",
+			"tip": "Breaks one hook down by callback — names the exact plugin function responsible."
+		},
+		{
+			"pattern": "wp profile eval",
+			"slug": "profile-eval",
+			"defaultParam": "\"sleep(1);\"",
+			"output": "+----------+---------+------------+--------------+\n| stage    | time    | query_num  | cache_ratio  |\n+----------+---------+------------+--------------+\n| eval     | 1.0021s | 0          | n/a          |\n+----------+---------+------------+--------------+",
+			"tip": "Benchmarks a raw PHP snippet without a full request."
+		},
+		{
 			"command": "help",
 			"slug": "help",
-			"output": "Available command categories (simulated site: WordPress 7.0.0 stable):\n• wp core       - Manage WordPress installation\n• wp plugin     - Manage plugins\n• wp theme      - Manage themes\n• wp db         - Database operations\n• wp user       - User management\n• wp cache      - Object cache\n\nType any command to see simulated output.\nClick a command in the sidebar to run it.",
+			"output": "Available command categories (simulated site: WordPress 7.0.0 stable):\n• wp core       - Manage WordPress installation\n• wp plugin     - Manage plugins\n• wp theme      - Manage themes\n• wp db         - Database operations\n• wp user       - User management\n• wp cache      - Object cache\n• wp profile    - Performance profiling\n\nType any command to see simulated output.\nClick a command in the sidebar to run it.",
 			"tip": "Core commands reflect stable 7.0.0 — no fake downgrades or phantom patch releases."
 		},
 		{
 			"command": "wp help",
 			"slug": "help",
-			"output": "Available command categories (simulated site: WordPress 7.0.0 stable):\n• wp core       - Manage WordPress installation\n• wp plugin     - Manage plugins\n• wp theme      - Manage themes\n• wp db         - Database operations\n• wp user       - User management\n• wp cache      - Object cache\n\nType any command to see simulated output.\nClick a command in the sidebar to run it.",
+			"output": "Available command categories (simulated site: WordPress 7.0.0 stable):\n• wp core       - Manage WordPress installation\n• wp plugin     - Manage plugins\n• wp theme      - Manage themes\n• wp db         - Database operations\n• wp user       - User management\n• wp cache      - Object cache\n• wp profile    - Performance profiling\n\nType any command to see simulated output.\nClick a command in the sidebar to run it.",
 			"tip": "Core commands reflect stable 7.0.0 — no fake downgrades or phantom patch releases."
 		}
 	]

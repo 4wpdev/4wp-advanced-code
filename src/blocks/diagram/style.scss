@@ -1,0 +1,152 @@
+.forwp-diagram {
+	box-sizing: border-box;
+	max-width: 100%;
+	margin-block: 1.25rem;
+	/* Do not inherit entry-content / heading type scale into the figure. */
+	font-size: 1rem;
+	line-height: normal;
+}
+
+.forwp-diagram__canvas {
+	box-sizing: border-box;
+	max-width: 100%;
+	overflow-x: auto;
+	line-height: 0;
+}
+
+.forwp-diagram__image {
+	display: block;
+	max-width: 100%;
+	height: auto;
+	margin-inline: auto;
+}
+
+.forwp-diagram__svg {
+	display: block;
+	max-width: 100%;
+	line-height: 0;
+}
+
+/* When PNG is the primary visual, keep SVG only for step playback. */
+.forwp-diagram--has-image:not(.forwp-diagram--has-steps) .forwp-diagram__svg {
+	display: none;
+}
+
+.forwp-diagram--has-steps.forwp-diagram--has-svg .forwp-diagram__image {
+	display: none;
+}
+
+.forwp-diagram__canvas svg {
+	display: block;
+	/*
+	 * Width/height come from viewBox (PHP). Cap at column width so wide charts
+	 * shrink; do not stretch narrow charts (that upscales FO labels).
+	 */
+	width: auto !important;
+	max-width: 100% !important;
+	height: auto !important;
+	margin-inline: auto;
+	vertical-align: top;
+}
+
+/* Theme entry-content typography must not restyle Mermaid HTML labels. */
+.forwp-diagram foreignObject {
+	/* Keep Mermaid's width/height attrs — height:auto collapses labels to 0. */
+	overflow: visible;
+}
+
+.forwp-diagram foreignObject * {
+	box-sizing: border-box;
+	font-family: Arial, Helvetica, sans-serif !important;
+	font-size: 14px !important;
+	font-weight: 400 !important;
+	font-style: normal !important;
+	line-height: 1.25 !important;
+	letter-spacing: normal !important;
+	text-transform: none !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	border: 0 !important;
+	background: transparent !important;
+	max-width: none !important;
+	color: inherit;
+}
+
+/* Theme CSS must not remount Mermaid labels / edge markers. */
+.forwp-diagram__canvas svg text,
+.forwp-diagram__canvas svg tspan {
+	line-height: normal;
+}
+
+.forwp-diagram__canvas svg path.flowchart-link,
+.forwp-diagram__canvas svg .edgePath .path {
+	fill: none;
+}
+
+.forwp-diagram__canvas svg marker path.arrowMarkerPath {
+	stroke: none;
+}
+
+.forwp-diagram__caption {
+	margin-top: 0.75rem;
+	font-size: 0.95em;
+	line-height: 1.4;
+	opacity: 0.9;
+	text-align: center;
+}
+
+.forwp-diagram__caption--left {
+	text-align: left;
+}
+
+.forwp-diagram__caption--center {
+	text-align: center;
+}
+
+.forwp-diagram__caption--right {
+	text-align: right;
+}
+
+.forwp-diagram__source {
+	margin-top: 0.75rem;
+}
+
+.forwp-diagram__source pre {
+	overflow: auto;
+	padding: 0.75rem;
+	background: rgba(0, 0, 0, 0.04);
+}
+
+.forwp-diagram--theme-dark .forwp-diagram__source pre {
+	background: rgba(255, 255, 255, 0.06);
+}
+
+.forwp-diagram__controls {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-top: 0.75rem;
+}
+
+.forwp-diagram__btn {
+	cursor: pointer;
+}
+
+.forwp-diagram-is-active rect,
+.forwp-diagram-is-active polygon,
+.forwp-diagram-is-active circle,
+.forwp-diagram-is-active path {
+	stroke: #1565c0 !important;
+	stroke-width: 2.5px !important;
+}
+
+.forwp-diagram-is-edge {
+	stroke: #ed6c02 !important;
+	stroke-width: 2.5px !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.forwp-diagram-is-edge {
+		transition: none !important;
+	}
+}

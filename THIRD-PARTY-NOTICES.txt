@@ -1,0 +1,9 @@
+Mermaid
+-----
+This plugin bundles Mermaid for diagram rendering in the block editor.
+
+- Project: https://github.com/mermaid-js/mermaid
+- License: MIT
+- Pinned version: see FORWP_ADVANCED_CODE_MERMAID_VERSION in 4wp-advanced-code.php
+
+The Mermaid project is not affiliated with 4WP.

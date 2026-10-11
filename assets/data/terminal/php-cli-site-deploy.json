@@ -1,0 +1,130 @@
+{
+	"version": 1,
+	"profile": "php-cli-site-deploy",
+	"prompt": "$",
+	"title": "php setup.php — site deploy (WAMP)",
+	"categories": [
+		{
+			"id": "site",
+			"name": "Site setup",
+			"color": "#4ec9b0",
+			"commands": [
+				{ "cmd": "php setup.php site:create --client=1042", "desc": "Full flow: prepare, deploy, register, notify" },
+				{ "cmd": "php setup.php site:prepare --client=1042", "desc": "Client variables + template archive" },
+				{ "cmd": "php setup.php site:deploy --client=1042", "desc": "Database, import, Apache vhost" },
+				{ "cmd": "php setup.php site:register --client=1042", "desc": "Write site data via REST API" },
+				{ "cmd": "php setup.php notify --client=1042", "desc": "Notify: ready for manual QA" }
+			]
+		}
+	],
+	"commands": [
+		{
+			"command": "php setup.php site:create --client=1042",
+			"slug": "site-create",
+			"emulate": true,
+			"lineDelayMs": 0,
+			"output": "[init]     Client 1042: Rotary Club of Springfield\n[init]     Domain: rcspringfield.test\n\n[prepare]  Loading client variables via REST API... GET /api/clients/1042 → 200 OK\n[prepare]  Downloading template-v3.zip (18.4 MB)\n           [####################] 100%\n[prepare]  Unpacking to C:\\wamp64\\www\\rcspringfield\n           [####################] 412 files extracted\n[prepare]  Substituting variables: SITE_TITLE, SITE_DOMAIN, DB_NAME, DB_USER, DB_PASS\n[prepare]  config.php generated\n\n[deploy]   Creating database rcspringfield (utf8mb4)... done\n[deploy]   Creating MySQL user rcspringfield@localhost... done\n[deploy]   Importing template.sql\n           [####################] 100%, 38 tables\n[deploy]   Writing Apache vhost rcspringfield.conf... done\n[deploy]   Restarting Apache... done\n[deploy]   Health check http://rcspringfield.test → 200 OK\n\n[register] POST /api/sites → 201 Created (site_id: 7731, status: qa)\n\n[notify]   Slack #site-setup: rcspringfield.test ready for manual QA\n\nSuccess: rcspringfield.test deployed in 42.7s",
+			"lines": [
+				{ "text": "[init]     Client 1042: Rotary Club of Springfield", "delayMs": 120 },
+				{ "text": "[init]     Domain: rcspringfield.test", "delayMs": 80 },
+				{ "text": "", "delayMs": 0 },
+				{ "text": "[prepare]  Loading client variables via REST API... GET /api/clients/1042 → 200 OK", "delayMs": 450 },
+				{ "text": "[prepare]  Downloading template-v3.zip (18.4 MB)", "delayMs": 200 },
+				{ "text": "           [####................] 20%", "delayMs": 280 },
+				{ "text": "           [########............] 40%", "delayMs": 280, "replace": true },
+				{ "text": "           [############........] 60%", "delayMs": 280, "replace": true },
+				{ "text": "           [################....] 80%", "delayMs": 280, "replace": true },
+				{ "text": "           [####################] 100%", "delayMs": 220, "replace": true },
+				{ "text": "[prepare]  Unpacking to C:\\wamp64\\www\\rcspringfield", "delayMs": 180 },
+				{ "text": "           [########............] extracting…", "delayMs": 320 },
+				{ "text": "           [####################] 412 files extracted", "delayMs": 260, "replace": true },
+				{ "text": "[prepare]  Substituting variables: SITE_TITLE, SITE_DOMAIN, DB_NAME, DB_USER, DB_PASS", "delayMs": 200 },
+				{ "text": "[prepare]  config.php generated", "delayMs": 80 },
+				{ "text": "", "delayMs": 0 },
+				{ "text": "[deploy]   Creating database rcspringfield (utf8mb4)... done", "delayMs": 380 },
+				{ "text": "[deploy]   Creating MySQL user rcspringfield@localhost... done", "delayMs": 220 },
+				{ "text": "[deploy]   Importing template.sql", "delayMs": 160 },
+				{ "text": "           [######..............] 30%", "delayMs": 300 },
+				{ "text": "           [############........] 60%", "delayMs": 320, "replace": true },
+				{ "text": "           [####################] 100%, 38 tables", "delayMs": 280, "replace": true },
+				{ "text": "[deploy]   Writing Apache vhost rcspringfield.conf... done", "delayMs": 200 },
+				{ "text": "[deploy]   Restarting Apache... done", "delayMs": 520 },
+				{ "text": "[deploy]   Health check http://rcspringfield.test → 200 OK", "delayMs": 350 },
+				{ "text": "", "delayMs": 0 },
+				{ "text": "[register] POST /api/sites → 201 Created (site_id: 7731, status: qa)", "delayMs": 300 },
+				{ "text": "", "delayMs": 0 },
+				{ "text": "[notify]   Slack #site-setup: rcspringfield.test ready for manual QA", "delayMs": 180 },
+				{ "text": "", "delayMs": 0 },
+				{ "text": "Success: rcspringfield.test deployed in 42.7s", "delayMs": 100 }
+			],
+			"tip": "One command, four steps. The order system (ColdFusion) runs exactly this line with the client ID. Exit code 0 = success, 1 = failure."
+		},
+		{
+			"command": "php setup.php site:prepare --client=1042",
+			"slug": "site-prepare",
+			"emulate": true,
+			"lineDelayMs": 0,
+			"output": "[prepare]  Loading client variables via REST API... GET /api/clients/1042 → 200 OK\n[prepare]  Downloading template-v3.zip (18.4 MB)\n           [####################] 100%\n[prepare]  Unpacking to C:\\wamp64\\www\\rcspringfield\n           [####################] 412 files extracted\n[prepare]  Substituting variables: SITE_TITLE, SITE_DOMAIN, DB_NAME, DB_USER, DB_PASS\n[prepare]  config.php generated\nSuccess: site prepared.",
+			"lines": [
+				{ "text": "[prepare]  Loading client variables via REST API... GET /api/clients/1042 → 200 OK", "delayMs": 400 },
+				{ "text": "[prepare]  Downloading template-v3.zip (18.4 MB)", "delayMs": 160 },
+				{ "text": "           [########............] 40%", "delayMs": 260 },
+				{ "text": "           [################....] 80%", "delayMs": 260, "replace": true },
+				{ "text": "           [####################] 100%", "delayMs": 200, "replace": true },
+				{ "text": "[prepare]  Unpacking to C:\\wamp64\\www\\rcspringfield", "delayMs": 140 },
+				{ "text": "           [####################] 412 files extracted", "delayMs": 300 },
+				{ "text": "[prepare]  Substituting variables: SITE_TITLE, SITE_DOMAIN, DB_NAME, DB_USER, DB_PASS", "delayMs": 160 },
+				{ "text": "[prepare]  config.php generated", "delayMs": 60 },
+				{ "text": "Success: site prepared.", "delayMs": 80 }
+			],
+			"tip": "Client variables + site template. Same idea as Duplicator's installer.php, but CLI-only and the data comes from the order."
+		},
+		{
+			"command": "php setup.php site:deploy --client=1042",
+			"slug": "site-deploy",
+			"emulate": true,
+			"lineDelayMs": 0,
+			"output": "[deploy]   Creating database rcspringfield (utf8mb4)... done\n[deploy]   Creating MySQL user rcspringfield@localhost... done\n[deploy]   Importing template.sql\n           [####################] 100%, 38 tables\n[deploy]   Writing Apache vhost rcspringfield.conf... done\n[deploy]   Restarting Apache... done\n[deploy]   Health check http://rcspringfield.test → 200 OK\nSuccess: site deployed.",
+			"lines": [
+				{ "text": "[deploy]   Creating database rcspringfield (utf8mb4)... done", "delayMs": 360 },
+				{ "text": "[deploy]   Creating MySQL user rcspringfield@localhost... done", "delayMs": 200 },
+				{ "text": "[deploy]   Importing template.sql", "delayMs": 140 },
+				{ "text": "           [########............] 40%", "delayMs": 280 },
+				{ "text": "           [####################] 100%, 38 tables", "delayMs": 320, "replace": true },
+				{ "text": "[deploy]   Writing Apache vhost rcspringfield.conf... done", "delayMs": 160 },
+				{ "text": "[deploy]   Restarting Apache... done", "delayMs": 480 },
+				{ "text": "[deploy]   Health check http://rcspringfield.test → 200 OK", "delayMs": 300 },
+				{ "text": "Success: site deployed.", "delayMs": 80 }
+			],
+			"tip": "Database, import and Apache — all on the WAMP server, no browser."
+		},
+		{
+			"command": "php setup.php site:register --client=1042",
+			"slug": "site-register",
+			"emulate": true,
+			"output": "[register] POST /api/sites → 201 Created (site_id: 7731, status: qa)\nSuccess: site registered.",
+			"lines": [
+				{ "text": "[register] POST /api/sites → 201 Created (site_id: 7731, status: qa)", "delayMs": 420 },
+				{ "text": "Success: site registered.", "delayMs": 80 }
+			],
+			"tip": "Replaces the manual step: site data is written to the company database through the existing REST API."
+		},
+		{
+			"command": "php setup.php notify --client=1042",
+			"slug": "site-notify",
+			"emulate": true,
+			"output": "[notify]   Slack #site-setup: rcspringfield.test ready for manual QA\nSuccess: notification sent.",
+			"lines": [
+				{ "text": "[notify]   Slack #site-setup: rcspringfield.test ready for manual QA", "delayMs": 320 },
+				{ "text": "Success: notification sent.", "delayMs": 80 }
+			],
+			"tip": "Slack, email or Telegram. The site goes to manual QA before handoff."
+		},
+		{
+			"pattern": "php setup.php",
+			"slug": "site-usage",
+			"output": "Usage: php setup.php <command> --client=<id>\n\nCommands:\n  site:create    Full flow: prepare, deploy, register, notify\n  site:prepare   Client variables + template archive\n  site:deploy    Database, import, Apache vhost\n  site:register  Write site data via REST API\n  notify         Notify: ready for manual QA",
+			"tip": "Run without arguments to see the available commands."
+		}
+	]
+}

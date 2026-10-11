@@ -1,0 +1,239 @@
+{
+	"version": 1,
+	"type": "challenge",
+	"profile": "challenge-monthly-cli-round",
+	"slug": "monthly-cli-round",
+	"prompt": "user@server:/var/www/html$",
+	"title": "Monthly WP-CLI Maintenance Round",
+	"description": "Entry-level monthly pass on a business WordPress site: inspect updates, export the database, update core and plugins, remove a risky File Manager plugin, lock wp-admin installs, flush cache.",
+	"instructions": "You are on production in /var/www/html. Order matters — look first, back up before updates, harden after. Hints describe the action, not the full command. Type each command in the terminal.",
+	"difficulty": "entry",
+	"estimated_time": "10–12 min",
+	"related_page": "/wp-cli/practice-cases/monthly-cli-round/",
+	"author_url": "/about/",
+	"image": "/wp-content/uploads/practice-cases/monthly-cli-round.jpg",
+	"steps": [
+		{
+			"id": 1,
+			"hint": "Show which WordPress core version is installed",
+			"accepted": [
+				"wp core version",
+				"wp core version --extra"
+			],
+			"output": "7.0.2",
+			"feedback_wrong": "Start with the current core version — you need a baseline.",
+			"feedback_correct": "Baseline noted. Check whether a core update is available.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp core version"
+		},
+		{
+			"id": 2,
+			"hint": "Check if WordPress core has an available update",
+			"accepted": [
+				"wp core check-update"
+			],
+			"output": "+---------+-------------+---------------------------------------------------------------+\n| version | update_type | package_url                                                   |\n+---------+-------------+---------------------------------------------------------------+\n| 7.0.6   | minor       | https://downloads.w.org/release/wordpress-7.0.6-partial-2.zip |\n| 7.1.2   | major       | https://downloads.wordpress.org/release/wordpress-7.1.2.zip   |\n+---------+-------------+---------------------------------------------------------------+",
+			"feedback_wrong": "Use check-update before you change anything.",
+			"feedback_correct": "Minor and major are both listed. For this entry round we will take the minor path after a backup.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp core check-update"
+		},
+		{
+			"id": 3,
+			"hint": "List only plugins that have an update available",
+			"accepted": [
+				"wp plugin list --update=available",
+				"wp plugin list --status=active --update=available"
+			],
+			"output": "+------------------+--------+-----------+-----------+----------------+\n| name             | status | update    | version   | update_version |\n+------------------+--------+-----------+-----------+----------------+\n| contact-form-7   | active | available | 6.1.6     | 6.1.7          |\n| seo-by-rank-math | active | available | 1.0.274   | 1.0.279        |\n| redis-cache      | active | available | 2.8.0     | 3.0.0          |\n+------------------+--------+-----------+-----------+----------------+",
+			"feedback_wrong": "Filter the plugin list to updates that are available.",
+			"feedback_correct": "You can see what will change. Back up the database before any update.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp plugin list --update=available"
+		},
+		{
+			"id": 4,
+			"hint": "Export the database to a backup file before updates",
+			"accepted": [
+				"wp db export",
+				"wp db export backup.sql",
+				"wp db export db.sql",
+				"wp db export pre-update.sql",
+				"wp db export backup-$(date +%Y%m%d).sql",
+				"wp db export ~/backups/db.sql",
+				"wp db export /home/ubuntu/backups/db.sql"
+			],
+			"output": "Success: Exported to 'pre-update.sql'.",
+			"feedback_wrong": "Never update production without a database export.",
+			"feedback_correct": "Database saved. Update core using the minor release path.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp db export pre-update.sql"
+		},
+		{
+			"id": 5,
+			"hint": "Update WordPress core (minor path is fine here)",
+			"accepted": [
+				"wp core update",
+				"wp core update --minor"
+			],
+			"output": "Updating to version 7.0.6 (en_US)...\nSuccess: WordPress updated successfully.",
+			"feedback_wrong": "Database is backed up — update core next.",
+			"feedback_correct": "Core files updated. Sync the database schema.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp core update"
+		},
+		{
+			"id": 6,
+			"hint": "Run the database schema update for the new core",
+			"accepted": [
+				"wp core update-db",
+				"wp core update-db --network"
+			],
+			"output": "Success: WordPress database already at latest db version.\nSuccess: WordPress database upgraded successfully.",
+			"feedback_wrong": "After core update, always run update-db.",
+			"feedback_correct": "Schema is current. Update plugins next.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp core update-db"
+		},
+		{
+			"id": 7,
+			"hint": "Update all plugins that have available updates",
+			"accepted": [
+				"wp plugin update --all",
+				"wp plugin update --all --minor"
+			],
+			"output": "Enabling Maintenance mode...\nDownloading update...\nUnpacking the update...\nInstalling the latest version...\nRemoving the old version of the plugin...\nPlugin updated successfully.\nDisabling Maintenance mode...\nSuccess: Updated 3 of 3 plugins.",
+			"feedback_wrong": "Update plugins with WP-CLI — not only from wp-admin.",
+			"feedback_correct": "Plugins updated. Confirm the updates list is empty.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp plugin update --all"
+		},
+		{
+			"id": 8,
+			"hint": "Confirm no plugin updates are left",
+			"accepted": [
+				"wp plugin list --update=available"
+			],
+			"output": "+------+--------+--------+---------+----------------+-------------+\n| name | status | update | version | update_version | auto_update |\n+------+--------+--------+---------+----------------+-------------+\n+------+--------+--------+---------+----------------+-------------+",
+			"feedback_wrong": "Re-check plugins with --update=available.",
+			"feedback_correct": "Clean updates list. Remove the risky File Manager plugin next.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp plugin list --update=available"
+		},
+		{
+			"id": 9,
+			"hint": "Delete the wp-file-manager plugin from the site",
+			"accepted": [
+				"wp plugin delete wp-file-manager",
+				"wp plugin deactivate wp-file-manager && wp plugin delete wp-file-manager"
+			],
+			"output": "Deleted 'wp-file-manager' plugin.\nSuccess: Deleted 1 of 1 plugins.",
+			"feedback_wrong": "File Manager does not belong on production — delete it with WP-CLI.",
+			"feedback_correct": "Risky plugin gone. Lock installs from the dashboard.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp plugin delete wp-file-manager"
+		},
+		{
+			"id": 10,
+			"hint": "Set DISALLOW_FILE_MODS so wp-admin cannot install or update plugins/themes",
+			"accepted": [
+				"wp config set DISALLOW_FILE_MODS true --raw --type=constant",
+				"wp config set DISALLOW_FILE_MODS true --raw --type=constant --allow-root"
+			],
+			"output": "Success: Added the constant 'DISALLOW_FILE_MODS' to the 'wp-config.php' file with the raw value 'true'.",
+			"feedback_wrong": "Use wp config set with value true, --raw, and --type=constant (name is DISALLOW_FILE_MODS).",
+			"feedback_correct": "Admin install path locked. Flush the cache to finish the round.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp config set DISALLOW_FILE_MODS true --raw --type=constant"
+		},
+		{
+			"id": 11,
+			"hint": "Flush the WordPress object cache",
+			"accepted": [
+				"wp cache flush",
+				"wp cache flush --network"
+			],
+			"output": "Success: The cache was flushed.",
+			"feedback_wrong": "Finish with a cache flush so visitors see the updated site.",
+			"feedback_correct": "Monthly round complete: inspected, backed up, updated, cleaned, locked, flushed.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp cache flush"
+		}
+	],
+	"completion": {
+		"message": "Nice work. You finished an entry-level monthly WP-CLI round: look → backup → update → remove risk → lock admin → flush.",
+		"next_hint": "Next: Secure Maintenance (premium zip + fuller hardening) or practice a files+DB backup folder outside the web root on a real server.",
+		"badge": "monthly-cli-round"
+	},
+	"troubleshooting": [
+		"Updating before wp db export — no undo without a backup.",
+		"Typing DISABLE_FILE_MODS — the constant is DISALLOW_FILE_MODS.",
+		"Forgetting --raw --type=constant — you may write a string instead of boolean true.",
+		"Leaving File Manager installed — high-risk browser access to files.",
+		"Assuming an empty plugin update table means core is current — still run wp core check-update."
+	],
+	"faq": [
+		{
+			"question": "Why back up before updates?",
+			"answer": "A bad plugin or core update can break the site. A dated database export is your fast WordPress-level rollback. On real servers also archive files outside the web root."
+		},
+		{
+			"question": "Minor vs major core in the check-update table?",
+			"answer": "Minor stays on the same series and is usually safer for a routine round. Major is a bigger jump — plan it separately with a fuller backup."
+		},
+		{
+			"question": "Why delete File Manager?",
+			"answer": "It lets people manage server files from the browser. On production that is a common attack path if an admin account is abused."
+		},
+		{
+			"question": "What does DISALLOW_FILE_MODS block?",
+			"answer": "Plugin and theme install/update (and the theme/plugin file editor) from wp-admin. WP-CLI on the server still works."
+		},
+		{
+			"question": "Exact command to lock the admin?",
+			"answer": "wp config set DISALLOW_FILE_MODS true --raw --type=constant — then verify with wp config get DISALLOW_FILE_MODS."
+		}
+	],
+	"resources": [
+		{
+			"label": "WP-CLI — wp core",
+			"url": "https://developer.wordpress.org/cli/commands/core/"
+		},
+		{
+			"label": "WP-CLI — wp plugin",
+			"url": "https://developer.wordpress.org/cli/commands/plugin/"
+		},
+		{
+			"label": "WP-CLI — wp config set",
+			"url": "https://developer.wordpress.org/cli/commands/config/set/"
+		},
+		{
+			"label": "Editing wp-config.php — DISALLOW_FILE_MODS",
+			"url": "https://developer.wordpress.org/advanced-administration/wordpress/wp-config/#disable-plugin-and-theme-update-and-installation"
+		}
+	],
+	"seo": {
+		"title": "Monthly WordPress Maintenance Round with WP-CLI — Practice Case",
+		"description": "Entry-level interactive WP-CLI practice: inspect updates, export the database, update core and plugins, remove File Manager, set DISALLOW_FILE_MODS, flush cache.",
+		"focus_keywords": [
+			"wp-cli monthly maintenance",
+			"wp db export",
+			"wp plugin update",
+			"DISALLOW_FILE_MODS",
+			"wordpress practice case"
+		]
+	},
+	"learning_outcomes": [
+		"You can read core and plugin update status with WP-CLI",
+		"You back up the database before production updates",
+		"You update core and plugins in a safe order",
+		"You remove high-risk plugins like File Manager",
+		"You lock wp-admin installs with DISALLOW_FILE_MODS using full flags"
+	],
+	"meta": {
+		"created": "2026-09-24",
+		"based_on": "Agency monthly round pattern (inspect → backup → update → cleanup → lock)",
+		"level": "entry",
+		"language": "en"
+	}
+}

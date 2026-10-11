@@ -1,0 +1,211 @@
+{
+	"version": 1,
+	"type": "challenge",
+	"profile": "challenge-multisite-plugin-activate",
+	"slug": "multisite-plugin-activate",
+	"prompt": "$",
+	"title": "Activate a New Plugin on Selected Multisite Sites Only",
+	"description": "A test plugin ZIP is already in plugins/. List every site on the network, activate the plugin only on two pilot URLs, and prove the main site stayed inactive — without using --network.",
+	"instructions": "Type each command in the terminal below. The terminal validates your input at every step. Hints describe the action — not the exact command. Assume you are already in the WordPress root (document root).",
+	"difficulty": "intermediate",
+	"estimated_time": "8 min",
+	"related_page": "/wp-cli/practice-cases/multisite-plugin-activate/",
+	"author_url": "/about/",
+	"image": "/wp-content/uploads/practice-cases/multisite-plugin-activate.jpg",
+	"steps": [
+		{
+			"id": 1,
+			"hint": "List every site on this multisite network with blog_id and URL",
+			"accepted": [
+				"wp site list --fields=blog_id,url",
+				"wp site list --fields=blog_id,url --format=table"
+			],
+			"output": "+---------+--------------------------+\n| blog_id | url                      |\n+---------+--------------------------+\n| 1       | https://example.test/    |\n| 2       | https://example.test/a/  |\n| 3       | https://example.test/b/  |\n+---------+--------------------------+",
+			"feedback_wrong": "Start by listing sites — you need real URLs before you can choose a whitelist.",
+			"feedback_correct": "Three sites. Pilot plan: activate on /a/ and /b/ only. Leave the main site (blog_id 1) alone.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp site list --fields=blog_id,url"
+		},
+		{
+			"id": 2,
+			"hint": "Confirm the plugin is installed but not active yet (by slug)",
+			"accepted": [
+				"wp plugin list --name=my-plugin",
+				"wp plugin get my-plugin",
+				"wp plugin get my-plugin --field=status"
+			],
+			"output": "+-----------+----------+-----------+\n| name      | status   | update    |\n+-----------+----------+-----------+\n| my-plugin | inactive | available |\n+-----------+----------+-----------+",
+			"feedback_wrong": "Check the plugin by slug before activating — status should still be inactive on this bootstrap.",
+			"feedback_correct": "Files are there; status is inactive. Do not use --network — that would turn it on for every site.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp plugin list --name=my-plugin"
+		},
+		{
+			"id": 3,
+			"hint": "Activate the plugin on the first pilot site only (/a/)",
+			"accepted": [
+				"wp plugin activate my-plugin --url=https://example.test/a/",
+				"wp plugin activate my-plugin --url=https://example.test/a"
+			],
+			"output": "Plugin 'my-plugin' activated.\nSuccess: Activated 1 of 1 plugins.",
+			"feedback_wrong": "Activate with --url pointing at the first pilot path (/a/), not --network.",
+			"feedback_correct": "First pilot is live. One more pilot URL to go — still no --network.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp plugin activate my-plugin --url=https://example.test/a/"
+		},
+		{
+			"id": 4,
+			"hint": "Activate the plugin on the second pilot site only (/b/)",
+			"accepted": [
+				"wp plugin activate my-plugin --url=https://example.test/b/",
+				"wp plugin activate my-plugin --url=https://example.test/b"
+			],
+			"output": "Plugin 'my-plugin' activated.\nSuccess: Activated 1 of 1 plugins.",
+			"feedback_wrong": "Same pattern as the previous step — --url for /b/ only.",
+			"feedback_correct": "Both pilots are active. Now prove the main site is still inactive.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp plugin activate my-plugin --url=https://example.test/b/"
+		},
+		{
+			"id": 5,
+			"hint": "Read plugin status on the network main site (no /a/ or /b/ path)",
+			"accepted": [
+				"wp plugin get my-plugin --field=status --url=https://example.test/",
+				"wp plugin get my-plugin --field=status --url=https://example.test"
+			],
+			"output": "inactive",
+			"feedback_wrong": "Query status with --url set to the main site root — the one you deliberately left out of the whitelist.",
+			"feedback_correct": "Main site is still inactive — per-site pilot worked. Optionally check /a/ and /b/ next; both should report active.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp plugin get my-plugin --field=status --url=https://example.test/"
+		},
+		{
+			"id": 6,
+			"hint": "Confirm status on one pilot site returns active",
+			"accepted": [
+				"wp plugin get my-plugin --field=status --url=https://example.test/a/",
+				"wp plugin get my-plugin --field=status --url=https://example.test/b/"
+			],
+			"output": "active",
+			"feedback_wrong": "Check --field=status with --url set to either pilot (/a/ or /b/).",
+			"feedback_correct": "Whitelist holds: pilots active, main site inactive. Never reach for --network on a staged plugin test.",
+			"reveal_after_attempts": 2,
+			"command_hint": "wp plugin get my-plugin --field=status --url=https://example.test/a/"
+		}
+	],
+	"content": {
+		"goal": "On a WordPress Multisite network, list every site, activate a newly delivered plugin only on whitelisted pilot URLs with --url, and verify the remaining sites stayed inactive — without network-wide activation.",
+		"steps": [
+			{
+				"title": "1. List sites before you touch activation",
+				"paragraphs": [
+					"Multisite keeps one shared plugins/ folder. Activation can still be per site. You cannot build a whitelist without the live URL list.",
+					"Always run WP-CLI from the WordPress document root. Relative includes such as wp-salt.php fail if you launch wp from plugins/ or another subdirectory — a frequent trap on managed cloud panels."
+				],
+				"command": "wp site list --fields=blog_id,url"
+			},
+			{
+				"title": "2. Confirm the plugin is present and inactive",
+				"paragraphs": [
+					"After unzip into wp-content/plugins/, WordPress should see the slug as inactive (or not network-active).",
+					"This challenge assumes the ZIP is already extracted. On a real host you unzip, then cd back to the WordPress root before any wp command."
+				],
+				"command": "wp plugin list --name=my-plugin"
+			},
+			{
+				"title": "3–4. Activate only the pilot URLs",
+				"paragraphs": [
+					"Use wp plugin activate {slug} --url=… for each allowed site. Do not pass --network for a staged or regional pilot.",
+					"Anything not in the whitelist simply never gets an activate call — that is your denylist."
+				],
+				"command": "wp plugin activate my-plugin --url=https://example.test/a/"
+			},
+			{
+				"title": "5–6. Verify status across sites",
+				"paragraphs": [
+					"Read status with --url for the main site and at least one pilot. Expect inactive on the root, active on pilots.",
+					"On a real SSH session you can loop wp site list --field=url and print status for every URL in one pass."
+				],
+				"command": "wp plugin get my-plugin --field=status --url=https://example.test/"
+			}
+		],
+		"hosting_notes": {
+			"non_enterprise": [
+				"Managed cloud / agency hosts (panel + SSH into an app folder): expect paths like ~/applications/{app_id}/public_html, relative salt files, and quiet GoPricing/PHP notices in CLI noise.",
+				"Master SSH often lands outside the WordPress root — always cd into the document root before wp.",
+				"Staging and production may be separate apps on the same server; never assume one APP id.",
+				"Per-site activate is the default safe story for pilots: fewer approval layers, but also fewer guardrails — your whitelist is the process."
+			],
+			"enterprise": [
+				"Enterprise WordPress platforms usually add change windows, ticket IDs, and audited deploys. Document the whitelist (blog_id + URL) in the ticket before you run activate.",
+				"Prefer artifact deploy (CI → release ZIP) over ad-hoc scp when policy requires it; still activate with --url unless the change is approved network-wide.",
+				"--network without sign-off is a governance failure, not just a technical one — roll back with deactivate --network then re-apply per-site.",
+				"Expect object-cache / page-cache flushes and read-only filesystem quirks; verify status via WP-CLI and an admin smoke test on each pilot hostname."
+			]
+		},
+		"troubleshooting": [
+			"<code>Failed opening required 'wp-salt.php'</code> — WP-CLI was started outside the WordPress root (common after <code>cd …/plugins</code> on managed cloud). Run <code>cd</code> back to the document root and retry.",
+			"Using <code>--network</code> — turns the plugin on for every site. Deactivate network-wide, then activate per <code>--url</code> for the whitelist only.",
+			"Activating without <code>--url</code> on Multisite — often hits the main site only, which is not the same as a deliberate pilot list.",
+			"Sub-site admin shows the plugin as missing or inactive — it was never activated for that site's URL.",
+			"<code>wp site list</code> empty or wrong — wrong document root / app path on a multi-app managed host."
+		],
+		"real_cases": [
+			{"label": "4wp.dev — WP-CLI plugin commands", "url": "/wp-cli/plugins/"},
+			{"label": "Official handbook — wp site", "url": "https://developer.wordpress.org/cli/commands/site/"},
+			{"label": "Official handbook — wp plugin activate", "url": "https://developer.wordpress.org/cli/commands/plugin/activate/"}
+		],
+		"faq": [
+			{
+				"question": "When should I use --network instead of --url?",
+				"answer": "Use <code>--network</code> only when every site in the network must load the plugin immediately (and, on enterprise stacks, when that is ticket-approved). For pilots, regional rollouts, or staging tests, activate with <code>--url</code> per site."
+			},
+			{
+				"question": "Does installing the ZIP activate the plugin?",
+				"answer": "No. Unzip only places files under <code>wp-content/plugins/</code>. Activation is a separate Multisite decision — network-wide or per site."
+			},
+			{
+				"question": "Why does WP-CLI die with wp-salt.php on some hosts?",
+				"answer": "Some managed cloud stacks load salts via a relative <code>require</code>. If your shell cwd is not the WordPress root, that relative path fails. Change directory to the document root before running <code>wp</code>. Enterprise platforms may hide this behind wrappers — still treat wrong cwd as the first checklist item."
+			},
+			{
+				"question": "How do I know who is allowed and who is not?",
+				"answer": "Build an explicit whitelist from <code>wp site list</code>. Activate only those URLs. Every other site stays inactive until you deliberately add it — no separate denylist command is required."
+			},
+			{
+				"question": "Is a typical managed cloud host “enterprise”?",
+				"answer": "No. Managed cloud panels aimed at agencies and mid-market teams are not the same as enterprise WordPress platforms with contractual change control. The WP-CLI commands are identical; the process around them is not — cover both accents in runbooks."
+			}
+		],
+		"taxonomies": {
+			"pc_tool": "wp-cli",
+			"pc_category": "multisite"
+		}
+	},
+	"seo": {
+		"title": "Multisite Per-Site Plugin Activation with WP-CLI — Practice Case",
+		"description": "Practice listing Multisite URLs and activating a plugin only on whitelisted sites with --url — never --network. Covers managed cloud cwd traps and enterprise change-control notes. Interactive WP-CLI terminal.",
+		"keywords": [
+			"wp plugin activate multisite",
+			"wp-cli activate plugin per site",
+			"wordpress multisite plugin whitelist",
+			"wp site list wp-cli",
+			"wp-cli practice terminal",
+			"multisite staging plugin deploy"
+		]
+	},
+	"completion": {
+		"perfect": [
+			"You listed sites first and activated only the pilot URLs with --url.",
+			"You verified the main site stayed inactive instead of trusting a single Success line."
+		],
+		"optimize": [
+			"On managed cloud hosts, unzip then immediately cd back to the WordPress root before any wp command.",
+			"On enterprise hosts, paste the whitelist into the change ticket before you activate — and script a status loop over every URL."
+		],
+		"next": [
+			"Try the profiling practice case — wrong --url on Multisite is the same class of mistake as wrong activation scope.",
+			"Review /wp-cli/plugins/ for deactivate and network flags."
+		]
+	}
+}

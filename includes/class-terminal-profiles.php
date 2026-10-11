@@ -70,6 +70,20 @@ class Terminal_Profiles {
       "slug": "plugin-activate",
       "output": "Plugin \'{param}\' activated.",
       "tip": "Use {param} placeholder in output."
+    },
+    {
+      "command": "php setup.php site:create --client=1042",
+      "slug": "site-create",
+      "emulate": true,
+      "lineDelayMs": 0,
+      "output": "Fallback full dump if lines omitted.",
+      "lines": [
+        { "text": "[prepare] Downloading…", "delayMs": 200 },
+        { "text": "  [####....] 50%", "delayMs": 300 },
+        { "text": "  [########] 100%", "delayMs": 250, "replace": true },
+        { "text": "Success.", "delayMs": 80 }
+      ],
+      "tip": "lines[].delayMs — pause before that line (0 = instant). replace: true updates the previous line (progress bars)."
     }
   ]
 }';

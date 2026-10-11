@@ -19,6 +19,51 @@ class Block_Wrapper {
 	 */
 	public static function init(): void {
 		add_filter( 'render_block', array( self::class, 'render_advanced_code' ), 10, 2 );
+		add_filter( 'register_block_type_args', array( self::class, 'register_core_code_attributes' ), 10, 2 );
+	}
+
+	/**
+	 * Register language attrs on core/code (server-side) so saved overrides reach render_block.
+	 *
+	 * @param array<string, mixed> $args       Block type args.
+	 * @param string               $block_type Block name.
+	 * @return array<string, mixed>
+	 */
+	public static function register_core_code_attributes( array $args, string $block_type ): array {
+		if ( 'core/code' !== $block_type ) {
+			return $args;
+		}
+
+		if ( ! isset( $args['attributes'] ) || ! is_array( $args['attributes'] ) ) {
+			$args['attributes'] = array();
+		}
+
+		$args['attributes']['language'] = array(
+			'type'    => 'string',
+			'default' => 'auto',
+		);
+		$args['attributes']['theme'] = array(
+			'type'    => 'string',
+			'default' => '',
+		);
+		$args['attributes']['showCopy'] = array(
+			'type'    => 'boolean',
+			'default' => true,
+		);
+		$args['attributes']['showShare'] = array(
+			'type'    => 'boolean',
+			'default' => true,
+		);
+		$args['attributes']['advancedEnabled'] = array(
+			'type'    => 'boolean',
+			'default' => true,
+		);
+		$args['attributes']['note'] = array(
+			'type'    => 'string',
+			'default' => '',
+		);
+
+		return $args;
 	}
 
 	/**
@@ -120,14 +165,21 @@ class Block_Wrapper {
 
 		ob_start();
 		?>
-		<div class="forwp-advanced-code wp-block-code-advanced" data-theme="<?php echo esc_attr( $theme ); ?>">
+		<?php
+		$lang_attr  = strtolower( (string) $language );
+		$lang_label = 'plaintext' === $lang_attr ? 'TEXT' : strtoupper( $lang_attr );
+		$code_class = ( '' !== $lang_attr && 'auto' !== $lang_attr && 'plaintext' !== $lang_attr )
+			? 'language-' . $lang_attr
+			: '';
+		?>
+		<div class="forwp-advanced-code wp-block-code-advanced" data-theme="<?php echo esc_attr( $theme ); ?>" data-language="<?php echo esc_attr( $lang_attr ); ?>">
 			<?php if ( $note ) : ?>
 				<div class="forwp-advanced-code__note code-note"><?php echo wp_kses_post( $note ); ?></div>
 			<?php endif; ?>
 
 			<div class="forwp-advanced-code__container code-container">
 				<div class="forwp-advanced-code__header code-header">
-					<span class="forwp-advanced-code__language code-language"><?php echo esc_html( ucfirst( (string) $language ) ); ?></span>
+					<span class="forwp-advanced-code__language code-language"><?php echo esc_html( $lang_label ); ?></span>
 					<div class="forwp-advanced-code__actions code-actions">
 						<?php if ( $show_copy ) : ?>
 							<button type="button" class="forwp-advanced-code__copy code-copy-btn" data-code="<?php echo esc_attr( $code ); ?>" aria-label="<?php esc_attr_e( 'Copy code', '4wp-advanced-code' ); ?>">
@@ -143,7 +195,7 @@ class Block_Wrapper {
 					</div>
 				</div>
 
-				<pre id="<?php echo esc_attr( $block_id ); ?>"><code class="<?php echo 'auto' !== $language ? 'language-' . esc_attr( (string) $language ) : ''; ?>"><?php echo esc_html( $code ); ?></code></pre>
+				<pre id="<?php echo esc_attr( $block_id ); ?>"><code class="<?php echo esc_attr( $code_class ); ?>"><?php echo esc_html( $code ); ?></code></pre>
 			</div>
 		</div>
 		<?php

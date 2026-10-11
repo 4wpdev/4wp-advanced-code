@@ -154,6 +154,11 @@ class Seo_Handler {
 			return 'javascript';
 		}
 
+		// CLI one-liners (wp-cli, php scripts, shell) — prefer bash over plaintext.
+		if ( preg_match( '/^\s*(wp|php|npm|npx|composer|curl|ssh|bash|sh)\s/m', $code ) ) {
+			return 'bash';
+		}
+
 		return 'plaintext';
 	}
 }

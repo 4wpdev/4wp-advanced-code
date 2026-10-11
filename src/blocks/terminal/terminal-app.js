@@ -43,6 +43,100 @@ function appendLine( outputEl, className, html ) {
 	scrollOutputToBottom( outputEl );
 }
 
+function sleep( ms ) {
+	return new Promise( ( resolve ) => {
+		window.setTimeout( resolve, Math.max( 0, Number( ms ) || 0 ) );
+	} );
+}
+
+/**
+ * Build timed lines for output emulation.
+ *
+ * @param {{ output?: string, emulate?: boolean, lineDelayMs?: number, startDelayMs?: number, lines?: Array<object>|null }} result
+ * @return {Array<{ text: string, delayMs: number, replace: boolean }>|null}
+ */
+function normalizeEmulateLines( result ) {
+	if ( ! result || ! result.emulate ) {
+		return null;
+	}
+
+	const defaultDelay = Number( result.lineDelayMs ) > 0 ? Number( result.lineDelayMs ) : 280;
+	const startDelay =
+		Number( result.startDelayMs ) > 0 ? Number( result.startDelayMs ) : defaultDelay;
+
+	if ( Array.isArray( result.lines ) && result.lines.length ) {
+		return result.lines.map( ( step, index ) => {
+			const text = String( step?.text ?? step?.t ?? '' );
+			const raw =
+				step?.delayMs ?? step?.ms ?? step?.delay;
+			// Explicit 0 = no pause. Missing = profile/command default.
+			const delayMs =
+				raw === undefined || raw === null || raw === ''
+					? index === 0
+						? startDelay
+						: defaultDelay
+					: Math.max( 0, Number( raw ) || 0 );
+			return {
+				text,
+				delayMs,
+				replace: !!( step?.replace || step?.mode === 'replace' ),
+			};
+		} );
+	}
+
+	const parts = String( result.output || '' ).split( '\n' );
+	return parts.map( ( text, index ) => ( {
+		text,
+		delayMs: index === 0 ? startDelay : defaultDelay,
+		replace: false,
+	} ) );
+}
+
+/**
+ * Stream command output line-by-line (optional in-place replace for progress bars).
+ *
+ * @param {HTMLElement} outputEl
+ * @param {object}      result
+ * @return {Promise<void>}
+ */
+async function streamCommandOutput( outputEl, result ) {
+	const steps = normalizeEmulateLines( result );
+
+	if ( ! steps ) {
+		appendLine(
+			outputEl,
+			'forwp-ac-terminal__line--response',
+			`<pre class="forwp-ac-terminal__pre">${ escapeHtml(
+				result.output || ''
+			) }</pre>`
+		);
+		return;
+	}
+
+	const wrap = document.createElement( 'div' );
+	wrap.className =
+		'forwp-ac-terminal__line forwp-ac-terminal__line--response forwp-ac-terminal__line--streaming';
+	const pre = document.createElement( 'pre' );
+	pre.className = 'forwp-ac-terminal__pre';
+	wrap.appendChild( pre );
+	outputEl.appendChild( wrap );
+
+	const buffer = [];
+	for ( let i = 0; i < steps.length; i++ ) {
+		const step = steps[ i ];
+		await sleep( step.delayMs );
+		if ( step.replace && buffer.length ) {
+			buffer[ buffer.length - 1 ] = step.text;
+		} else {
+			buffer.push( step.text );
+		}
+		pre.textContent = buffer.join( '\n' );
+		scrollOutputToBottom( outputEl );
+	}
+
+	wrap.classList.remove( 'forwp-ac-terminal__line--streaming' );
+}
+
 function docHref( docUrl ) {
 	const url = String( docUrl || '' ).trim();
 	return url ? escapeHtml( url ) : '';
@@ -152,7 +246,7 @@ export function initTerminal( root, data, welcomeMessage ) {
 	} );
 	sidebarEl.innerHTML = sidebarHtml;
 
-	function runCommand( rawCommand ) {
+	async function runCommand( rawCommand ) {
 		const cmd = String( rawCommand || '' ).trim();
 		if ( ! cmd || isBusy ) {
 			return;
@@ -162,6 +256,7 @@ export function initTerminal( root, data, welcomeMessage ) {
 
 		isBusy = true;
 		inputEl.disabled = true;
+		root.classList.add( 'forwp-ac-terminal--busy' );
 
 		appendLine(
 			outputEl,
@@ -175,33 +270,34 @@ export function initTerminal( root, data, welcomeMessage ) {
 
 		const result = findCommand( cmd, commands, profileMeta );
 
-		appendLine(
-			outputEl,
-			'forwp-ac-terminal__line--response',
-			`<pre class="forwp-ac-terminal__pre">${ escapeHtml(
-				result.output
-			) }</pre>`
-		);
+		try {
+			await streamCommandOutput( outputEl, result );
 
-		if ( result.tip ) {
-			appendLine(
-				outputEl,
-				'forwp-ac-terminal__line--tip',
-				buildTipHtml( result.tip, result.doc, result.docLabel )
+			if ( result.tip ) {
+				appendLine(
+					outputEl,
+					'forwp-ac-terminal__line--tip',
+					buildTipHtml( result.tip, result.doc, result.docLabel )
+				);
+			}
+
+			root.dispatchEvent(
+				new CustomEvent( 'forwp-ac-terminal-command', {
+					bubbles: true,
+					detail: {
+						command: cmd,
+						slug: result.slug,
+						profile: data?.profile,
+					},
+				} )
 			);
+		} finally {
+			isBusy = false;
+			inputEl.disabled = false;
+			root.classList.remove( 'forwp-ac-terminal--busy' );
+			inputEl.focus();
+			scrollOutputToBottom( outputEl );
 		}
-
-		isBusy = false;
-		inputEl.disabled = false;
-		inputEl.focus();
-		scrollOutputToBottom( outputEl );
-
-		root.dispatchEvent(
-			new CustomEvent( 'forwp-ac-terminal-command', {
-				bubbles: true,
-				detail: { command: cmd, slug: result.slug, profile: data?.profile },
-			} )
-		);
 	}
 
 	formEl.addEventListener( 'submit', ( e ) => {

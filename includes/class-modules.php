@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin modules: Code Block, Terminal, IDE.
+ * Plugin modules: Code Block, Terminal, IDE, Diagrams.
  *
  * @package ForWP\AdvancedCode
  */
@@ -17,6 +17,7 @@ class Modules {
 	public const OPTION_CODE     = 'forwp_ac_module_code';
 	public const OPTION_TERMINAL = 'forwp_ac_module_terminal';
 	public const OPTION_IDE      = 'forwp_ac_module_ide';
+	public const OPTION_DIAGRAMS = 'forwp_ac_module_diagrams';
 
 	/**
 	 * Module metadata for Settings UI.
@@ -39,6 +40,11 @@ class Modules {
 				'option'      => self::OPTION_IDE,
 				'label'       => __( 'IDE', '4wp-advanced-code' ),
 				'description' => __( 'VS Code–style hook wizard: one tour per hook, practice add_action / add_filter.', '4wp-advanced-code' ),
+			),
+			'diagrams' => array(
+				'option'      => self::OPTION_DIAGRAMS,
+				'label'       => __( 'Diagrams', '4wp-advanced-code' ),
+				'description' => __( 'Mermaid diagrams: live editor, inline SVG, PNG for SEO, optional step playback.', '4wp-advanced-code' ),
 			),
 		);
 	}
@@ -76,6 +82,15 @@ class Modules {
 	}
 
 	/**
+	 * Whether Diagrams module is active.
+	 */
+	public static function is_diagrams_enabled(): bool {
+		$value = get_option( self::OPTION_DIAGRAMS, null );
+
+		return null === $value ? true : (bool) $value;
+	}
+
+	/**
 	 * The Settings IDE checkbox used to be disabled, so saving the form stored 0.
 	 * Unlock once now that the block exists.
 	 */
@@ -99,6 +114,8 @@ class Modules {
 				return self::is_terminal_enabled();
 			case 'ide':
 				return self::is_ide_enabled();
+			case 'diagram':
+				return self::is_diagrams_enabled();
 			default:
 				return true;
 		}

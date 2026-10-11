@@ -2,8 +2,8 @@
 /**
  * Plugin Name:       4WP Advanced Code
  * Plugin URI:        https://4wp.dev/
- * Description:       Enhanced Code block for Gutenberg: syntax highlighting, copy and share controls, and optional SoftwareSourceCode JSON-LD.
- * Version:           1.0.9
+ * Description:       Enhanced Code block, Terminal, IDE wizard, and Mermaid Diagrams with SVG/PNG SEO.
+ * Version:           2.0.1
  * Requires at least: 6.4
  * Requires PHP:      7.4
  * Author:            4wpdev
@@ -16,7 +16,8 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'FORWP_ADVANCED_CODE_VERSION', '1.0.2' );
+define( 'FORWP_ADVANCED_CODE_VERSION', '2.0.1' );
+define( 'FORWP_ADVANCED_CODE_MERMAID_VERSION', '11.6.0' );
 define( 'FORWP_ADVANCED_CODE_FILE', __FILE__ );
 define( 'FORWP_ADVANCED_CODE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'FORWP_ADVANCED_CODE_URL', plugin_dir_url( __FILE__ ) );
@@ -41,6 +42,13 @@ require_once FORWP_ADVANCED_CODE_PATH . 'includes/class-ide-rest.php';
 require_once FORWP_ADVANCED_CODE_PATH . 'includes/class-ide-seo-handler.php';
 require_once FORWP_ADVANCED_CODE_PATH . 'includes/class-terminal-seo-handler.php';
 require_once FORWP_ADVANCED_CODE_PATH . 'includes/blocks/class-ide-block-render.php';
+require_once FORWP_ADVANCED_CODE_PATH . 'includes/blocks/class-diagram-block-render.php';
+require_once FORWP_ADVANCED_CODE_PATH . 'includes/class-diagram-settings.php';
+require_once FORWP_ADVANCED_CODE_PATH . 'includes/class-diagram-assets.php';
+require_once FORWP_ADVANCED_CODE_PATH . 'includes/class-diagram-rest.php';
+require_once FORWP_ADVANCED_CODE_PATH . 'includes/class-diagram-seo.php';
+require_once FORWP_ADVANCED_CODE_PATH . 'includes/class-diagram-markdown.php';
+require_once FORWP_ADVANCED_CODE_PATH . 'includes/class-drive-capabilities.php';
 require_once FORWP_ADVANCED_CODE_PATH . 'includes/class-blocks.php';
 
 ForWP\AdvancedCode\Block_Category::init();
@@ -55,6 +63,12 @@ ForWP\AdvancedCode\Terminal_Admin::init();
 ForWP\AdvancedCode\Ide_Rest::init();
 ForWP\AdvancedCode\Ide_Seo_Handler::init();
 ForWP\AdvancedCode\Terminal_Seo_Handler::init();
+ForWP\AdvancedCode\Diagram_Settings::init();
+ForWP\AdvancedCode\Diagram_Assets::init();
+ForWP\AdvancedCode\Diagram_Rest::init();
+ForWP\AdvancedCode\Diagram_Seo::init();
+ForWP\AdvancedCode\Diagram_Markdown::init();
+ForWP\AdvancedCode\Drive_Capabilities::init();
 ForWP\AdvancedCode\Blocks::init();
 
 add_action(

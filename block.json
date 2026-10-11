@@ -2,11 +2,12 @@
     "$schema": "https://schemas.wp.org/trunk/block.json",
     "apiVersion": 3,
     "name": "forwp/advanced-code",
-    "title": "Advanced Code",
+    "title": "4WP Advanced Code",
     "category": "forwp-advanced-code",
     "icon": "editor-code",
     "description": "Enhanced code block with syntax highlighting, copy/share functionality, and SEO optimization.",
     "keywords": [
+        "4wp",
         "code",
         "syntax",
         "highlighting",

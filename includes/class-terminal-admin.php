@@ -30,6 +30,10 @@ class Terminal_Admin {
 	 * Register Terminal Profiles under 4WP Advanced Code menu.
 	 */
 	public static function register_menu_page(): void {
+		if ( ! Modules::is_terminal_enabled() ) {
+			return;
+		}
+
 		add_submenu_page(
 			Settings::MENU_SLUG,
 			__( 'Terminal Profiles', '4wp-advanced-code' ),
@@ -152,6 +156,11 @@ class Terminal_Admin {
 	public static function render_page(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
+		}
+
+		if ( ! Modules::is_terminal_enabled() ) {
+			wp_safe_redirect( admin_url( 'admin.php?page=' . Settings::SETTINGS_SLUG ) );
+			exit;
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended

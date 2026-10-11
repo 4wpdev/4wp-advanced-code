@@ -17,6 +17,28 @@
     });
 
     /**
+     * Resolve language from data-language / class — never override an explicit pick.
+     *
+     * @param {HTMLElement} codeEl
+     * @param {HTMLElement|null} root
+     * @return {string}
+     */
+    function resolveLanguage(codeEl, root) {
+        const fromData = (root && root.getAttribute('data-language')) || '';
+        if (fromData && fromData !== 'auto' && fromData !== 'plaintext') {
+            return fromData;
+        }
+
+        const className = codeEl.className || '';
+        const match = className.match(/language-([a-z0-9_+-]+)/i);
+        if (match && match[1] && match[1].toLowerCase() !== 'plaintext') {
+            return match[1].toLowerCase();
+        }
+
+        return '';
+    }
+
+    /**
      * Initialize syntax highlighting
      */
     function initializeHighlighting() {
@@ -28,23 +50,73 @@
 
         // Configure highlight.js
         hljs.configure({
-            languages: ['php', 'javascript', 'html', 'css', 'scss', 'python', 'json', 'sql', 'bash']
+            languages: [
+                'php',
+                'javascript',
+                'typescript',
+                'html',
+                'css',
+                'scss',
+                'python',
+                'json',
+                'sql',
+                'bash',
+                'powershell',
+                'yaml',
+                'xml',
+                'markdown',
+            ]
         });
 
-        // Highlight all code blocks
         document.querySelectorAll('.wp-block-code-advanced pre code').forEach(function(block) {
-            // Auto-detect language
-            const result = hljs.highlightAuto(block.textContent);
-            
-            // Update the language indicator
-            const languageSpan = block.closest('.code-container').querySelector('.code-language');
-            if (languageSpan) {
-                languageSpan.textContent = result.language ? result.language.toUpperCase() : 'TEXT';
+            const root = block.closest('.wp-block-code-advanced');
+            const languageSpan = root
+                ? root.querySelector('.code-language')
+                : block.closest('.code-container')?.querySelector('.code-language');
+            const forced = resolveLanguage(block, root);
+            const source = block.textContent || '';
+
+            let result;
+            try {
+                if (forced && typeof hljs.getLanguage === 'function' && hljs.getLanguage(forced)) {
+                    result = hljs.highlight(source, { language: forced, ignoreIllegals: true });
+                } else if (forced) {
+                    // Known label but no hljs grammar — keep plain text, keep label.
+                    result = { value: escapeHtml(source), language: forced };
+                } else {
+                    result = hljs.highlightAuto(source);
+                    if (languageSpan) {
+                        languageSpan.textContent = result.language
+                            ? result.language.toUpperCase()
+                            : 'TEXT';
+                    }
+                    if (result.language) {
+                        block.className = 'language-' + result.language;
+                    }
+                }
+            } catch (err) {
+                result = { value: escapeHtml(source), language: forced || '' };
             }
-            
-            // Apply highlighting
+
+            // Explicit language from PHP/editor: never rewrite the badge.
+            if (forced && languageSpan) {
+                languageSpan.textContent = forced.toUpperCase();
+            }
+
             block.innerHTML = result.value;
         });
+    }
+
+    /**
+     * @param {string} text
+     * @return {string}
+     */
+    function escapeHtml(text) {
+        return String(text)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
     }
 
     /**

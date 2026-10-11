@@ -1,0 +1,101 @@
+{
+	"version": 1,
+	"profile": "wp-cli-profiling",
+	"prompt": "$",
+	"title": "wp profile — bash",
+	"categories": [
+		{
+			"id": "profiling",
+			"name": "Profiling",
+			"color": "#4ec9b0",
+			"commands": [
+				{ "cmd": "wp package install wp-cli/profile-command", "desc": "Install the profiling package" },
+				{ "cmd": "wp profile stage", "desc": "Profile bootstrap, main_query, template" },
+				{ "cmd": "wp profile stage bootstrap", "desc": "Isolate the bootstrap stage" },
+				{ "cmd": "wp profile stage main_query", "desc": "Isolate the main_query stage" },
+				{ "cmd": "wp profile stage template", "desc": "Isolate the template stage" },
+				{ "cmd": "wp profile hook template_redirect", "desc": "Profile callbacks on one hook" },
+				{ "cmd": "wp profile eval \"sleep(1);\"", "desc": "Benchmark a raw PHP snippet" },
+				{ "cmd": "wp profile eval-file bench.php", "desc": "Benchmark PHP from a file" }
+			]
+		}
+	],
+	"commands": [
+		{
+			"command": "wp package install wp-cli/profile-command",
+			"slug": "profile-install",
+			"output": "Installing package wp-cli/profile-command (this may take a while)...\nUpdating package index...\nSuccess: Package installed.",
+			"tip": "wp profile is not bundled with WP-CLI core — install it once per environment before using any subcommand below."
+		},
+		{
+			"command": "wp profile stage",
+			"slug": "profile-stage",
+			"output": "+------------+---------+------------+--------------+-------------+\n| stage      | time    | query_num  | cache_ratio  | cache_hits  |\n+------------+---------+------------+--------------+-------------+\n| bootstrap  | 0.1181s | 12         | 92.3%        | 24          |\n| main_query | 0.0432s | 4          | 88.9%        | 8           |\n| template   | 0.2890s | 31         | 61.4%        | 19          |\n| total      | 0.4503s | 47         | 78.7%        | 51          |\n+------------+---------+------------+--------------+-------------+",
+			"tip": "Run this first on any \"site feels slow\" ticket. On multisite, always pass --url — without it you profile the network's main site, not the one anyone complained about."
+		},
+		{
+			"pattern": "wp profile stage --url",
+			"slug": "profile-stage",
+			"defaultParam": "--url=example.com",
+			"output": "+------------+---------+------------+--------------+-------------+\n| stage      | time    | query_num  | cache_ratio  | cache_hits  |\n+------------+---------+------------+--------------+-------------+\n| bootstrap  | 0.1181s | 12         | 92.3%        | 24          |\n| main_query | 0.0432s | 4          | 88.9%        | 8           |\n| template   | 0.2890s | 31         | 61.4%        | 19          |\n| total      | 0.4503s | 47         | 78.7%        | 51          |\n+------------+---------+------------+--------------+-------------+",
+			"tip": "template is the slow stage here — 0.2890s with a cache_ratio of only 61.4%. Next: isolate it to see how much is hook_time."
+		},
+		{
+			"command": "wp profile stage bootstrap",
+			"slug": "profile-stage-bootstrap",
+			"output": "+-----------+---------+------------+--------------+-----------+\n| stage     | time    | query_num  | cache_ratio  | hook_time |\n+-----------+---------+------------+--------------+-----------+\n| bootstrap | 0.1181s | 12         | 92.3%        | 0.0870s   |\n+-----------+---------+------------+--------------+-----------+",
+			"tip": "73.7% of bootstrap is hook_time — active plugins doing work on plugins_loaded/init. Fast enough here, but the column to watch on a slower site."
+		},
+		{
+			"command": "wp profile stage main_query",
+			"slug": "profile-stage-main-query",
+			"output": "+------------+---------+------------+--------------+-----------+\n| stage      | time    | query_num  | cache_ratio  | hook_time |\n+------------+---------+------------+--------------+-----------+\n| main_query | 0.0432s | 4          | 88.9%        | 0.0050s   |\n+------------+---------+------------+--------------+-----------+",
+			"tip": "Almost no hook_time — a simple pre_get_posts with no extra meta_query/tax_query stacked on top."
+		},
+		{
+			"command": "wp profile stage template",
+			"slug": "profile-stage-template",
+			"output": "+----------+---------+------------+--------------+-----------+\n| stage    | time    | query_num  | cache_ratio  | hook_time |\n+----------+---------+------------+--------------+-----------+\n| template | 0.2890s | 31         | 61.4%        | 0.2510s   |\n+----------+---------+------------+--------------+-----------+",
+			"tip": "86.9% of this stage is hook_time — this isn't a slow theme file, it's whatever is hooked onto the render. Next: wp profile hook on the specific hook."
+		},
+		{
+			"pattern": "wp profile hook",
+			"slug": "profile-hook",
+			"defaultParam": "template_redirect --url=example.com",
+			"output": "+----------------------------+---------+\n| callback                   | time    |\n+----------------------------+---------+\n| wp_template_redirect        | 0.0021s |\n| crm_widget_track_pageview   | 0.2340s |\n| wc_maybe_redirect            | 0.0009s |\n+----------------------------+---------+",
+			"tip": "This is how you go from \"template is slow\" to a named function: crm_widget_track_pageview alone accounts for most of the stage's time."
+		},
+		{
+			"pattern": "wp profile eval",
+			"slug": "profile-eval",
+			"defaultParam": "\"sleep(1);\"",
+			"output": "+----------+---------+------------+--------------+\n| stage    | time    | query_num  | cache_ratio  |\n+----------+---------+------------+--------------+\n| eval     | 1.0021s | 0          | n/a          |\n+----------+---------+------------+--------------+",
+			"tip": "Benchmarks a raw PHP snippet without a full request — useful for isolating one function call before it ever gets hooked into a page."
+		},
+		{
+			"pattern": "wp profile eval-file",
+			"slug": "profile-eval-file",
+			"defaultParam": "bench.php",
+			"output": "+----------+---------+------------+--------------+\n| stage    | time    | query_num  | cache_ratio  |\n+----------+---------+------------+--------------+\n| eval     | 0.0043s | 1          | 100.0%       |\n+----------+---------+------------+--------------+",
+			"tip": "Same as wp profile eval, reading the snippet from a file — easier to keep and reuse than retyping it in the terminal."
+		},
+		{
+			"command": "wp profile --help",
+			"slug": "help",
+			"output": "usage: wp profile stage [<stage>] [--url=<url>] [--fields=<fields>] [--format=<format>]\n   or: wp profile hook [<hook>] [--url=<url>]\n   or: wp profile eval <php-code>\n   or: wp profile eval-file <file>",
+			"tip": "Four subcommands total. stage and hook are for a real request; eval and eval-file are for testing a snippet in isolation."
+		},
+		{
+			"command": "help",
+			"slug": "help",
+			"output": "Profiling commands measure how long each stage of a WordPress request takes, and how much of that time is hooked plugin/theme code.\n\nAvailable commands:\n• wp package install wp-cli/profile-command  - Install the profiling package\n• wp profile stage                           - Profile bootstrap, main_query, template\n• wp profile stage <stage>                   - Isolate one stage, see hook_time\n• wp profile hook <hook>                     - Profile callbacks on one hook\n• wp profile eval <code>                     - Benchmark a raw PHP snippet\n• wp profile eval-file <file>                - Benchmark PHP from a file\n\nAnchors:\n→ 4wp.dev/wp-cli/profiling/#wp-profile-stage\n→ 4wp.dev/wp-cli/profiling/#wp-profile-stage-stage\n→ 4wp.dev/wp-cli/profiling/#wp-profile-hook\n→ 4wp.dev/wp-cli/profiling/#notes-on-reading-wp-profile-output",
+			"tip": "wp profile stage → isolate the slow stage → wp profile hook. Three commands cover most \"site is slow\" tickets."
+		},
+		{
+			"command": "wp help",
+			"slug": "help",
+			"output": "Profiling commands measure how long each stage of a WordPress request takes, and how much of that time is hooked plugin/theme code.\n\nAvailable commands:\n• wp package install wp-cli/profile-command  - Install the profiling package\n• wp profile stage                           - Profile bootstrap, main_query, template\n• wp profile stage <stage>                   - Isolate one stage, see hook_time\n• wp profile hook <hook>                     - Profile callbacks on one hook\n• wp profile eval <code>                     - Benchmark a raw PHP snippet\n• wp profile eval-file <file>                - Benchmark PHP from a file\n\nAnchors:\n→ 4wp.dev/wp-cli/profiling/#wp-profile-stage\n→ 4wp.dev/wp-cli/profiling/#wp-profile-stage-stage\n→ 4wp.dev/wp-cli/profiling/#wp-profile-hook\n→ 4wp.dev/wp-cli/profiling/#notes-on-reading-wp-profile-output",
+			"tip": "wp profile stage → isolate the slow stage → wp profile hook. Three commands cover most \"site is slow\" tickets."
+		}
+	]
+}
