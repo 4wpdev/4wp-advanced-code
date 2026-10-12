@@ -134,17 +134,35 @@ function forwp_advanced_code_enqueue_frontend_assets(): void {
 }
 
 /**
- * Whether the current singular post contains core/code or forwp/advanced-code blocks.
+ * Whether this view contains core/code or forwp/advanced-code blocks.
+ *
+ * Block themes keep those blocks in the template, not in post content.
  */
 function forwp_advanced_code_page_has_code_blocks(): bool {
+	$template = (string) ( $GLOBALS['_wp_current_template_content'] ?? '' );
+	if ( forwp_advanced_code_content_has_code_block( $template ) ) {
+		return true;
+	}
+
 	if ( ! is_singular() ) {
 		return false;
 	}
 
 	$post = get_post();
-	if ( ! $post instanceof WP_Post || ! has_blocks( $post->post_content ) ) {
+	if ( ! $post instanceof WP_Post ) {
 		return false;
 	}
 
-	return has_block( 'core/code', $post ) || has_block( 'forwp/advanced-code', $post );
+	return forwp_advanced_code_content_has_code_block( $post->post_content );
+}
+
+/**
+ * Whether block markup contains a code block.
+ */
+function forwp_advanced_code_content_has_code_block( string $content ): bool {
+	if ( '' === $content || ! has_blocks( $content ) ) {
+		return false;
+	}
+
+	return has_block( 'core/code', $content ) || has_block( 'forwp/advanced-code', $content );
 }
