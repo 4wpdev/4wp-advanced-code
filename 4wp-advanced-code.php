@@ -3,7 +3,7 @@
  * Plugin Name:       4WP Advanced Code
  * Plugin URI:        https://4wp.dev/
  * Description:       Enhanced Code block, Terminal, IDE wizard, and Mermaid Diagrams with SVG/PNG SEO.
- * Version:           2.0.1
+ * Version:           2.0.2
  * Requires at least: 6.4
  * Requires PHP:      7.4
  * Author:            4wpdev
@@ -16,7 +16,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'FORWP_ADVANCED_CODE_VERSION', '2.0.1' );
+define( 'FORWP_ADVANCED_CODE_VERSION', '2.0.2' );
 define( 'FORWP_ADVANCED_CODE_MERMAID_VERSION', '11.6.0' );
 define( 'FORWP_ADVANCED_CODE_FILE', __FILE__ );
 define( 'FORWP_ADVANCED_CODE_PATH', plugin_dir_path( __FILE__ ) );
